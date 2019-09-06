@@ -6,6 +6,7 @@ import logging
 import os
 import re
 from schema import Schema, SchemaError
+from spellchecker import SpellChecker
 import sys
 from typing import List
 
@@ -17,6 +18,7 @@ SEARCH_LEADING_WHITESPACE = re.compile(r"^\s+")
 SEARCH_TRAILING_WHITESPACE = re.compile(r"\s+$")
 SEARCH_DOUBLE_WHITESPACE = re.compile(r"\s{2,}")
 SEARCH_ANY_QUOTE = re.compile('["“”]')
+SEARCH_QUOTES_OR_TICKS = re.compile(r"[“”‘’]")
 LOG = logging.getLogger(__name__)
 
 
@@ -101,6 +103,9 @@ class Paragraph(object):
                     quote = '”' if even else '“'
                     run.text = run.text[:match.start()] + quote + run.text[match.end():]
 
+    def fix_ticks(self):
+        if CONSTANTS.QUOTES.CONVERT_TO_CURLY:
+
     def __str__(self) -> str:
         return "".join(str(run) for run in self.runs)
 
@@ -160,4 +165,6 @@ Options:
 
 
 if __name__ == "__main__":
+    s = SpellChecker(distance=1)
+    print(s.unknown(['this', 'is', 'a', 'baad', 'word']))
     main()
