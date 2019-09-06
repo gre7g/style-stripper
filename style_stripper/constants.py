@@ -4,6 +4,11 @@ import re
 class CONSTANTS(object):
     class SPACES(object):
         PURGE_DOUBLE_SPACES = True
+        PURGE_LEADING_WHITESPACE = True
+        PURGE_TRAILING_WHITESPACE = True
+
+    class ITALIC(object):
+        ADJUST_TO_INCLUDE_PUNCTUATION = True
 
     class QUOTES(object):
         CONVERT_TO_CURLY = True
