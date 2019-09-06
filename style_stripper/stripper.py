@@ -16,6 +16,7 @@ from style_stripper.constants import CONSTANTS
 SEARCH_LEADING_WHITESPACE = re.compile(r"^\s+")
 SEARCH_TRAILING_WHITESPACE = re.compile(r"\s+$")
 SEARCH_DOUBLE_WHITESPACE = re.compile(r"\s{2,}")
+SEARCH_ANY_QUOTE = re.compile('["“”]')
 LOG = logging.getLogger(__name__)
 
 
@@ -25,6 +26,9 @@ class Run(object):
 
     def __str__(self) -> str:
         return ("<i>%s</i>" % self.text) if self.italic else self.text
+
+    def __repr__(self) -> str:
+        return repr(("<i>%s</i>" % self.text) if self.italic else self.text)
 
 
 class Paragraph(object):
@@ -70,6 +74,13 @@ class Paragraph(object):
                 # Compress space at end of this run and beginning of next run
                 if run_num < (len(self.runs) - 1):
                     next_run = self.runs[run_num + 1]
+
+                    # Merge runs if possible
+                    if run.italic == next_run.italic:
+                        run.text += next_run.text
+                        del self.runs[run_num + 1]
+                        continue
+
                     match1 = SEARCH_TRAILING_WHITESPACE.search(run.text)
                     match2 = SEARCH_LEADING_WHITESPACE.search(next_run.text)
                     if match1 and match2:
@@ -81,8 +92,20 @@ class Paragraph(object):
                 else:
                     del self.runs[run_num]
 
+    def fix_quotes(self) -> None:
+        if CONSTANTS.QUOTES.CONVERT_TO_CURLY:
+            even = True
+            for run in self.runs:
+                for match in SEARCH_ANY_QUOTE.finditer(run.text):
+                    even = not even
+                    quote = '”' if even else '“'
+                    run.text = run.text[:match.start()] + quote + run.text[match.end():]
+
     def __str__(self) -> str:
         return "".join(str(run) for run in self.runs)
+
+    def __repr__(self) -> str:
+        return repr(self.runs)
 
 
 class StrippedDocx(object):
@@ -93,7 +116,8 @@ class StrippedDocx(object):
             for run in paragraph.runs:
                 paragraph_obj.add_run(run.text, run.italic)
             paragraph_obj.fix_spaces()
-            print(str(paragraph_obj))
+            paragraph_obj.fix_quotes()
+            print(repr(paragraph_obj))
 
 
 def main() -> int:  # Exit code
