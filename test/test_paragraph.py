@@ -1,5 +1,5 @@
-from unittest.mock import patch
 from unittest import TestCase
+from unittest.mock import patch, Mock, call
 
 from style_stripper.paragraph import Paragraph
 
@@ -101,3 +101,28 @@ class TestParagraph(TestCase):
         paragraph.text = 'before "❰italic❱", after'
         paragraph.fix_italic_boundaries()
         assert paragraph.text == 'before ❰"italic",❱ after'
+
+    @patch("style_stripper.paragraph.CONSTANTS")
+    def test_fix_ticks(self, CONSTANTS):
+        """Should be able to fix ticks"""
+        paragraph = Paragraph()
+        paragraph.text = "don't"
+        CONSTANTS.QUOTES.CONVERT_TO_CURLY = False
+        ask = Mock()
+        ask.return_value = True
+        paragraph.fix_ticks(ask)
+        ask.assert_not_called()
+        assert paragraph.text == "don't"
+        paragraph.text = "don't ’nuff bein‘ “goin' 'nuff” “ one 'two' 'three.' 'four 'five six' seven” eight “nine 'ten"
+        CONSTANTS.QUOTES.CONVERT_TO_CURLY = True
+        paragraph.fix_ticks(ask)
+        assert paragraph.text == \
+            "don’t ’nuff bein’ “goin’ ’nuff” “ one ‘two’ ‘three.’ ‘four ‘five six’ seven” eight “nine ’ten"
+        ask.assert_has_calls([call(paragraph, 38), call(paragraph, 44), call(paragraph, 59), call(paragraph, 53)])
+        ask = Mock()
+        ask.return_value = False
+        paragraph.text = "don't ’nuff bein‘ “goin' 'nuff” “ one 'two' 'three.' 'four 'five six' seven” eight “nine 'ten"
+        paragraph.fix_ticks(ask)
+        assert paragraph.text == \
+            "don’t ’nuff bein’ “goin’ ’nuff” “ one ’two’ ’three.’ ’four ’five six’ seven” eight “nine ’ten"
+        ask.assert_has_calls([call(paragraph, 38), call(paragraph, 44), call(paragraph, 59), call(paragraph, 53)])
