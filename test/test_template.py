@@ -7,6 +7,7 @@ from style_stripper.template import Template
 class TestTemplate(TestCase):
     @patch("style_stripper.template.Document")
     def test_add_content_and_save(self, Document):
+        """Should be able to add content to a document and save it."""
         style1 = Mock()
         style1.name = "First Paragraph"
         style2 = Mock()

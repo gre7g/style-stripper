@@ -5,7 +5,6 @@ from docx import Document
 import logging
 import os
 from schema import Schema, SchemaError
-from spellchecker import SpellChecker
 import sys
 
 from style_stripper import __version__
