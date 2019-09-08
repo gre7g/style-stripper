@@ -1,29 +1,25 @@
 """DOCX Stripper"""
 
 from docopt import docopt
-from docx import Document
 import logging
 import os
 from schema import Schema, SchemaError
 import sys
 
 from style_stripper import __version__
+from style_stripper.constants import CONSTANTS
+from style_stripper.original_docx import OriginalDocx
 from style_stripper.paragraph import Paragraph
+from style_stripper.template import Template
 
 # Constants:
 LOG = logging.getLogger(__name__)
 
 
-class StrippedDocx(object):
-    def __init__(self, path: str) -> None:
-        document = Document(path)
-        for paragraph in document.paragraphs:
-            paragraph_obj = Paragraph()
-            for run in paragraph.runs:
-                paragraph_obj.add(run.text, run.italic)
-            paragraph_obj.fix_spaces()
-            paragraph_obj.fix_quotes_and_dashes()
-            print(repr(paragraph_obj))
+def ask(paragraph: Paragraph, offset: int) -> bool:
+    # TODO: Make interactive
+    LOG.warning("ask offset=%d text=%r", offset, paragraph.text)
+    return True
 
 
 def main() -> int:  # Exit code
@@ -60,12 +56,14 @@ Options:
     logging.basicConfig(level=logging.DEBUG if arguments["--verbose"] else logging.INFO)
 
     # Import document
-    document = StrippedDocx(arguments["SOURCE"])
+    document = OriginalDocx(arguments["SOURCE"], ask)
+    template = Template(CONSTANTS.PAGE.TEMPLATE)
+    for paragraph in document.paragraphs:
+        template.add_content(paragraph.text)
+    template.save_as(r"..\temp.docx")
 
     return 0
 
 
 if __name__ == "__main__":
-    s = SpellChecker(distance=1)
-    print(s.unknown(['this', 'is', 'a', 'baad', 'word']))
     main()

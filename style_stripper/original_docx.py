@@ -1,8 +1,12 @@
 from docx import Document
+import logging
 from types import FunctionType
 from typing import List
 
 from style_stripper.paragraph import Paragraph
+
+# Constants:
+LOG = logging.getLogger(__name__)
 
 
 class OriginalDocx(object):
@@ -20,4 +24,5 @@ class OriginalDocx(object):
             paragraph_obj.fix_quotes_and_dashes()
             paragraph_obj.fix_ticks(ask_function)
 
+            LOG.debug(paragraph_obj.text)
             self.paragraphs.append(paragraph_obj)

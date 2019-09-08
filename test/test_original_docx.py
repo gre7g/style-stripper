@@ -37,4 +37,3 @@ class TestOriginalDocx(TestCase):
             call.fix_spaces(), call.fix_italic_boundaries(), call.fix_quotes_and_dashes(), call.fix_ticks(ask)
         ])
         assert orig.paragraphs == para_objs
-        

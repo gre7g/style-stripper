@@ -1,3 +1,4 @@
+import os
 import re
 
 
@@ -34,5 +35,4 @@ class CONSTANTS(object):
         CENTER_DIVIDER = True
 
     class PAGE(object):
-        WIDTH_INCHES = 5.5
-        HEIGHT_INCHES = 8.5
+        TEMPLATE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docx_templates", "5x8+bleed.docx")
