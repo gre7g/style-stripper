@@ -57,6 +57,8 @@ Options:
 
     # Import document
     document = OriginalDocx(arguments["SOURCE"], ask)
+
+    # Convert dividers
     count_of_symbolic, count_of_blanks = document.find_divider_candidates()
     if count_of_symbolic:
         LOG.info("Found symbolic dividers, will not presume the blanks are meaningful")
@@ -64,10 +66,12 @@ Options:
         document.remove_blanks()
     elif CONSTANTS.DIVIDER.BLANK_PARAGRAPH_IF_NO_OTHER and count_of_blanks:
         if count_of_blanks < CONSTANTS.DIVIDER.MAX_BLANK_PARAGRAPH_DIVIDERS:
-            LOG.info("Found no symbolic divers, will presume blanks are meaningful")
+            LOG.info("Found no symbolic dividers, will presume blanks are meaningful")
         else:
             LOG.info("Found too many blanks to presume they are dividers, will ignore them")
             document.remove_blanks()
+
+    # Convert headings
     part, chapter, end = document.find_heading_candidates()
     part_style = chapter_style = end_style = None
     if part and CONSTANTS.HEADINGS.STYLE_PART:
@@ -79,8 +83,13 @@ Options:
     if CONSTANTS.HEADINGS.STYLE_THE_END:
         end_style = CONSTANTS.STYLING.NAMES.THE_END
     document.style_headings(part_style, chapter_style, end_style)
+
+    # Open a template file to format the output
     template = Template(CONSTANTS.PAGE.TEMPLATE)
+
+    # Dump paragraphs into the template
     for paragraph in document.paragraphs:
+        # May need to insert breaks before the headings
         if paragraph.style in [CONSTANTS.STYLING.NAMES.HEADING1, CONSTANTS.STYLING.NAMES.HEADING2]:
             if CONSTANTS.HEADINGS.BREAK_BEFORE_HEADING is not None:
                 if CONSTANTS.HEADINGS.HEADER_FOOTER_AFTER_BREAK:
@@ -89,7 +98,10 @@ Options:
                     template.add_content()
                     template.add_content()
                     template.add_section(CONSTANTS.HEADINGS.BREAK_BEFORE_HEADING)
+
         template.add_content(paragraph.text, paragraph.style)
+
+    # Save the resulting file
     template.save_as(r"..\temp.docx")
 
     return 0
@@ -97,5 +109,3 @@ Options:
 
 if __name__ == "__main__":
     main()
-    # TODO: Breaks before headings
-    # TODO: Tests
