@@ -2,7 +2,7 @@ from docx import Document
 from docx.styles.style import _ParagraphStyle
 import logging
 import re
-from typing import Dict
+from typing import Dict, Optional
 
 # Constants:
 LOG = logging.getLogger(__name__)
@@ -17,13 +17,17 @@ class Template(object):
         self.first_paragraph_of_file = True
         LOG.debug("styles: %r", list(self.style_dict.keys()))
 
-    def add_content(self, text) -> None:
+    def add_content(self, text: str, style: Optional[str] = None) -> None:
         # First paragraph of the file?
         paragraph = self.doc.paragraphs[0] if self.first_paragraph_of_file else self.doc.add_paragraph()
         self.first_paragraph_of_file = False
         paragraph.text = ""
-        paragraph.style = self.style_dict["First Paragraph" if self.first_paragraph_of_section else "Normal"]
-        self.first_paragraph_of_section = False
+        if style:
+            paragraph.style = style
+            self.first_paragraph_of_section = True
+        else:
+            paragraph.style = self.style_dict["First Paragraph" if self.first_paragraph_of_section else "Normal"]
+            self.first_paragraph_of_section = False
 
         def add_to_paragraph(string: str, italic: bool = False) -> None:
             run = paragraph.add_run(string)

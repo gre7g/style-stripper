@@ -54,7 +54,9 @@ class OriginalDocx(object):
 
     def replace_symbolic(self) -> None:
         for index in self.symbolic_divider_indexes:
-            self.paragraphs[index] = Paragraph(CONSTANTS.DIVIDER.NEW_DIVIDER)
+            if CONSTANTS.DIVIDER.REPLACE_DIVIDER_WITH_NEW:
+                self.paragraphs[index] = Paragraph(CONSTANTS.DIVIDER.NEW_DIVIDER)
+            self.paragraphs[index].divider = True
 
     def remove_blanks(self) -> None:
         # Indexes are meaninless once we delete paragraphs
@@ -79,8 +81,14 @@ class OriginalDocx(object):
                 in_blanks = False
             else:
                 if in_blanks:
-                    del self.paragraphs[index]
+                    if CONSTANTS.DIVIDER.REPLACE_DIVIDER_WITH_NEW:
+                        del self.paragraphs[index]
+                    else:
+                        self.paragraphs[index].divider = True
+                        index += 1
                 else:
-                    self.paragraphs[index] = Paragraph(CONSTANTS.DIVIDER.NEW_DIVIDER)
+                    if CONSTANTS.DIVIDER.REPLACE_DIVIDER_WITH_NEW:
+                        self.paragraphs[index] = Paragraph(CONSTANTS.DIVIDER.NEW_DIVIDER)
+                    self.paragraphs[index].divider = True
                     index += 1
                     in_blanks = True

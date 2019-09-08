@@ -23,6 +23,7 @@ class CONSTANTS(object):
         ]
         BLANK_PARAGRAPH_IF_NO_OTHER = True
         MAX_BLANK_PARAGRAPH_DIVIDERS = 1000
+        REPLACE_DIVIDER_WITH_NEW = True
         NEW_DIVIDER = "# # #"
 
     class DASHES(object):

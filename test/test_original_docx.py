@@ -51,6 +51,7 @@ class TestOriginalDocx(TestCase):
         for text in ["  ❰# # #❱  ", "#", "", "", "", "***", "", "*"]:
             paragraph = Mock()
             paragraph.text = text
+            paragraph.divider = False
             paragraphs.append(paragraph)
         orig.paragraphs = list(paragraphs)
 
@@ -59,12 +60,15 @@ class TestOriginalDocx(TestCase):
         orig.replace_symbolic()
         for index, text in enumerate(["# # #", "# # #", "", "", "", "# # #", "", "# # #"]):
             assert text == orig.paragraphs[index].text
+            assert orig.paragraphs[index].divider == (text == "# # #")
 
         orig.remove_blanks()
         for index, text in enumerate(["# # #", "# # #", "# # #", "# # #"]):
             assert text == orig.paragraphs[index].text
+            assert orig.paragraphs[index].divider == (text == "# # #")
 
         orig.paragraphs = list(paragraphs)
         orig.replace_blanks()
         for index, text in enumerate(["  ❰# # #❱  ", "#", "# # #", "***", "# # #", "*"]):
             assert text == orig.paragraphs[index].text
+            assert orig.paragraphs[index].divider == (text == "# # #")

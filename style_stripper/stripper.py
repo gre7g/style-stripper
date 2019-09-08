@@ -70,7 +70,11 @@ Options:
             document.remove_blanks()
     template = Template(CONSTANTS.PAGE.TEMPLATE)
     for paragraph in document.paragraphs:
-        template.add_content(paragraph.text)
+        if paragraph.divider:
+            style = "Separator"
+        else:
+            style = None
+        template.add_content(paragraph.text, style)
     template.save_as(r"..\temp.docx")
 
     return 0
@@ -78,6 +82,5 @@ Options:
 
 if __name__ == "__main__":
     main()
-    # TODO: Style dividers
     # TODO: Detect chapters
     # TODO: Detect The End
