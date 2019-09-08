@@ -95,3 +95,29 @@ class TestOriginalDocx(TestCase):
         orig.style_headings("PART", "CHAPTER", "END")
         for index, style in enumerate(["PART", "PART", "CHAPTER", "CHAPTER", "END", "END"]):
             assert orig.paragraphs[index].style == style
+
+    @patch("style_stripper.original_docx.Document")
+    @patch("style_stripper.original_docx.CONSTANTS")
+    def test_remove_dividers_before_headings(self, CONSTANTS, Document):
+        """Should be able to remove dividers mistakenly placed before headings."""
+        doc = Mock()
+        doc.paragraphs = []
+        Document.return_value = doc
+        ask = Mock()
+        orig = OriginalDocx("path/to/docx", ask)
+        CONSTANTS.STYLING.NAMES.DIVIDER = "Separator"
+        CONSTANTS.STYLING.NAMES.HEADING1 = "Heading 1"
+        CONSTANTS.STYLING.NAMES.HEADING2 = "Heading 2"
+
+        paragraphs = []
+        for style in [None, None, "Separator", None, "Separator", "Heading 1", None, "Separator", "Heading 2", None]:
+            paragraph = Mock()
+            paragraph.style = style
+            paragraphs.append(paragraph)
+        orig.paragraphs = list(paragraphs)
+
+        orig.remove_dividers_before_headings()
+
+        orig.style_headings("PART", "CHAPTER", "END")
+        for index, style in enumerate([None, None, "Separator", None, "Heading 1", None, "Heading 2", None]):
+            assert orig.paragraphs[index].style == style

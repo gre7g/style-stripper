@@ -132,3 +132,21 @@ class OriginalDocx(object):
                 if pattern.search(paragraph.text):
                     paragraph.style = end
                     break
+
+    def remove_dividers_before_headings(self) -> None:
+        if not CONSTANTS.DIVIDER.REMOVE_DIVIDERS_BEFORE_HEADINGS:
+            return
+
+        # Indexes are meaninless once we delete paragraphs
+        self.symbolic_divider_indexes = []
+
+        index = 0
+        while index < len(self.paragraphs):
+            if self.paragraphs[index].style == CONSTANTS.STYLING.NAMES.DIVIDER:
+                if self.paragraphs[index + 1].style in \
+                    [CONSTANTS.STYLING.NAMES.HEADING1, CONSTANTS.STYLING.NAMES.HEADING2]:
+                    del self.paragraphs[index]
+                else:
+                    index += 1
+            else:
+                index += 1

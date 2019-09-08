@@ -26,6 +26,7 @@ class CONSTANTS(object):
         MAX_BLANK_PARAGRAPH_DIVIDERS = 1000
         REPLACE_DIVIDER_WITH_NEW = True
         NEW_DIVIDER = "# # #"
+        REMOVE_DIVIDERS_BEFORE_HEADINGS = True
 
     class HEADINGS(object):
         STYLE_PART = True

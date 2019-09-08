@@ -67,6 +67,7 @@ Options:
     elif CONSTANTS.DIVIDER.BLANK_PARAGRAPH_IF_NO_OTHER and count_of_blanks:
         if count_of_blanks < CONSTANTS.DIVIDER.MAX_BLANK_PARAGRAPH_DIVIDERS:
             LOG.info("Found no symbolic dividers, will presume blanks are meaningful")
+            document.replace_blanks()
         else:
             LOG.info("Found too many blanks to presume they are dividers, will ignore them")
             document.remove_blanks()
@@ -84,6 +85,9 @@ Options:
         end_style = CONSTANTS.STYLING.NAMES.THE_END
     document.style_headings(part_style, chapter_style, end_style)
 
+    # Clean up
+    document.remove_dividers_before_headings()
+
     # Open a template file to format the output
     template = Template(CONSTANTS.PAGE.TEMPLATE)
 
@@ -95,7 +99,7 @@ Options:
                 if CONSTANTS.HEADINGS.HEADER_FOOTER_AFTER_BREAK:
                     template.add_page_break()
                 else:
-                    template.add_content()
+                    # template.add_content()
                     template.add_content()
                     template.add_section(CONSTANTS.HEADINGS.BREAK_BEFORE_HEADING)
 
