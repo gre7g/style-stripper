@@ -68,13 +68,28 @@ Options:
         else:
             LOG.info("Found too many blanks to presume they are dividers, will ignore them")
             document.remove_blanks()
+    part, chapter, end = document.find_heading_candidates()
+    part_style = chapter_style = end_style = None
+    if part and CONSTANTS.HEADINGS.STYLE_PART:
+        part_style = CONSTANTS.STYLING.NAMES.HEADING1
+        if CONSTANTS.HEADINGS.STYLE_CHAPTER:
+            chapter_style = CONSTANTS.STYLING.NAMES.HEADING2
+    elif CONSTANTS.HEADINGS.STYLE_CHAPTER:
+        chapter_style = CONSTANTS.STYLING.NAMES.HEADING1
+    if CONSTANTS.HEADINGS.STYLE_THE_END:
+        end_style = CONSTANTS.STYLING.NAMES.THE_END
+    document.style_headings(part_style, chapter_style, end_style)
     template = Template(CONSTANTS.PAGE.TEMPLATE)
     for paragraph in document.paragraphs:
-        if paragraph.divider:
-            style = "Separator"
-        else:
-            style = None
-        template.add_content(paragraph.text, style)
+        if paragraph.style in [CONSTANTS.STYLING.NAMES.HEADING1, CONSTANTS.STYLING.NAMES.HEADING2]:
+            if CONSTANTS.HEADINGS.BREAK_BEFORE_HEADING is not None:
+                if CONSTANTS.HEADINGS.HEADER_FOOTER_AFTER_BREAK:
+                    template.add_page_break()
+                else:
+                    template.add_content()
+                    template.add_content()
+                    template.add_section(CONSTANTS.HEADINGS.BREAK_BEFORE_HEADING)
+        template.add_content(paragraph.text, paragraph.style)
     template.save_as(r"..\temp.docx")
 
     return 0
@@ -82,5 +97,5 @@ Options:
 
 if __name__ == "__main__":
     main()
-    # TODO: Detect chapters
-    # TODO: Detect The End
+    # TODO: Breaks before headings
+    # TODO: Tests

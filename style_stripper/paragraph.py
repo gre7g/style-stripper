@@ -36,7 +36,7 @@ class Paragraph(object):
         self.text = ""
         if text:
             self.add(text)
-        self.divider = False
+        self.style: Optional[str] = None
 
     def add(self, text: str, italic: bool = False) -> None:
         if italic:

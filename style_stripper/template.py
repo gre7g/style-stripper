@@ -12,12 +12,14 @@ SEARCH_ITALIC = re.compile(r"❰(.*?)❱")
 class Template(object):
     def __init__(self, path: str) -> None:
         self.doc = Document(path)
+        self.add_page_break = self.doc.add_page_break
+        self.add_section = self.doc.add_section
         self.style_dict: Dict[str, _ParagraphStyle] = {style.name: style for style in self.doc.styles}
         self.first_paragraph_of_section = True
         self.first_paragraph_of_file = True
         LOG.debug("styles: %r", list(self.style_dict.keys()))
 
-    def add_content(self, text: str, style: Optional[str] = None) -> None:
+    def add_content(self, text: str = "", style: Optional[str] = None) -> None:
         # First paragraph of the file?
         paragraph = self.doc.paragraphs[0] if self.first_paragraph_of_file else self.doc.add_paragraph()
         self.first_paragraph_of_file = False

@@ -1,7 +1,7 @@
 from docx import Document
 import logging
 from types import FunctionType
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from style_stripper.constants import CONSTANTS
 from style_stripper.paragraph import Paragraph
@@ -56,7 +56,7 @@ class OriginalDocx(object):
         for index in self.symbolic_divider_indexes:
             if CONSTANTS.DIVIDER.REPLACE_DIVIDER_WITH_NEW:
                 self.paragraphs[index] = Paragraph(CONSTANTS.DIVIDER.NEW_DIVIDER)
-            self.paragraphs[index].divider = True
+            self.paragraphs[index].style = CONSTANTS.STYLING.NAMES.DIVIDER
 
     def remove_blanks(self) -> None:
         # Indexes are meaninless once we delete paragraphs
@@ -84,11 +84,51 @@ class OriginalDocx(object):
                     if CONSTANTS.DIVIDER.REPLACE_DIVIDER_WITH_NEW:
                         del self.paragraphs[index]
                     else:
-                        self.paragraphs[index].divider = True
+                        self.paragraphs[index].style = CONSTANTS.STYLING.NAMES.DIVIDER
                         index += 1
                 else:
                     if CONSTANTS.DIVIDER.REPLACE_DIVIDER_WITH_NEW:
                         self.paragraphs[index] = Paragraph(CONSTANTS.DIVIDER.NEW_DIVIDER)
-                    self.paragraphs[index].divider = True
+                    self.paragraphs[index].style = CONSTANTS.STYLING.NAMES.DIVIDER
                     index += 1
                     in_blanks = True
+
+    def find_heading_candidates(self) -> Tuple[int, int, int]:
+        part = chapter = end = 0
+        for paragraph in self.paragraphs:
+            for pattern in CONSTANTS.HEADINGS.SEARCH_PART:
+                if pattern.search(paragraph.text):
+                    part += 1
+                    break
+            for pattern in CONSTANTS.HEADINGS.SEARCH_CHAPTER:
+                if pattern.search(paragraph.text):
+                    chapter += 1
+                    break
+            for pattern in CONSTANTS.HEADINGS.SEARCH_THE_END:
+                if pattern.search(paragraph.text):
+                    end += 1
+                    break
+
+        LOG.debug("parts found: %d", part)
+        LOG.debug("chapters found: %d", chapter)
+        LOG.debug("the end found: %d", end)
+        return part, chapter, end
+
+    def style_headings(self, part: Optional[str] = None, chapter: Optional[str] = None, end: Optional[str] = None):
+        LOG.debug("styling parts as: %r", part)
+        LOG.debug("styling chapters as: %r", chapter)
+        LOG.debug("styling the end as: %r", end)
+
+        for paragraph in self.paragraphs:
+            for pattern in CONSTANTS.HEADINGS.SEARCH_PART:
+                if pattern.search(paragraph.text):
+                    paragraph.style = part
+                    break
+            for pattern in CONSTANTS.HEADINGS.SEARCH_CHAPTER:
+                if pattern.search(paragraph.text):
+                    paragraph.style = chapter
+                    break
+            for pattern in CONSTANTS.HEADINGS.SEARCH_THE_END:
+                if pattern.search(paragraph.text):
+                    paragraph.style = end
+                    break

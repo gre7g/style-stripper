@@ -1,3 +1,4 @@
+from docx.enum.section import WD_SECTION
 import os
 import re
 
@@ -26,6 +27,24 @@ class CONSTANTS(object):
         REPLACE_DIVIDER_WITH_NEW = True
         NEW_DIVIDER = "# # #"
 
+    class HEADINGS(object):
+        STYLE_PART = True
+        STYLE_CHAPTER = True
+        STYLE_THE_END = True
+        FLATTEN_IF_NO_PARTS = True
+        SEARCH_PART = [
+            re.compile(r"^\s*Part [\dIV]\w*\s*$")
+        ]
+        SEARCH_CHAPTER = [
+            re.compile(r"^\s*Chapter \d+(:\s+.+)?")
+        ]
+        SEARCH_THE_END = [
+            re.compile(r"^\s*The End\s*$", re.I),
+            re.compile(r"^\s*fin\s*$", re.I),
+        ]
+        HEADER_FOOTER_AFTER_BREAK = False
+        BREAK_BEFORE_HEADING = WD_SECTION.ODD_PAGE
+
     class DASHES(object):
         CONVERT_DOUBLE_DASHES = True
         CONVERT_TO_EN_DASH = False
@@ -37,6 +56,14 @@ class CONSTANTS(object):
         INDENT_INCHES = 0.5
         INDENT_FIRST_PARAGRAPH = False
         CENTER_DIVIDER = True
+
+        class NAMES(object):
+            FIRST_PARAGRAPH = "First Paragraph"
+            NORMAL = "Normal"
+            DIVIDER = "Separator"
+            HEADING1 = "Heading 1"
+            HEADING2 = "Heading 2"
+            THE_END = "Separator"
 
     class PAGE(object):
         TEMPLATE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docx_templates", "5x8+bleed.docx")

@@ -51,7 +51,7 @@ class TestOriginalDocx(TestCase):
         for text in ["  ❰# # #❱  ", "#", "", "", "", "***", "", "*"]:
             paragraph = Mock()
             paragraph.text = text
-            paragraph.divider = False
+            paragraph.style = None
             paragraphs.append(paragraph)
         orig.paragraphs = list(paragraphs)
 
@@ -60,15 +60,38 @@ class TestOriginalDocx(TestCase):
         orig.replace_symbolic()
         for index, text in enumerate(["# # #", "# # #", "", "", "", "# # #", "", "# # #"]):
             assert text == orig.paragraphs[index].text
-            assert orig.paragraphs[index].divider == (text == "# # #")
+            assert orig.paragraphs[index].style == ("Separator" if text == "# # #" else None)
 
         orig.remove_blanks()
         for index, text in enumerate(["# # #", "# # #", "# # #", "# # #"]):
             assert text == orig.paragraphs[index].text
-            assert orig.paragraphs[index].divider == (text == "# # #")
+            assert orig.paragraphs[index].style == ("Separator" if text == "# # #" else None)
 
         orig.paragraphs = list(paragraphs)
         orig.replace_blanks()
         for index, text in enumerate(["  ❰# # #❱  ", "#", "# # #", "***", "# # #", "*"]):
             assert text == orig.paragraphs[index].text
-            assert orig.paragraphs[index].divider == (text == "# # #")
+            assert orig.paragraphs[index].style == ("Separator" if text == "# # #" else None)
+
+    @patch("style_stripper.original_docx.Document")
+    def test_find_headers_and_replace(self, Document):
+        """Should be able to count headers and replace them."""
+        doc = Mock()
+        doc.paragraphs = []
+        Document.return_value = doc
+        ask = Mock()
+        orig = OriginalDocx("path/to/docx", ask)
+
+        paragraphs = []
+        for text in ["Part I", "Part VI", "Chapter 1", "Chapter 2: It Continues", "The end", "Fin"]:
+            paragraph = Mock()
+            paragraph.text = text
+            paragraph.style = None
+            paragraphs.append(paragraph)
+        orig.paragraphs = list(paragraphs)
+
+        assert orig.find_heading_candidates() == (2, 2, 2)
+
+        orig.style_headings("PART", "CHAPTER", "END")
+        for index, style in enumerate(["PART", "PART", "CHAPTER", "CHAPTER", "END", "END"]):
+            assert orig.paragraphs[index].style == style
