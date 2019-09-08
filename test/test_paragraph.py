@@ -7,6 +7,8 @@ from style_stripper.paragraph import Paragraph
 class TestParagraph(TestCase):
     def test_add(self):
         """Should be able to add strings"""
+        paragraph = Paragraph("initial value")
+        assert paragraph.text == "initial value"
         paragraph = Paragraph()
         paragraph.add("plain", False)
         paragraph.add("italic", True)
@@ -55,6 +57,8 @@ class TestParagraph(TestCase):
         CONSTANTS.DASHES.CONVERT_TO_EM_DASH = True
         CONSTANTS.DASHES.CONVERT_TO_EN_DASH = False
         CONSTANTS.DASHES.CONVERT_DOUBLE_DASHES = False
+        CONSTANTS.DASHES.FIX_DASH_AT_END_OF_QUOTE = False
+        CONSTANTS.DASHES.FORCE_ALL_EN_OR_EM = False
         paragraph = Paragraph()
         paragraph.text = '"This quote" - has been broken - "in the middle." And then -- trouble.'
         paragraph.fix_quotes_and_dashes()
@@ -82,6 +86,20 @@ class TestParagraph(TestCase):
         paragraph.text = '"This quote" - has been broken - "in the middle." And then -- trouble.'
         paragraph.fix_quotes_and_dashes()
         assert paragraph.text == '“This quote”—has been broken—“in the middle.” And then—trouble.'
+        paragraph.text = '"This quote ends in a dash-"'
+        paragraph.fix_quotes_and_dashes()
+        assert paragraph.text == '“This quote ends in a dash-”'
+        CONSTANTS.DASHES.FIX_DASH_AT_END_OF_QUOTE = True
+        paragraph.text = '"This quote ends in a dash-"'
+        paragraph.fix_quotes_and_dashes()
+        assert paragraph.text == '“This quote ends in a dash—”'
+        paragraph.text = 'wrong em – dash'
+        paragraph.fix_quotes_and_dashes()
+        assert paragraph.text == 'wrong em – dash'
+        CONSTANTS.DASHES.FORCE_ALL_EN_OR_EM = True
+        paragraph.text = 'wrong em – dash'
+        paragraph.fix_quotes_and_dashes()
+        assert paragraph.text == 'wrong em—dash'
 
     @patch("style_stripper.paragraph.CONSTANTS")
     def test_fix_italic_boundaries(self, CONSTANTS):

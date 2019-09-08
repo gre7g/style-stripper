@@ -57,6 +57,17 @@ Options:
 
     # Import document
     document = OriginalDocx(arguments["SOURCE"], ask)
+    count_of_symbolic, count_of_blanks = document.find_divider_candidates()
+    if count_of_symbolic:
+        LOG.info("Found symbolic dividers, will not presume the blanks are meaningful")
+        document.replace_symbolic()
+        document.remove_blanks()
+    elif CONSTANTS.DIVIDER.BLANK_PARAGRAPH_IF_NO_OTHER and count_of_blanks:
+        if count_of_blanks < CONSTANTS.DIVIDER.MAX_BLANK_PARAGRAPH_DIVIDERS:
+            LOG.info("Found no symbolic divers, will presume blanks are meaningful")
+        else:
+            LOG.info("Found too many blanks to presume they are dividers, will ignore them")
+            document.remove_blanks()
     template = Template(CONSTANTS.PAGE.TEMPLATE)
     for paragraph in document.paragraphs:
         template.add_content(paragraph.text)
@@ -67,3 +78,6 @@ Options:
 
 if __name__ == "__main__":
     main()
+    # TODO: Style dividers
+    # TODO: Detect chapters
+    # TODO: Detect The End

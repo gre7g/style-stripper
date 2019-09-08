@@ -16,18 +16,21 @@ class CONSTANTS(object):
 
     class DIVIDER(object):
         SEARCH = [
-            re.compile(r"^\s*#\s*#\s*#\s*$"),
-            re.compile(r"^\s*#\s*$"),
-            re.compile(r"^\s*\*\s*\*\s*\*\s*$"),
-            re.compile(r"^\s*\*\s*$"),
+            re.compile(r"^\s*❰?#\s*#\s*#❱?\s*$"),
+            re.compile(r"^\s*❰?#❱?\s*$"),
+            re.compile(r"^\s*❰?\*\s*\*\s*\*❱?\s*$"),
+            re.compile(r"^\s*❰?\*❱?\s*$"),
         ]
         BLANK_PARAGRAPH_IF_NO_OTHER = True
         MAX_BLANK_PARAGRAPH_DIVIDERS = 1000
+        NEW_DIVIDER = "# # #"
 
     class DASHES(object):
         CONVERT_DOUBLE_DASHES = True
         CONVERT_TO_EN_DASH = False
         CONVERT_TO_EM_DASH = True
+        FIX_DASH_AT_END_OF_QUOTE = True
+        FORCE_ALL_EN_OR_EM = True
 
     class STYLING(object):
         INDENT_INCHES = 0.5

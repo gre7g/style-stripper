@@ -3,7 +3,7 @@
 import logging
 import re
 from types import FunctionType
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from style_stripper.constants import CONSTANTS
 
@@ -21,17 +21,21 @@ SEARCH_BROKEN_QUOTE2 = re.compile(r"\s*-+\s*“")
 SEARCH_DASHES = re.compile(r"\s*-{2,}\s*")
 SEARCH_ANY_QUOTE = re.compile('["“”]')
 SEARCH_QUOTES_OR_TICKS = re.compile(r"(\w?)([“”'‘’])(\w?)")
+SEARCH_DASH_END_OF_QUOTE = re.compile(r'[—–-]+”')
+SEARCH_EN_OR_EM = re.compile(" – |—")
 LOG = logging.getLogger(__name__)
 
 
 class Paragraph(object):
     text: str
 
-    def __init__(self) -> None:
+    def __init__(self, text: Optional[str] = None) -> None:
         self.text = ""
         self.dash = "—" if CONSTANTS.DASHES.CONVERT_TO_EM_DASH else " – "
+        if text:
+            self.add(text)
 
-    def add(self, text: str, italic: bool) -> None:
+    def add(self, text: str, italic: bool = False) -> None:
         if italic:
             if self.text.endswith("❱"):
                 self.text = self.text[:-1] + text + "❱"
@@ -64,6 +68,10 @@ class Paragraph(object):
                 self.text = SEARCH_BROKEN_QUOTE2.sub(self.dash + "“", self.text)
             if CONSTANTS.DASHES.CONVERT_DOUBLE_DASHES:
                 self.text = SEARCH_DASHES.sub(self.dash, self.text)
+            if CONSTANTS.DASHES.FIX_DASH_AT_END_OF_QUOTE:
+                self.text = SEARCH_DASH_END_OF_QUOTE.sub(self.dash + "”", self.text)
+            if CONSTANTS.DASHES.FORCE_ALL_EN_OR_EM:
+                self.text = SEARCH_EN_OR_EM.sub(self.dash, self.text)
 
     def fix_italic_boundaries(self):
         if CONSTANTS.ITALIC.ADJUST_TO_INCLUDE_PUNCTUATION:
