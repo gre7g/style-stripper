@@ -1,11 +1,11 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch, call
 
-from style_stripper.template import Template
+from style_stripper.data.template import Template
 
 
 class TestTemplate(TestCase):
-    @patch("style_stripper.template.Document")
+    @patch("style_stripper.data.template.Document")
     def test_add_content_and_save(self, Document):
         """Should be able to add content to a document and save it."""
         style1 = Mock()

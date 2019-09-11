@@ -3,8 +3,8 @@ import logging
 from types import FunctionType
 from typing import List, Tuple, Optional
 
-from style_stripper.constants import CONSTANTS
-from style_stripper.paragraph import Paragraph
+from style_stripper.data.constants import CONSTANTS
+from style_stripper.data.paragraph import Paragraph
 
 # Constants:
 LOG = logging.getLogger(__name__)

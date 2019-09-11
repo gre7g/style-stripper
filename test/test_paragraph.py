@@ -2,7 +2,7 @@ import re
 from unittest import TestCase
 from unittest.mock import patch, Mock, call
 
-from style_stripper.paragraph import Paragraph
+from style_stripper.data.paragraph import Paragraph
 
 
 class TestParagraph(TestCase):
@@ -18,7 +18,7 @@ class TestParagraph(TestCase):
         paragraph.add("even more italic", True)
         assert paragraph.text == "plain❰italic❱more plain❰more italiceven more italic❱"
 
-    @patch("style_stripper.paragraph.CONSTANTS")
+    @patch("style_stripper.data.paragraph.CONSTANTS")
     def test_fix_spaces(self, CONSTANTS):
         """Should be able to fix spaces"""
         paragraph = Paragraph()
@@ -43,7 +43,7 @@ class TestParagraph(TestCase):
         paragraph.fix_spaces()
         assert paragraph.text == " some text more text "
 
-    @patch("style_stripper.paragraph.CONSTANTS")
+    @patch("style_stripper.data.paragraph.CONSTANTS")
     def test_fix_quotes_and_dashes(self, CONSTANTS):
         """Should be able to fix quotes and dashes"""
         paragraph = Paragraph()
@@ -102,7 +102,7 @@ class TestParagraph(TestCase):
         paragraph.fix_quotes_and_dashes()
         assert paragraph.text == 'wrong em—dash'
 
-    @patch("style_stripper.paragraph.CONSTANTS")
+    @patch("style_stripper.data.paragraph.CONSTANTS")
     def test_fix_italic_boundaries(self, CONSTANTS):
         """Should be able to fix italic boundaries"""
         paragraph = Paragraph()
@@ -121,7 +121,7 @@ class TestParagraph(TestCase):
         paragraph.fix_italic_boundaries()
         assert paragraph.text == 'before ❰"italic",❱ after'
 
-    @patch("style_stripper.paragraph.CONSTANTS")
+    @patch("style_stripper.data.paragraph.CONSTANTS")
     def test_fix_ellipses(self, CONSTANTS):
         """Should be able to fix ellipses"""
         CONSTANTS.ELLIPSES.SEARCH = re.compile(r"\.\.\.|…")
@@ -135,7 +135,7 @@ class TestParagraph(TestCase):
         paragraph.fix_ellipses()
         assert paragraph.text == "one\u200a.\u200a.\u200a.\u200a two\u200a.\u200a.\u200a.\u200a three"
 
-    @patch("style_stripper.paragraph.CONSTANTS")
+    @patch("style_stripper.data.paragraph.CONSTANTS")
     def test_fix_ticks(self, CONSTANTS):
         """Should be able to fix ticks"""
         paragraph = Paragraph()

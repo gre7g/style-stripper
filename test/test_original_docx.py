@@ -1,12 +1,12 @@
 from unittest import TestCase
 from unittest.mock import Mock, call, patch
 
-from style_stripper.original_docx import OriginalDocx
+from style_stripper.data.original_docx import OriginalDocx
 
 
 class TestOriginalDocx(TestCase):
-    @patch("style_stripper.original_docx.Paragraph")
-    @patch("style_stripper.original_docx.Document")
+    @patch("style_stripper.data.original_docx.Paragraph")
+    @patch("style_stripper.data.original_docx.Document")
     def test_create(self, Document, Paragraph):
         """Should be able to create a document."""
         runs = [Mock() for _ in range(3)]
@@ -38,7 +38,7 @@ class TestOriginalDocx(TestCase):
         ])
         assert orig.paragraphs == para_objs
 
-    @patch("style_stripper.original_docx.Document")
+    @patch("style_stripper.data.original_docx.Document")
     def test_find_divider_and_replace(self, Document):
         """Should be able to count divider candidates and replace them."""
         doc = Mock()
@@ -73,7 +73,7 @@ class TestOriginalDocx(TestCase):
             assert text == orig.paragraphs[index].text
             assert orig.paragraphs[index].style == ("Separator" if text == "# # #" else None)
 
-    @patch("style_stripper.original_docx.Document")
+    @patch("style_stripper.data.original_docx.Document")
     def test_find_headers_and_replace(self, Document):
         """Should be able to count headers and replace them."""
         doc = Mock()
@@ -96,8 +96,8 @@ class TestOriginalDocx(TestCase):
         for index, style in enumerate(["PART", "PART", "CHAPTER", "CHAPTER", "END", "END"]):
             assert orig.paragraphs[index].style == style
 
-    @patch("style_stripper.original_docx.Document")
-    @patch("style_stripper.original_docx.CONSTANTS")
+    @patch("style_stripper.data.original_docx.Document")
+    @patch("style_stripper.data.original_docx.CONSTANTS")
     def test_remove_dividers_before_headings(self, CONSTANTS, Document):
         """Should be able to remove dividers mistakenly placed before headings."""
         doc = Mock()

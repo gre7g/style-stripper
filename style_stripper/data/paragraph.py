@@ -5,7 +5,7 @@ import re
 from types import FunctionType
 from typing import List, Tuple, Optional, ClassVar
 
-from style_stripper.constants import CONSTANTS
+from style_stripper.data.constants import CONSTANTS
 
 # Constants:
 SEARCH_LEADING_WHITESPACE = re.compile(r"^\s+")

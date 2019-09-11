@@ -7,10 +7,10 @@ from schema import Schema, SchemaError
 import sys
 
 from style_stripper import __version__
-from style_stripper.constants import CONSTANTS
-from style_stripper.original_docx import OriginalDocx
-from style_stripper.paragraph import Paragraph
-from style_stripper.template import Template
+from style_stripper.data.constants import CONSTANTS
+from style_stripper.data.original_docx import OriginalDocx
+from style_stripper.data.paragraph import Paragraph
+from style_stripper.data.template import Template
 
 # Constants:
 LOG = logging.getLogger(__name__)
