@@ -1,3 +1,4 @@
+import re
 from unittest import TestCase
 from unittest.mock import patch, Mock, call
 
@@ -119,6 +120,20 @@ class TestParagraph(TestCase):
         paragraph.text = 'before "❰italic❱", after'
         paragraph.fix_italic_boundaries()
         assert paragraph.text == 'before ❰"italic",❱ after'
+
+    @patch("style_stripper.paragraph.CONSTANTS")
+    def test_fix_ellipses(self, CONSTANTS):
+        """Should be able to fix ellipses"""
+        CONSTANTS.ELLIPSES.SEARCH = re.compile(r"\.\.\.|…")
+        CONSTANTS.ELLIPSES.NEW = " . . . "
+        paragraph = Paragraph()
+        paragraph.text = "one... two… three"
+        CONSTANTS.ELLIPSES.REPLACE_WITH_NEW = False
+        paragraph.fix_ellipses()
+        assert paragraph.text == "one... two… three"
+        CONSTANTS.ELLIPSES.REPLACE_WITH_NEW = True
+        paragraph.fix_ellipses()
+        assert paragraph.text == "one\u200a.\u200a.\u200a.\u200a two\u200a.\u200a.\u200a.\u200a three"
 
     @patch("style_stripper.paragraph.CONSTANTS")
     def test_fix_ticks(self, CONSTANTS):

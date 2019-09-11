@@ -54,8 +54,8 @@ class OriginalDocx(object):
 
     def replace_symbolic(self) -> None:
         for index in self.symbolic_divider_indexes:
-            if CONSTANTS.DIVIDER.REPLACE_DIVIDER_WITH_NEW:
-                self.paragraphs[index] = Paragraph(CONSTANTS.DIVIDER.NEW_DIVIDER)
+            if CONSTANTS.DIVIDER.REPLACE_WITH_NEW:
+                self.paragraphs[index] = Paragraph(CONSTANTS.DIVIDER.NEW)
             self.paragraphs[index].style = CONSTANTS.STYLING.NAMES.DIVIDER
 
     def remove_blanks(self) -> None:
@@ -81,14 +81,14 @@ class OriginalDocx(object):
                 in_blanks = False
             else:
                 if in_blanks:
-                    if CONSTANTS.DIVIDER.REPLACE_DIVIDER_WITH_NEW:
+                    if CONSTANTS.DIVIDER.REPLACE_WITH_NEW:
                         del self.paragraphs[index]
                     else:
                         self.paragraphs[index].style = CONSTANTS.STYLING.NAMES.DIVIDER
                         index += 1
                 else:
-                    if CONSTANTS.DIVIDER.REPLACE_DIVIDER_WITH_NEW:
-                        self.paragraphs[index] = Paragraph(CONSTANTS.DIVIDER.NEW_DIVIDER)
+                    if CONSTANTS.DIVIDER.REPLACE_WITH_NEW:
+                        self.paragraphs[index] = Paragraph(CONSTANTS.DIVIDER.NEW)
                     self.paragraphs[index].style = CONSTANTS.STYLING.NAMES.DIVIDER
                     index += 1
                     in_blanks = True
@@ -144,7 +144,7 @@ class OriginalDocx(object):
         while index < len(self.paragraphs):
             if self.paragraphs[index].style == CONSTANTS.STYLING.NAMES.DIVIDER:
                 if self.paragraphs[index + 1].style in \
-                    [CONSTANTS.STYLING.NAMES.HEADING1, CONSTANTS.STYLING.NAMES.HEADING2]:
+                        [CONSTANTS.STYLING.NAMES.HEADING1, CONSTANTS.STYLING.NAMES.HEADING2]:
                     del self.paragraphs[index]
                 else:
                     index += 1

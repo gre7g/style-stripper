@@ -24,9 +24,14 @@ class CONSTANTS(object):
         ]
         BLANK_PARAGRAPH_IF_NO_OTHER = True
         MAX_BLANK_PARAGRAPH_DIVIDERS = 1000
-        REPLACE_DIVIDER_WITH_NEW = True
-        NEW_DIVIDER = "# # #"
+        REPLACE_WITH_NEW = True
+        NEW = "# # #"
         REMOVE_DIVIDERS_BEFORE_HEADINGS = True
+
+    class ELLIPSES(object):
+        SEARCH = re.compile(r"\.\.\.|…")
+        REPLACE_WITH_NEW = True
+        NEW = "\u200a.\u200a.\u200a.\u200a"  # Alternative is \u2009
 
     class HEADINGS(object):
         STYLE_PART = True

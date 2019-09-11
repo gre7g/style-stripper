@@ -14,8 +14,8 @@ SEARCH_DOUBLE_WHITESPACE = re.compile(r"\s{2,}")
 SEARCH_ITALIC_WHITE1 = re.compile(r"❱(\s*)❰")
 SEARCH_ITALIC_WHITE2 = re.compile(r"❰(\s+)")
 SEARCH_ITALIC_WHITE3 = re.compile(r"(\s+)❱")
-SEARCH_ITALIC_WHITE4 = re.compile("(\S+)❰")
-SEARCH_ITALIC_WHITE5 = re.compile("❱(\S+)")
+SEARCH_ITALIC_WHITE4 = re.compile(r"(\S+)❰")
+SEARCH_ITALIC_WHITE5 = re.compile(r"❱(\S+)")
 SEARCH_BROKEN_QUOTE1 = re.compile(r"”\s*-+\s*")
 SEARCH_BROKEN_QUOTE2 = re.compile(r"\s*-+\s*“")
 SEARCH_DASHES = re.compile(r"\s*-{2,}\s*")
@@ -75,6 +75,10 @@ class Paragraph(object):
                 self.text = SEARCH_DASH_END_OF_QUOTE.sub(self.DASH + "”", self.text)
             if CONSTANTS.DASHES.FORCE_ALL_EN_OR_EM:
                 self.text = SEARCH_EN_OR_EM.sub(self.DASH, self.text)
+
+    def fix_ellipses(self):
+        if CONSTANTS.ELLIPSES.REPLACE_WITH_NEW:
+            self.text = CONSTANTS.ELLIPSES.SEARCH.sub(CONSTANTS.ELLIPSES.NEW, self.text)
 
     def fix_italic_boundaries(self):
         if CONSTANTS.ITALIC.ADJUST_TO_INCLUDE_PUNCTUATION:
