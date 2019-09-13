@@ -4,6 +4,7 @@ import wx
 
 from style_stripper.control.frame_control import FrameControl
 from style_stripper.control.settings_control import SettingsControl
+from style_stripper.data.book import Book
 from style_stripper.model.main_frame import MainFrame
 
 # Constants:
@@ -15,7 +16,7 @@ TEMPLATES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", 
 class StyleStripperApp(wx.App):
     def __init__(self, *args, **kwargs):
         # Basics
-        self.frame = None
+        self.frame = self.book = None
         self.settings = None
 
         # Controls
@@ -35,3 +36,5 @@ class StyleStripperApp(wx.App):
                 return
             except Exception as message:
                 LOG.exception(message)
+
+        self.book = Book(self.settings.latest_config)

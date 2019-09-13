@@ -9,7 +9,8 @@ LOG = logging.getLogger(__name__)
 class MainFrame(wx.Frame):
     def __init__(self, *args, **kwargs):
         self.app = wx.GetApp()
-        self.statusbar = self.panel = None
+        self.statusbar = self.panel = self.file_path_ctrl = self.author_ctrl = self.title_ctrl = None
+        self.word_count_ctrl = self.modified_ctrl = None
         wx.Frame.__init__(self, *args, **kwargs)
 
     def init(self):
@@ -25,28 +26,30 @@ class MainFrame(wx.Frame):
         text = wx.StaticText(self.panel, label="Source file:")
         sizer3.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
         sizer4 = wx.BoxSizer(wx.HORIZONTAL)
-        text = wx.TextCtrl(self.panel)
-        sizer4.Add(text, 1, wx.CENTER, 0)
+        self.file_path_ctrl = wx.TextCtrl(self.panel)
+        sizer4.Add(self.file_path_ctrl, 1, wx.CENTER, 0)
         button = wx.Button(self.panel, label="Browse...")
+        button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_browse)
         sizer4.Add(button, 0, wx.CENTER | wx.LEFT, 5)
         sizer3.Add(sizer4, 0, wx.CENTER | wx.EXPAND, 0)
         text = wx.StaticText(self.panel, label="Author:")
         sizer3.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
-        text = wx.TextCtrl(self.panel)
-        sizer3.Add(text, 0, wx.CENTER | wx.EXPAND, 0)
+        self.author_ctrl = wx.TextCtrl(self.panel)
+        sizer3.Add(self.author_ctrl, 0, wx.CENTER | wx.EXPAND, 0)
         text = wx.StaticText(self.panel, label="Title:")
         sizer3.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
-        text = wx.TextCtrl(self.panel)
-        sizer3.Add(text, 0, wx.CENTER | wx.EXPAND, 0)
+        self.title_ctrl = wx.TextCtrl(self.panel)
+        sizer3.Add(self.title_ctrl, 0, wx.CENTER | wx.EXPAND, 0)
         text = wx.StaticText(self.panel, label="Word count:")
         sizer3.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
-        text = wx.StaticText(self.panel, label="MANY")
-        sizer3.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
+        self.word_count_ctrl = wx.StaticText(self.panel)
+        sizer3.Add(self.word_count_ctrl, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
         text = wx.StaticText(self.panel, label="Last modified:")
         sizer3.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
-        text = wx.StaticText(self.panel, label="RECENTLY")
-        sizer3.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
+        self.modified_ctrl = wx.StaticText(self.panel)
+        sizer3.Add(self.modified_ctrl, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
         button = wx.Button(self.panel, label="Next")
+        button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_next)
         sizer2.Add(button, 0, wx.ALIGN_RIGHT | wx.TOP, 10)
 
         menu_bar = wx.MenuBar()
@@ -78,6 +81,9 @@ class MainFrame(wx.Frame):
             self.Maximize()
 
     def show_title(self):
-        path, filename = os.path.split(self.app.settings.file_path)
-        modified = "*" if self.app.data.is_modified() else ""
-        self.SetTitle("Style Stripper - %s%s" % (filename, modified))
+        title = "Style Stripper"
+        if self.app.settings.file_path:
+            path, filename = os.path.split(self.app.settings.file_path)
+            modified = "*" if self.app.data.is_modified() else ""
+            title += " - %s%s" % (filename, modified)
+        self.SetTitle(title)
