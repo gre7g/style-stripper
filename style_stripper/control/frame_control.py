@@ -6,11 +6,11 @@ LOG = logging.getLogger(__name__)
 
 
 class FrameControl(object):
-    def __init__(self, app):
+    def __init__(self, app: wx.App):
         self.app = app
         self._deselect_protect = None
 
-    def on_close(self, event):
+    def on_close(self, event: wx.Event):
         if self.app.book.is_modified():
             dialog = wx.MessageDialog(self.app.frame, "Changes not saved! Do you want to exit without saving?",
                                       "Permanent Action", wx.OK | wx.CANCEL | wx.CANCEL_DEFAULT | wx.ICON_WARNING)
@@ -23,8 +23,13 @@ class FrameControl(object):
         else:
             self.app.settings_controls.save_settings_on_exit(event)
 
-    def on_browse(self, event):
-        LOG.debug("browse")
+    def on_browse(self, event: wx.CommandEvent):
+        dialog = wx.FileDialog(self.app.frame, "Open?", wildcard="Word files (*.docx)|*.docx", style=wx.FD_OPEN)
+        try:
+            if dialog.ShowModal() == wx.ID_OK:
+                self.app.book.load(dialog.GetPath())
+        finally:
+            dialog.Destroy()
 
-    def on_next(self, event):
+    def on_next(self, event: wx.CommandEvent):
         LOG.debug("next")

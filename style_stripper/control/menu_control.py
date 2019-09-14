@@ -13,6 +13,16 @@ class MenuControl(object):
         self.app = app
 
     def on_new(self, event):
+        if self.app.book.is_modified():
+            dialog = wx.MessageDialog(self.app.frame,
+                                      "Changes not saved! Do you want to start a new file without saving?",
+                                      "Permanent Action", wx.OK | wx.CANCEL | wx.CANCEL_DEFAULT | wx.ICON_WARNING)
+            try:
+                if dialog.ShowModal() != wx.ID_OK:
+                    return
+            finally:
+                dialog.Destroy()
+
         self.app.book = Book(self.app.settings.latest_config)
         self.app.frame.refresh_contents()
 

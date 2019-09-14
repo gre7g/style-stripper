@@ -23,6 +23,8 @@ SEARCH_ANY_QUOTE = re.compile('["“”]')
 SEARCH_QUOTES_OR_TICKS = re.compile(r"(\w?)([“”'‘’])(\w?)")
 SEARCH_DASH_END_OF_QUOTE = re.compile(r'[—–-]+”')
 SEARCH_EN_OR_EM = re.compile(" – |—")
+SEARCH_WORD = re.compile("[a-z]+", re.I)
+
 LOG = logging.getLogger(__name__)
 
 
@@ -36,6 +38,7 @@ class Paragraph(object):
 
     def __init__(self, text: Optional[str] = None) -> None:
         self.text = ""
+        self.word_count = 0
         if text:
             self.add(text)
         self.style: Optional[str] = None
@@ -48,6 +51,8 @@ class Paragraph(object):
                 self.text += "❰%s❱" % text
         else:
             self.text += text
+
+        self.word_count += len(SEARCH_WORD.findall(text))
 
     def fix_spaces(self, config: dict) -> None:
         if config["SPACES"]["PURGE_LEADING_WHITESPACE"]:

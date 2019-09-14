@@ -1,3 +1,5 @@
+from base64 import b64encode, b64decode
+import binascii
 from docx.enum.section import WD_SECTION
 import logging
 import pickle
@@ -74,8 +76,10 @@ class SettingsControl(object):
         self._save_maximized = True
 
     def load_settings(self):
-        config_pickle = wx.FileConfig("StyleStripper").Read("configuration", "")
-        self.app.settings = pickle.loads(bytes(config_pickle, "ascii")) if config_pickle else Settings()
+        try:
+            self.app.settings = pickle.loads(b64decode(wx.FileConfig("StyleStripper").Read("configuration", "")))
+        except (TypeError, binascii.Error):
+            self.app.settings = Settings()
         self.app.settings = self.app.settings.init()
 
     def save_settings_on_exit(self, event):
@@ -95,6 +99,6 @@ class SettingsControl(object):
 
     def save_settings_on_exit2(self, close_frame):
         self.app.settings.window_rect = self.app.frame.GetRect()
-        wx.FileConfig("StyleStripper").Write("configuration", pickle.dumps(self.app.settings, 0))
+        wx.FileConfig("StyleStripper").Write("configuration", b64encode(pickle.dumps(self.app.settings)))
         if close_frame:
             self.app.frame.Close()

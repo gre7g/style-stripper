@@ -94,13 +94,12 @@ class MainFrame(wx.Frame):
         self.file_path_ctrl.SetValue(source["PATH"])
         self.author_ctrl.SetValue(source["AUTHOR"])
         self.title_ctrl.SetValue(source["TITLE"])
-        self.word_count_ctrl.SetLabel("" if source["WORD_COUNT"] is None else str(source["WORD_COUNT"]))
+        self.word_count_ctrl.SetLabel("" if source["WORD_COUNT"] is None else "{:n}".format(source["WORD_COUNT"]))
 
         modified = source["LAST_MODIFIED"]
         if modified is None:
             self.modified_ctrl.SetLabel("")
         else:
-            modified = datetime.now()
             dt_obj = wx.DateTime(modified.day, modified.month - 1, modified.year, modified.hour, modified.minute,
                                  modified.second)
             self.modified_ctrl.SetLabel("%s %s" % (dt_obj.FormatDate(), dt_obj.FormatTime()))

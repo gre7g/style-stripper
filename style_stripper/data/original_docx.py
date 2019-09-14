@@ -5,14 +5,13 @@ from typing import List, Tuple, Optional
 
 from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.paragraph import Paragraph
-from style_stripper.data.book import Book
 
 # Constants:
 LOG = logging.getLogger(__name__)
 
 
 class OriginalDocx(object):
-    def __init__(self, path: str, ask_function: FunctionType, book: Book) -> None:
+    def __init__(self, path: str, ask_function: FunctionType, book) -> None:
         self.book = book
 
         # The Paragraph class has a class member that tracks what sort of dash we're using so we don't have to do this
@@ -22,11 +21,14 @@ class OriginalDocx(object):
         self.paragraphs: List[Paragraph] = []
         self.symbolic_divider_indexes: List[int] = []
         doc = Document(path)
+
+        word_count = 0
         for paragraph in doc.paragraphs:
             paragraph_obj = Paragraph()
 
             for run in paragraph.runs:
                 paragraph_obj.add(run.text, run.italic)
+            word_count += paragraph_obj.word_count
 
             paragraph_obj.fix_spaces(book.config)
             paragraph_obj.fix_italic_boundaries(book.config)
@@ -35,6 +37,12 @@ class OriginalDocx(object):
 
             LOG.debug(paragraph_obj.text)
             self.paragraphs.append(paragraph_obj)
+
+        source = self.book.config["SOURCE"]
+        source["AUTHOR"] = doc.core_properties.author
+        source["TITLE"] = doc.core_properties.title
+        source["WORD_COUNT"] = word_count
+        source["LAST_MODIFIED"] = doc.core_properties.modified
 
     def find_divider_candidates(self) -> Tuple[int, int]:
         count_of_symbolic = count_of_blanks = 0
