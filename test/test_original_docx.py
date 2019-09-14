@@ -1,7 +1,9 @@
 from unittest import TestCase
 from unittest.mock import Mock, call, patch
 
+from style_stripper.data.book import Book
 from style_stripper.data.original_docx import OriginalDocx
+from style_stripper.control.settings_control import Settings
 
 
 class TestOriginalDocx(TestCase):
@@ -24,17 +26,22 @@ class TestOriginalDocx(TestCase):
         para_objs = [Mock(), Mock()]
         Paragraph.side_effect = list(para_objs)
         ask = Mock()
+        book = Book(Settings().latest_config)
+        book = book.init()
 
-        orig = OriginalDocx("path/to/docx", ask)
+        orig = OriginalDocx("path/to/docx", ask, book)
+        config = orig.book.config
 
         Document.assert_called_once_with("path/to/docx")
         para_objs[0].assert_has_calls([
             call.add('one', False), call.add('two', True),
-            call.fix_spaces(), call.fix_italic_boundaries(), call.fix_quotes_and_dashes(), call.fix_ticks(ask)
+            call.fix_spaces(config), call.fix_italic_boundaries(config), call.fix_quotes_and_dashes(config),
+            call.fix_ticks(ask, config)
         ])
         para_objs[1].assert_has_calls([
             call.add('three', False),
-            call.fix_spaces(), call.fix_italic_boundaries(), call.fix_quotes_and_dashes(), call.fix_ticks(ask)
+            call.fix_spaces(config), call.fix_italic_boundaries(config), call.fix_quotes_and_dashes(config),
+            call.fix_ticks(ask, config)
         ])
         assert orig.paragraphs == para_objs
 
@@ -45,7 +52,10 @@ class TestOriginalDocx(TestCase):
         doc.paragraphs = []
         Document.return_value = doc
         ask = Mock()
-        orig = OriginalDocx("path/to/docx", ask)
+        book = Book(Settings().latest_config)
+        book = book.init()
+
+        orig = OriginalDocx("path/to/docx", ask, book)
 
         paragraphs = []
         for text in ["  ❰# # #❱  ", "#", "", "", "", "***", "", "*"]:
@@ -80,7 +90,10 @@ class TestOriginalDocx(TestCase):
         doc.paragraphs = []
         Document.return_value = doc
         ask = Mock()
-        orig = OriginalDocx("path/to/docx", ask)
+        book = Book(Settings().latest_config)
+        book = book.init()
+
+        orig = OriginalDocx("path/to/docx", ask, book)
 
         paragraphs = []
         for text in ["Part I", "Part VI", "Chapter 1", "Chapter 2: It Continues", "The end", "Fin"]:
@@ -104,7 +117,11 @@ class TestOriginalDocx(TestCase):
         doc.paragraphs = []
         Document.return_value = doc
         ask = Mock()
-        orig = OriginalDocx("path/to/docx", ask)
+        book = Book(Settings().latest_config)
+        book = book.init()
+
+        orig = OriginalDocx("path/to/docx", ask, book)
+
         CONSTANTS.STYLING.NAMES.DIVIDER = "Separator"
         CONSTANTS.STYLING.NAMES.HEADING1 = "Heading 1"
         CONSTANTS.STYLING.NAMES.HEADING2 = "Heading 2"

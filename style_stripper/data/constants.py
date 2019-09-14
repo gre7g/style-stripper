@@ -27,6 +27,7 @@ class CONSTANTS(object):
             re.compile(r"^\s*fin\s*$", re.I),
         ]
 
+    class STYLING(object):
         class NAMES(object):
             FIRST_PARAGRAPH = "First Paragraph"
             NORMAL = "Normal"
