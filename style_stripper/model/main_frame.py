@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 import os
 import wx
@@ -63,11 +64,11 @@ class MainFrame(wx.Frame):
         save_as = file_menu.Append(-1, "Save &As...", "Save under a new filename")
         file_menu.AppendSeparator()
         exit_cmd = file_menu.Append(-1, "&Quit", "Exit application")
-        # self.Bind(wx.EVT_MENU, self.app.menu_controls.on_new, new_file)
-        # self.Bind(wx.EVT_MENU, self.app.menu_controls.on_open, open_file)
-        # self.Bind(wx.EVT_MENU, self.app.menu_controls.on_save, save)
-        # self.Bind(wx.EVT_MENU, self.app.menu_controls.on_save_as, save_as)
-        # self.Bind(wx.EVT_MENU, self.app.menu_controls.on_quit, exit_cmd)
+        self.Bind(wx.EVT_MENU, self.app.menu_controls.on_new, new_file)
+        self.Bind(wx.EVT_MENU, self.app.menu_controls.on_open, open_file)
+        self.Bind(wx.EVT_MENU, self.app.menu_controls.on_save, save)
+        self.Bind(wx.EVT_MENU, self.app.menu_controls.on_save_as, save_as)
+        self.Bind(wx.EVT_MENU, self.app.menu_controls.on_quit, exit_cmd)
 
         self.statusbar = self.CreateStatusBar()
 
@@ -87,3 +88,19 @@ class MainFrame(wx.Frame):
             modified = "*" if self.app.data.is_modified() else ""
             title += " - %s%s" % (filename, modified)
         self.SetTitle(title)
+
+    def refresh_contents(self):
+        source = self.app.book.config["SOURCE"]
+        self.file_path_ctrl.SetValue(source["PATH"])
+        self.author_ctrl.SetValue(source["AUTHOR"])
+        self.title_ctrl.SetValue(source["TITLE"])
+        self.word_count_ctrl.SetLabel("" if source["WORD_COUNT"] is None else str(source["WORD_COUNT"]))
+
+        modified = source["LAST_MODIFIED"]
+        if modified is None:
+            self.modified_ctrl.SetLabel("")
+        else:
+            modified = datetime.now()
+            dt_obj = wx.DateTime(modified.day, modified.month - 1, modified.year, modified.hour, modified.minute,
+                                 modified.second)
+            self.modified_ctrl.SetLabel("%s %s" % (dt_obj.FormatDate(), dt_obj.FormatTime()))
