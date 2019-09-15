@@ -1,8 +1,8 @@
 """Paragraphs"""
 
+from __future__ import annotations  # Allows a parameter to have type hinting of the class that contains it
 import logging
 import re
-from types import FunctionType
 from typing import List, Tuple, Optional, ClassVar
 
 from style_stripper.data.constants import CONSTANTS
@@ -52,7 +52,8 @@ class Paragraph(object):
         else:
             self.text += text
 
-        self.word_count += len(SEARCH_WORD.findall(text))
+    def set_word_count(self) -> None:
+        self.word_count = len(SEARCH_WORD.findall(self.text))
 
     def fix_spaces(self, config: dict) -> None:
         if config["SPACES"]["PURGE_LEADING_WHITESPACE"]:
@@ -96,8 +97,8 @@ class Paragraph(object):
             self.text = SEARCH_ITALIC_WHITE5.sub(r"\1❱", self.text)
 
     def fix_ticks(
-        self, ask_function: FunctionType,  # ask_function(paragraph, offset: int) -> open_tick: bool
-        config: dict  # Configuration dictionary
+        self, config: dict,  # Configuration dictionary
+        questionable_ticks: List[Tuple[Paragraph, int]]
     ):
         if config["QUOTES"]["CONVERT_TO_CURLY"]:
             inside_quote = False
@@ -125,7 +126,7 @@ class Paragraph(object):
                             must_change.append((match.start(2), "’"))
                             while change_unknown:
                                 offset = change_unknown.pop()
-                                must_change.append((offset, "‘" if ask_function(self, offset) else "’"))
+                                questionable_ticks.append((self, offset))
                     else:
                         if match.group(3):
                             # Start of a word, but is it inside quotes?
@@ -141,7 +142,7 @@ class Paragraph(object):
                             must_change.append((match.start(2), "’"))
                             while change_unknown:
                                 offset = change_unknown.pop()
-                                must_change.append((offset, "‘" if ask_function(self, offset) else "’"))
+                                questionable_ticks.append((self, offset))
 
             # There was no matching end tick so leftovers must be close
             while change_unknown:

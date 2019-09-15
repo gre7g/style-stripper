@@ -1,18 +1,23 @@
 from docx import Document
 import logging
-from types import FunctionType
 from typing import List, Tuple, Optional
 
 from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.paragraph import Paragraph
+
+try:
+    from style_stripper.data.book import Book
+except ImportError:
+    Book = None
 
 # Constants:
 LOG = logging.getLogger(__name__)
 
 
 class OriginalDocx(object):
-    def __init__(self, path: str, ask_function: FunctionType, book) -> None:
+    def __init__(self, path: str, book: Book) -> None:
         self.book = book
+        self.questionable_ticks: List[Tuple[Paragraph, int]] = []
 
         # The Paragraph class has a class member that tracks what sort of dash we're using so we don't have to do this
         # comparison constantly. Set the class member now based on book configuration.
@@ -28,12 +33,15 @@ class OriginalDocx(object):
 
             for run in paragraph.runs:
                 paragraph_obj.add(run.text, run.italic)
+            paragraph_obj.set_word_count()
             word_count += paragraph_obj.word_count
 
             paragraph_obj.fix_spaces(book.config)
             paragraph_obj.fix_italic_boundaries(book.config)
             paragraph_obj.fix_quotes_and_dashes(book.config)
-            paragraph_obj.fix_ticks(ask_function, book.config)
+            self.questionable_ticks = []
+            paragraph_obj.fix_ticks(book.config, self.questionable_ticks)
+            # must_change.append((offset, "‘" if ask_function(self, offset) else "’"))
 
             LOG.debug(paragraph_obj.text)
             self.paragraphs.append(paragraph_obj)

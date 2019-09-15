@@ -24,24 +24,27 @@ class TestOriginalDocx(TestCase):
         doc.paragraphs[1].runs = runs[2:3]
         Document.return_value = doc
         para_objs = [Mock(), Mock()]
+        para_objs[0].word_count = 5
+        para_objs[1].word_count = 10
         Paragraph.side_effect = list(para_objs)
-        ask = Mock()
         book = Book(Settings().latest_config)
         book = book.init()
 
-        orig = OriginalDocx("path/to/docx", ask, book)
+        orig = OriginalDocx("path/to/docx", book)
         config = orig.book.config
+        assert config["SOURCE"]["WORD_COUNT"] == 15
+        questionable_ticks = orig.questionable_ticks
 
         Document.assert_called_once_with("path/to/docx")
         para_objs[0].assert_has_calls([
-            call.add('one', False), call.add('two', True),
+            call.add('one', False), call.add('two', True), call.set_word_count(),
             call.fix_spaces(config), call.fix_italic_boundaries(config), call.fix_quotes_and_dashes(config),
-            call.fix_ticks(ask, config)
+            call.fix_ticks(config, questionable_ticks)
         ])
         para_objs[1].assert_has_calls([
-            call.add('three', False),
+            call.add('three', False), call.set_word_count(),
             call.fix_spaces(config), call.fix_italic_boundaries(config), call.fix_quotes_and_dashes(config),
-            call.fix_ticks(ask, config)
+            call.fix_ticks(config, questionable_ticks)
         ])
         assert orig.paragraphs == para_objs
 
@@ -51,11 +54,10 @@ class TestOriginalDocx(TestCase):
         doc = Mock()
         doc.paragraphs = []
         Document.return_value = doc
-        ask = Mock()
         book = Book(Settings().latest_config)
         book = book.init()
 
-        orig = OriginalDocx("path/to/docx", ask, book)
+        orig = OriginalDocx("path/to/docx", book)
 
         paragraphs = []
         for text in ["  ❰# # #❱  ", "#", "", "", "", "***", "", "*"]:
@@ -89,11 +91,10 @@ class TestOriginalDocx(TestCase):
         doc = Mock()
         doc.paragraphs = []
         Document.return_value = doc
-        ask = Mock()
         book = Book(Settings().latest_config)
         book = book.init()
 
-        orig = OriginalDocx("path/to/docx", ask, book)
+        orig = OriginalDocx("path/to/docx", book)
 
         paragraphs = []
         for text in ["Part I", "Part VI", "Chapter 1", "Chapter 2: It Continues", "The end", "Fin"]:
@@ -116,11 +117,10 @@ class TestOriginalDocx(TestCase):
         doc = Mock()
         doc.paragraphs = []
         Document.return_value = doc
-        ask = Mock()
         book = Book(Settings().latest_config)
         book = book.init()
 
-        orig = OriginalDocx("path/to/docx", ask, book)
+        orig = OriginalDocx("path/to/docx", book)
 
         CONSTANTS.STYLING.NAMES.DIVIDER = "Separator"
         CONSTANTS.STYLING.NAMES.HEADING1 = "Heading 1"

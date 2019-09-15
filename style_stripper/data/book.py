@@ -25,7 +25,7 @@ class Book(object):
         wx.GetApp().frame.show_title()
 
     def load(self, path: str):
-        self.original_docx = OriginalDocx(path, lambda x,y: True, self)  # TODO: rethink ask
+        self.original_docx = OriginalDocx(path, self)
         self.config["SOURCE"]["PATH"] = path
         self.modified()
         wx.GetApp().frame.refresh_contents()

@@ -17,7 +17,9 @@ class TestParagraph(TestCase):
         paragraph.add("more plain", False)
         paragraph.add("more italic", True)
         paragraph.add("even more italic", True)
+        paragraph.set_word_count()
         assert paragraph.text == "plain❰italic❱more plain❰more italiceven more italic❱"
+        assert paragraph.word_count == 8
 
     def test_fix_spaces(self):
         """Should be able to fix spaces"""
@@ -149,21 +151,13 @@ class TestParagraph(TestCase):
         paragraph = Paragraph()
         paragraph.text = "don't"
         config["QUOTES"]["CONVERT_TO_CURLY"] = False
-        ask = Mock()
-        ask.return_value = True
-        paragraph.fix_ticks(ask, config)
-        ask.assert_not_called()
+        questionable_ticks = []
+        paragraph.fix_ticks(config, questionable_ticks)
+        assert questionable_ticks == []
         assert paragraph.text == "don't"
         paragraph.text = "don't ’nuff bein‘ “goin' 'nuff” “ one 'two' 'three.' 'four 'five six' seven” eight “nine 'ten"
         config["QUOTES"]["CONVERT_TO_CURLY"] = True
-        paragraph.fix_ticks(ask, config)
+        paragraph.fix_ticks(config, questionable_ticks)
         assert paragraph.text == \
-            "don’t ’nuff bein’ “goin’ ’nuff” “ one ‘two’ ‘three.’ ‘four ‘five six’ seven” eight “nine ’ten"
-        ask.assert_has_calls([call(paragraph, 38), call(paragraph, 44), call(paragraph, 59), call(paragraph, 53)])
-        ask = Mock()
-        ask.return_value = False
-        paragraph.text = "don't ’nuff bein‘ “goin' 'nuff” “ one 'two' 'three.' 'four 'five six' seven” eight “nine 'ten"
-        paragraph.fix_ticks(ask, config)
-        assert paragraph.text == \
-            "don’t ’nuff bein’ “goin’ ’nuff” “ one ’two’ ’three.’ ’four ’five six’ seven” eight “nine ’ten"
-        ask.assert_has_calls([call(paragraph, 38), call(paragraph, 44), call(paragraph, 59), call(paragraph, 53)])
+            "don’t ’nuff bein’ “goin’ ’nuff” “ one 'two’ 'three.’ 'four 'five six’ seven” eight “nine ’ten"
+        assert questionable_ticks == [(paragraph, 38), (paragraph, 44), (paragraph, 59), (paragraph, 53)]
