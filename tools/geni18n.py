@@ -30,14 +30,15 @@ import os
 import sys
 import subprocess
 
-appFolder = os.getcwd()
+cwd = os.getcwd()
+appFolder = os.path.join(cwd, "..", "style_stripper")
 
 # setup some stuff to get at Python I18N tools/utilities
 
 pyExe = sys.executable
 pyFolder = os.path.split(pyExe)[0]
 pyToolsFolder = os.path.join(pyFolder, 'Tools')
-pyI18nFolder = os.path.join(pyToolsFolder, 'i18n')
+pyI18nFolder = cwd
 pyGettext = os.path.join(pyI18nFolder, 'pygettext.py')
 pyMsgfmt = os.path.join(pyI18nFolder, 'msgfmt.py')
 outFolder = os.path.join(appFolder, 'locale')
