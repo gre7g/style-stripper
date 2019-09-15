@@ -8,6 +8,7 @@ import sys
 
 from style_stripper import __version__
 from style_stripper.data.constants import CONSTANTS
+from style_stripper.data.enums import *
 from style_stripper.data.original_docx import OriginalDocx
 from style_stripper.data.paragraph import Paragraph
 from style_stripper.data.template import Template
@@ -56,7 +57,7 @@ Options:
     logging.basicConfig(level=logging.DEBUG if arguments["--verbose"] else logging.INFO)
 
     # Import document
-    document = OriginalDocx(arguments["SOURCE"], ask)
+    document = OriginalDocx(arguments[SOURCE], ask)
 
     # Convert dividers
     count_of_symbolic, count_of_blanks = document.find_divider_candidates()

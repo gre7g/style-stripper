@@ -2,6 +2,8 @@ import logging
 import os
 import wx
 
+from style_stripper.data.enums import *
+
 # Constants:
 LOG = logging.getLogger(__name__)
 
@@ -92,13 +94,13 @@ class MainFrame(wx.Frame):
         self.SetTitle(title)
 
     def refresh_contents(self):
-        source = self.app.book.config["SOURCE"]
-        self.file_path_ctrl.SetValue(source["PATH"])
-        self.author_ctrl.SetValue(source["AUTHOR"])
-        self.title_ctrl.SetValue(source["TITLE"])
-        self.word_count_ctrl.SetLabel("" if source["WORD_COUNT"] is None else "{:n}".format(source["WORD_COUNT"]))
+        source = self.app.book.config[SOURCE]
+        self.file_path_ctrl.SetValue(source[PATH])
+        self.author_ctrl.SetValue(source[AUTHOR])
+        self.title_ctrl.SetValue(source[TITLE])
+        self.word_count_ctrl.SetLabel("" if source[WORD_COUNT] is None else "{:n}".format(source[WORD_COUNT]))
 
-        modified = source["LAST_MODIFIED"]
+        modified = source[LAST_MODIFIED]
         if modified is None:
             self.modified_ctrl.SetLabel("")
         else:

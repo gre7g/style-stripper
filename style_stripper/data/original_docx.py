@@ -3,6 +3,7 @@ import logging
 from typing import List, Tuple, Optional
 
 from style_stripper.data.constants import CONSTANTS
+from style_stripper.data.enums import *
 from style_stripper.data.paragraph import Paragraph
 
 try:
@@ -46,11 +47,11 @@ class OriginalDocx(object):
             LOG.debug(paragraph_obj.text)
             self.paragraphs.append(paragraph_obj)
 
-        source = self.book.config["SOURCE"]
-        source["AUTHOR"] = doc.core_properties.author
-        source["TITLE"] = doc.core_properties.title
-        source["WORD_COUNT"] = word_count
-        source["LAST_MODIFIED"] = doc.core_properties.modified
+        source = self.book.config[SOURCE]
+        source[AUTHOR] = doc.core_properties.author
+        source[TITLE] = doc.core_properties.title
+        source[WORD_COUNT] = word_count
+        source[LAST_MODIFIED] = doc.core_properties.modified
 
     def find_divider_candidates(self) -> Tuple[int, int]:
         count_of_symbolic = count_of_blanks = 0
@@ -77,8 +78,8 @@ class OriginalDocx(object):
 
     def replace_symbolic(self) -> None:
         for index in self.symbolic_divider_indexes:
-            if self.book.config["DIVIDER"]["REPLACE_WITH_NEW"]:
-                self.paragraphs[index] = Paragraph(self.book.config["DIVIDER"]["NEW"])
+            if self.book.config[DIVIDER][REPLACE_WITH_NEW]:
+                self.paragraphs[index] = Paragraph(self.book.config[DIVIDER][NEW])
             self.paragraphs[index].style = CONSTANTS.STYLING.NAMES.DIVIDER
 
     def remove_blanks(self) -> None:
@@ -104,14 +105,14 @@ class OriginalDocx(object):
                 in_blanks = False
             else:
                 if in_blanks:
-                    if self.book.config["DIVIDER"]["REPLACE_WITH_NEW"]:
+                    if self.book.config[DIVIDER][REPLACE_WITH_NEW]:
                         del self.paragraphs[index]
                     else:
-                        self.paragraphs[index].style = self.book.config["STYLING"]["NAMES"]["DIVIDER"]
+                        self.paragraphs[index].style = self.book.config[STYLING][NAMES][DIVIDER]
                         index += 1
                 else:
-                    if self.book.config["DIVIDER"]["REPLACE_WITH_NEW"]:
-                        self.paragraphs[index] = Paragraph(self.book.config["DIVIDER"]["NEW"])
+                    if self.book.config[DIVIDER][REPLACE_WITH_NEW]:
+                        self.paragraphs[index] = Paragraph(self.book.config[DIVIDER][NEW])
                     self.paragraphs[index].style = CONSTANTS.STYLING.NAMES.DIVIDER
                     index += 1
                     in_blanks = True
@@ -157,7 +158,7 @@ class OriginalDocx(object):
                     break
 
     def remove_dividers_before_headings(self) -> None:
-        if not self.book.config["DIVIDER"]["REMOVE_DIVIDERS_BEFORE_HEADINGS"]:
+        if not self.book.config[DIVIDER][REMOVE_DIVIDERS_BEFORE_HEADINGS]:
             return
 
         # Indexes are meaninless once we delete paragraphs

@@ -1,5 +1,6 @@
 import wx
 
+from style_stripper.data.enums import *
 from style_stripper.data.original_docx import OriginalDocx
 
 
@@ -26,6 +27,6 @@ class Book(object):
 
     def load(self, path: str):
         self.original_docx = OriginalDocx(path, self)
-        self.config["SOURCE"]["PATH"] = path
+        self.config[SOURCE][PATH] = path
         self.modified()
         wx.GetApp().frame.refresh_contents()

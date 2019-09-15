@@ -1,6 +1,8 @@
 import logging
 import wx
 
+from style_stripper.data.enums import *
+
 try:
     from style_stripper.model.main_app import StyleStripperApp
 except ImportError:
@@ -40,7 +42,7 @@ class FrameControl(object):
         LOG.debug("next")
 
     def on_author(self, event: wx.CommandEvent):
-        self.app.book.config["SOURCE"]["AUTHOR"] = event.GetString()
+        self.app.book.config[SOURCE][AUTHOR] = event.GetString()
         self.app.book.modified()
         event.Skip()
 

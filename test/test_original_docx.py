@@ -2,6 +2,7 @@ from unittest import TestCase
 from unittest.mock import Mock, call, patch
 
 from style_stripper.data.book import Book
+from style_stripper.data.enums import *
 from style_stripper.data.original_docx import OriginalDocx
 from style_stripper.control.settings_control import Settings
 
@@ -32,7 +33,7 @@ class TestOriginalDocx(TestCase):
 
         orig = OriginalDocx("path/to/docx", book)
         config = orig.book.config
-        assert config["SOURCE"]["WORD_COUNT"] == 15
+        assert config[SOURCE][WORD_COUNT] == 15
         questionable_ticks = orig.questionable_ticks
 
         Document.assert_called_once_with("path/to/docx")
