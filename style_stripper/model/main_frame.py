@@ -1,4 +1,3 @@
-from datetime import datetime
 import logging
 import os
 import wx
@@ -36,6 +35,7 @@ class MainFrame(wx.Frame):
         text = wx.StaticText(self.panel, label="Author:")
         sizer3.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
         self.author_ctrl = wx.TextCtrl(self.panel)
+        self.author_ctrl.Bind(wx.EVT_TEXT, self.app.frame_controls.on_author)
         sizer3.Add(self.author_ctrl, 0, wx.CENTER | wx.EXPAND, 0)
         text = wx.StaticText(self.panel, label="Title:")
         sizer3.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
@@ -82,11 +82,12 @@ class MainFrame(wx.Frame):
             self.Maximize()
 
     def show_title(self):
-        title = "Style Stripper"
+        modified = "*" if self.app.book.is_modified() else ""
         if self.app.settings.file_path:
             path, filename = os.path.split(self.app.settings.file_path)
-            modified = "*" if self.app.data.is_modified() else ""
-            title += " - %s%s" % (filename, modified)
+            title = "Style Stripper - %s%s" % (filename, modified)
+        else:
+            title = "Style Stripper%s" % modified
         self.SetTitle(title)
 
     def refresh_contents(self):

@@ -1,13 +1,18 @@
 import logging
 import wx
 
+try:
+    from style_stripper.model.main_app import StyleStripperApp
+except ImportError:
+    StyleStripperApp = None
+
 # Constants:
 LOG = logging.getLogger(__name__)
 
 
 class FrameControl(object):
-    def __init__(self, app: wx.App):
-        self.app = app
+    def __init__(self, app: StyleStripperApp):
+        self.app: StyleStripperApp = app
         self._deselect_protect = None
 
     def on_close(self, event: wx.Event):
@@ -33,3 +38,8 @@ class FrameControl(object):
 
     def on_next(self, event: wx.CommandEvent):
         LOG.debug("next")
+
+    def on_author(self, event: wx.CommandEvent):
+        self.app.book.config["SOURCE"]["AUTHOR"] = event.GetString()
+        self.app.book.modified()
+        event.Skip()
