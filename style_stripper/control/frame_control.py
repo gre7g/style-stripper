@@ -45,6 +45,6 @@ class FrameControl(object):
         event.Skip()
 
     def on_title(self, event: wx.CommandEvent):
-        self.app.book.config[SOURCE][TITLE] = event.GetString()
+        self.app.book.config["SOURCE"]["TITLE"] = event.GetString()
         self.app.book.modified()
         event.Skip()

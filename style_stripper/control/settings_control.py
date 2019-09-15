@@ -1,6 +1,5 @@
 from base64 import b64encode, b64decode
 import binascii
-from docx.enum.section import WD_SECTION
 import logging
 import pickle
 import wx
@@ -51,7 +50,7 @@ class Settings(object):
                 "STYLE_THE_END": True,
                 "FLATTEN_IF_NO_PARTS": True,
                 "HEADER_FOOTER_AFTER_BREAK": False,
-                "BREAK_BEFORE_HEADING": WD_SECTION.ODD_PAGE
+                "BREAK_BEFORE_HEADING": "ODD_PAGE"
             },
             "DASHES": {
                 "CONVERT_DOUBLE_DASHES": True,
@@ -78,7 +77,7 @@ class SettingsControl(object):
     def load_settings(self):
         try:
             self.app.settings = pickle.loads(b64decode(wx.FileConfig("StyleStripper").Read("configuration", "")))
-        except (TypeError, binascii.Error) as msg:
+        except (TypeError, binascii.Error, ModuleNotFoundError) as msg:
             logging.exception(msg)
             self.app.settings = Settings()
         self.app.settings = self.app.settings.init()
