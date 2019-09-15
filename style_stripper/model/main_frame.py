@@ -40,6 +40,7 @@ class MainFrame(wx.Frame):
         text = wx.StaticText(self.panel, label="Title:")
         sizer3.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
         self.title_ctrl = wx.TextCtrl(self.panel)
+        self.title_ctrl.Bind(wx.EVT_TEXT, self.app.frame_controls.on_title)
         sizer3.Add(self.title_ctrl, 0, wx.CENTER | wx.EXPAND, 0)
         text = wx.StaticText(self.panel, label="Word count:")
         sizer3.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)

@@ -78,7 +78,8 @@ class SettingsControl(object):
     def load_settings(self):
         try:
             self.app.settings = pickle.loads(b64decode(wx.FileConfig("StyleStripper").Read("configuration", "")))
-        except (TypeError, binascii.Error):
+        except (TypeError, binascii.Error) as msg:
+            logging.exception(msg)
             self.app.settings = Settings()
         self.app.settings = self.app.settings.init()
 
