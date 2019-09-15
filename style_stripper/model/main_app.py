@@ -32,11 +32,4 @@ class StyleStripperApp(wx.App):
         self.settings_controls.load_settings()
         self.frame.init()
 
-        if self.settings.file_path:
-            try:
-                # self.menu_controls.load(self.settings.file_path)
-                return
-            except Exception as message:
-                LOG.exception(message)
-
         self.book = Book(self.settings.latest_config)
