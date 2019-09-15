@@ -53,7 +53,7 @@ class Settings(object):
                 STYLE_THE_END: True,
                 FLATTEN_IF_NO_PARTS: True,
                 HEADER_FOOTER_AFTER_BREAK: False,
-                BREAK_BEFORE_HEADING: "ODD_PAGE"
+                BREAK_BEFORE_HEADING: ODD_PAGE
             },
             DASHES: {
                 CONVERT_DOUBLE_DASHES: True,
@@ -79,7 +79,7 @@ class SettingsControl(object):
 
     def load_settings(self):
         try:
-            pickle_data = b64decode(wx.FileConfig(CONSTANTS.UI.CATEGORY_NAME).Read("configuration", ""))
+            pickle_data = b64decode(wx.FileConfig(CONSTANTS.UI.CATEGORY_NAME).Read(CONSTANTS.UI.CONFIG_PARAM, ""))
             self.app.settings = pickle.loads(pickle_data)
         except (TypeError, binascii.Error, ModuleNotFoundError) as msg:
             logging.exception(msg)
@@ -103,6 +103,7 @@ class SettingsControl(object):
 
     def save_settings_on_exit2(self, close_frame):
         self.app.settings.window_rect = self.app.frame.GetRect()
-        wx.FileConfig(CONSTANTS.UI.CATEGORY_NAME).Write("configuration", b64encode(pickle.dumps(self.app.settings)))
+        param_data = b64encode(pickle.dumps(self.app.settings))
+        wx.FileConfig(CONSTANTS.UI.CATEGORY_NAME).Write(CONSTANTS.UI.CONFIG_PARAM, param_data)
         if close_frame:
             self.app.frame.Close()

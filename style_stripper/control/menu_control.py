@@ -11,6 +11,7 @@ except ImportError:
     StyleStripperApp = None
 
 # Constants:
+_ = wx.GetTranslation
 LOG = logging.getLogger(__name__)
 
 
@@ -21,8 +22,8 @@ class MenuControl(object):
     def on_new(self, event: wx.MenuEvent):
         if self.app.book.is_modified():
             dialog = wx.MessageDialog(self.app.frame,
-                                      "Changes not saved! Do you want to start a new file without saving?",
-                                      "Permanent Action", wx.OK | wx.CANCEL | wx.CANCEL_DEFAULT | wx.ICON_WARNING)
+                                      _("Changes not saved! Do you want to start a new file without saving?"),
+                                      _("Permanent Action"), wx.OK | wx.CANCEL | wx.CANCEL_DEFAULT | wx.ICON_WARNING)
             try:
                 if dialog.ShowModal() != wx.ID_OK:
                     return
@@ -38,7 +39,8 @@ class MenuControl(object):
                 with open(self.app.settings.file_path, "wb") as file_obj:
                     pickle.dump(self.app.book, file_obj)
             except Exception as message:
-                dialog = wx.MessageDialog(self.app.frame, "Error: %s" % message, "Save Error", wx.OK | wx.ICON_WARNING)
+                dialog = wx.MessageDialog(self.app.frame, _("Error: %s") % message, _("Save Error"),
+                                          wx.OK | wx.ICON_WARNING)
                 try:
                     dialog.ShowModal()
                 finally:
@@ -49,7 +51,7 @@ class MenuControl(object):
             self.on_save_as(event)
 
     def on_save_as(self, event: wx.MenuEvent):
-        dialog = wx.FileDialog(self.app.frame, "Save as?", wildcard="SPK files (*.book)|*.book",
+        dialog = wx.FileDialog(self.app.frame, _("Save as?"), wildcard=_("SPK files (*.book)|*.book"),
                                style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         try:
             if dialog.ShowModal() == wx.ID_OK:
@@ -62,15 +64,15 @@ class MenuControl(object):
     def on_open(self, event: wx.MenuEvent):
         if self.app.book.is_modified():
             dialog = wx.MessageDialog(self.app.frame,
-                                      "Changes not saved! Do you want to open a new file without saving?",
-                                      "Permanent Action", wx.OK | wx.CANCEL | wx.CANCEL_DEFAULT | wx.ICON_WARNING)
+                                      _("Changes not saved! Do you want to open a new file without saving?"),
+                                      _("Permanent Action"), wx.OK | wx.CANCEL | wx.CANCEL_DEFAULT | wx.ICON_WARNING)
             try:
                 if dialog.ShowModal() != wx.ID_OK:
                     return
             finally:
                 dialog.Destroy()
 
-        dialog = wx.FileDialog(self.app.frame, "Open?", wildcard="SPK files (*.book)|*.book", style=wx.FD_OPEN)
+        dialog = wx.FileDialog(self.app.frame, _("Open?"), wildcard=_("SPK files (*.book)|*.book"), style=wx.FD_OPEN)
         try:
             if dialog.ShowModal() == wx.ID_OK:
                 self.load(dialog.GetPath())

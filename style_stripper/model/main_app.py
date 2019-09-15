@@ -6,6 +6,7 @@ from style_stripper.control.frame_control import FrameControl
 from style_stripper.control.menu_control import MenuControl
 from style_stripper.control.settings_control import SettingsControl, Settings
 from style_stripper.data.book import Book
+from style_stripper.data.constants import CONSTANTS
 from style_stripper.model.main_frame import MainFrame
 
 # Constants:
@@ -28,7 +29,7 @@ class StyleStripperApp(wx.App):
         wx.App.__init__(self, *args, **kwargs)
 
     def init(self):
-        self.frame = MainFrame(None, title="Style Stripper")
+        self.frame = MainFrame(None, title=CONSTANTS.UI.APP_NAME)
         self.settings_controls.load_settings()
         self.frame.init()
 

@@ -9,6 +9,7 @@ except ImportError:
     StyleStripperApp = None
 
 # Constants:
+_ = wx.GetTranslation
 LOG = logging.getLogger(__name__)
 
 
@@ -19,8 +20,8 @@ class FrameControl(object):
 
     def on_close(self, event: wx.Event):
         if self.app.book.is_modified():
-            dialog = wx.MessageDialog(self.app.frame, "Changes not saved! Do you want to exit without saving?",
-                                      "Permanent Action", wx.OK | wx.CANCEL | wx.CANCEL_DEFAULT | wx.ICON_WARNING)
+            dialog = wx.MessageDialog(self.app.frame, _("Changes not saved! Do you want to exit without saving?"),
+                                      _("Permanent Action"), wx.OK | wx.CANCEL | wx.CANCEL_DEFAULT | wx.ICON_WARNING)
             try:
                 if dialog.ShowModal() == wx.ID_OK:
                     event.Skip()
@@ -31,7 +32,7 @@ class FrameControl(object):
             self.app.settings_controls.save_settings_on_exit(event)
 
     def on_browse(self, event: wx.CommandEvent):
-        dialog = wx.FileDialog(self.app.frame, "Open?", wildcard="Word files (*.docx)|*.docx", style=wx.FD_OPEN)
+        dialog = wx.FileDialog(self.app.frame, _("Open?"), wildcard=_("Word files (*.docx)|*.docx"), style=wx.FD_OPEN)
         try:
             if dialog.ShowModal() == wx.ID_OK:
                 self.app.book.load(dialog.GetPath())
