@@ -2,6 +2,7 @@ import logging
 import os
 import wx
 
+from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.enums import *
 
 # Constants:
@@ -12,7 +13,7 @@ class MainFrame(wx.Frame):
     def __init__(self, *args, **kwargs):
         self.app = wx.GetApp()
         self.statusbar = self.panel = self.file_path_ctrl = self.author_ctrl = self.title_ctrl = None
-        self.word_count_ctrl = self.modified_ctrl = None
+        self.word_count_ctrl = self.modified_ctrl = self.file_history = None
         wx.Frame.__init__(self, *args, **kwargs)
 
     def init(self):
@@ -56,12 +57,20 @@ class MainFrame(wx.Frame):
         button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_next)
         sizer2.Add(button, 0, wx.ALIGN_RIGHT | wx.TOP, 10)
 
+        self.file_history = wx.FileHistory(CONSTANTS.UI.MAX_FILE_HISTORY)
+        self.file_history.Load(wx.FileConfig(CONSTANTS.UI.CATEGORY_NAME))
         menu_bar = wx.MenuBar()
         file_menu = wx.Menu()
         menu_bar.Append(file_menu, "&File")
         self.SetMenuBar(menu_bar)
         new_file = file_menu.Append(-1, "&New...\tCtrl-N", "Create a new project")
         open_file = file_menu.Append(-1, "&Open...\tCtrl-O", "Open a new file")
+
+        recent = wx.Menu()
+        self.file_history.UseMenu(recent)
+        self.file_history.AddFilesToMenu()
+        file_menu.Append(-1, "&Recent Files", recent)
+
         file_menu.AppendSeparator()
         save = file_menu.Append(-1, "&Save\tCtrl-S", "Save the current file")
         save_as = file_menu.Append(-1, "Save &As...", "Save under a new filename")
@@ -69,6 +78,7 @@ class MainFrame(wx.Frame):
         exit_cmd = file_menu.Append(-1, "&Quit", "Exit application")
         self.Bind(wx.EVT_MENU, self.app.menu_controls.on_new, new_file)
         self.Bind(wx.EVT_MENU, self.app.menu_controls.on_open, open_file)
+        self.Bind(wx.EVT_MENU_RANGE, self.app.menu_controls.on_file_history, id=wx.ID_FILE1, id2=wx.ID_FILE9)
         self.Bind(wx.EVT_MENU, self.app.menu_controls.on_save, save)
         self.Bind(wx.EVT_MENU, self.app.menu_controls.on_save_as, save_as)
         self.Bind(wx.EVT_MENU, self.app.menu_controls.on_quit, exit_cmd)
@@ -107,3 +117,7 @@ class MainFrame(wx.Frame):
             dt_obj = wx.DateTime(modified.day, modified.month - 1, modified.year, modified.hour, modified.minute,
                                  modified.second)
             self.modified_ctrl.SetLabel("%s %s" % (dt_obj.FormatDate(), dt_obj.FormatTime()))
+
+    def refresh_file_history(self):
+        self.file_history.AddFileToHistory(self.app.settings.file_path)
+        self.file_history.Save(wx.FileConfig(CONSTANTS.UI.CATEGORY_NAME))

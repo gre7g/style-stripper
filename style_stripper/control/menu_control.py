@@ -3,6 +3,7 @@ import logging
 import wx
 
 from style_stripper.data.book import Book
+from style_stripper.data.constants import CONSTANTS
 
 try:
     from style_stripper.model.main_app import StyleStripperApp
@@ -54,6 +55,7 @@ class MenuControl(object):
             if dialog.ShowModal() == wx.ID_OK:
                 self.app.settings.file_path = dialog.GetPath()
                 self.on_save(event)
+                self.app.frame.refresh_file_history()
         finally:
             dialog.Destroy()
 
@@ -81,6 +83,10 @@ class MenuControl(object):
             self.app.book = pickle.load(file_obj).init()
         self.app.frame.refresh_contents()
         self.app.book.not_modified()
+        self.app.frame.refresh_file_history()
+
+    def on_file_history(self, event: wx.MenuEvent):
+        self.load(self.app.frame.file_history.GetHistoryFile(event.GetId() - wx.ID_FILE1))
 
     def on_quit(self, event: wx.MenuEvent):
         self.app.frame.Close()

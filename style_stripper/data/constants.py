@@ -38,3 +38,7 @@ class CONSTANTS(object):
 
     class PAGE(object):
         TEMPLATE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docx_templates", "5x8+bleed.docx")
+
+    class UI(object):
+        MAX_FILE_HISTORY = 8
+        CATEGORY_NAME = "StyleStripper"

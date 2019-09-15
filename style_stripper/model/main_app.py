@@ -4,7 +4,7 @@ import wx
 
 from style_stripper.control.frame_control import FrameControl
 from style_stripper.control.menu_control import MenuControl
-from style_stripper.control.settings_control import SettingsControl
+from style_stripper.control.settings_control import SettingsControl, Settings
 from style_stripper.data.book import Book
 from style_stripper.model.main_frame import MainFrame
 
@@ -15,11 +15,11 @@ TEMPLATES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", 
 
 
 class StyleStripperApp(wx.App):
-    def __init__(self, *args, **kwargs):
-        # Basics
-        self.frame = self.book = None
-        self.settings = None
+    frame: MainFrame
+    book: Book
+    settings: Settings
 
+    def __init__(self, *args, **kwargs):
         # Controls
         self.frame_controls = FrameControl(self)
         self.menu_controls = MenuControl(self)

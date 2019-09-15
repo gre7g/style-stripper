@@ -4,6 +4,7 @@ import logging
 import pickle
 import wx
 
+from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.enums import *
 
 # Constants:
@@ -78,7 +79,8 @@ class SettingsControl(object):
 
     def load_settings(self):
         try:
-            self.app.settings = pickle.loads(b64decode(wx.FileConfig("StyleStripper").Read("configuration", "")))
+            pickle_data = b64decode(wx.FileConfig(CONSTANTS.UI.CATEGORY_NAME).Read("configuration", ""))
+            self.app.settings = pickle.loads(pickle_data)
         except (TypeError, binascii.Error, ModuleNotFoundError) as msg:
             logging.exception(msg)
             self.app.settings = Settings()
@@ -101,6 +103,6 @@ class SettingsControl(object):
 
     def save_settings_on_exit2(self, close_frame):
         self.app.settings.window_rect = self.app.frame.GetRect()
-        wx.FileConfig("StyleStripper").Write("configuration", b64encode(pickle.dumps(self.app.settings)))
+        wx.FileConfig(CONSTANTS.UI.CATEGORY_NAME).Write("configuration", b64encode(pickle.dumps(self.app.settings)))
         if close_frame:
             self.app.frame.Close()
