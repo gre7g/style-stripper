@@ -1,0 +1,171 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2019-09-14 22:57-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=cp1252\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\control\frame_control.py:23
+msgid "Changes not saved! Do you want to exit without saving?"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\control\frame_control.py:24
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\control\menu_control.py:26
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\control\menu_control.py:68
+msgid "Permanent Action"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\control\frame_control.py:35
+msgid "Word files (*.docx)|*.docx"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\control\frame_control.py:35
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\control\menu_control.py:75
+msgid "Open?"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\control\menu_control.py:25
+msgid "Changes not saved! Do you want to start a new file without saving?"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\control\menu_control.py:42
+msgid "Error: %s"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\control\menu_control.py:42
+msgid "Save Error"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\control\menu_control.py:54
+msgid "Save as?"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\control\menu_control.py:54
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\control\menu_control.py:75
+msgid "SPK files (*.book)|*.book"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\control\menu_control.py:67
+msgid "Changes not saved! Do you want to open a new file without saving?"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\data\constants.py:49
+msgid "Style Stripper"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:30
+msgid "Source file:"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:35
+msgid "Browse..."
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:39
+msgid "Author:"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:44
+msgid "Title:"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:49
+msgid "Word count:"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:53
+msgid "Last modified:"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:57
+msgid "Next"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:65
+msgid "&File"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:67
+msgid "&New...\tCtrl-N"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:67
+msgid "Create a new project"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:68
+msgid "&Open...\tCtrl-O"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:68
+msgid "Open a new file"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:73
+msgid "&Recent Files"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:76
+msgid "&Save\tCtrl-S"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:76
+msgid "Save the current file"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:77
+msgid "Save &As..."
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:77
+msgid "Save under a new filename"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:79
+msgid "&Quit"
+msgstr ""
+
+#:
+#: C:\Users\hafel\Documents\Projects\style-stripper\tools\..\style_stripper\model\main_frame.py:79
+msgid "Exit application"
+msgstr ""
+

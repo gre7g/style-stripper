@@ -6,6 +6,7 @@ from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.enums import *
 
 # Constants:
+_ = wx.GetTranslation
 LOG = logging.getLogger(__name__)
 
 
@@ -26,34 +27,34 @@ class MainFrame(wx.Frame):
         sizer3 = wx.FlexGridSizer(2, 10, 5)
         sizer2.Add(sizer3, 1, wx.EXPAND, 0)
         sizer3.AddGrowableCol(1)
-        text = wx.StaticText(self.panel, label="Source file:")
+        text = wx.StaticText(self.panel, label=_("Source file:"))
         sizer3.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
         sizer4 = wx.BoxSizer(wx.HORIZONTAL)
         self.file_path_ctrl = wx.TextCtrl(self.panel)
         sizer4.Add(self.file_path_ctrl, 1, wx.CENTER, 0)
-        button = wx.Button(self.panel, label="Browse...")
+        button = wx.Button(self.panel, label=_("Browse..."))
         button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_browse)
         sizer4.Add(button, 0, wx.CENTER | wx.LEFT, 5)
         sizer3.Add(sizer4, 0, wx.CENTER | wx.EXPAND, 0)
-        text = wx.StaticText(self.panel, label="Author:")
+        text = wx.StaticText(self.panel, label=_("Author:"))
         sizer3.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
         self.author_ctrl = wx.TextCtrl(self.panel)
         self.author_ctrl.Bind(wx.EVT_TEXT, self.app.frame_controls.on_author)
         sizer3.Add(self.author_ctrl, 0, wx.CENTER | wx.EXPAND, 0)
-        text = wx.StaticText(self.panel, label="Title:")
+        text = wx.StaticText(self.panel, label=_("Title:"))
         sizer3.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
         self.title_ctrl = wx.TextCtrl(self.panel)
         self.title_ctrl.Bind(wx.EVT_TEXT, self.app.frame_controls.on_title)
         sizer3.Add(self.title_ctrl, 0, wx.CENTER | wx.EXPAND, 0)
-        text = wx.StaticText(self.panel, label="Word count:")
+        text = wx.StaticText(self.panel, label=_("Word count:"))
         sizer3.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
         self.word_count_ctrl = wx.StaticText(self.panel)
         sizer3.Add(self.word_count_ctrl, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
-        text = wx.StaticText(self.panel, label="Last modified:")
+        text = wx.StaticText(self.panel, label=_("Last modified:"))
         sizer3.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
         self.modified_ctrl = wx.StaticText(self.panel)
         sizer3.Add(self.modified_ctrl, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
-        button = wx.Button(self.panel, label="Next")
+        button = wx.Button(self.panel, label=_("Next"))
         button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_next)
         sizer2.Add(button, 0, wx.ALIGN_RIGHT | wx.TOP, 10)
 
@@ -61,21 +62,21 @@ class MainFrame(wx.Frame):
         self.file_history.Load(wx.FileConfig(CONSTANTS.UI.CATEGORY_NAME))
         menu_bar = wx.MenuBar()
         file_menu = wx.Menu()
-        menu_bar.Append(file_menu, "&File")
+        menu_bar.Append(file_menu, _("&File"))
         self.SetMenuBar(menu_bar)
-        new_file = file_menu.Append(-1, "&New...\tCtrl-N", "Create a new project")
-        open_file = file_menu.Append(-1, "&Open...\tCtrl-O", "Open a new file")
+        new_file = file_menu.Append(-1, _("&New...\tCtrl-N"), _("Create a new project"))
+        open_file = file_menu.Append(-1, _("&Open...\tCtrl-O"), _("Open a new file"))
 
         recent = wx.Menu()
         self.file_history.UseMenu(recent)
         self.file_history.AddFilesToMenu()
-        file_menu.Append(-1, "&Recent Files", recent)
+        file_menu.Append(-1, _("&Recent Files"), recent)
 
         file_menu.AppendSeparator()
-        save = file_menu.Append(-1, "&Save\tCtrl-S", "Save the current file")
-        save_as = file_menu.Append(-1, "Save &As...", "Save under a new filename")
+        save = file_menu.Append(-1, _("&Save\tCtrl-S"), _("Save the current file"))
+        save_as = file_menu.Append(-1, _("Save &As..."), _("Save under a new filename"))
         file_menu.AppendSeparator()
-        exit_cmd = file_menu.Append(-1, "&Quit", "Exit application")
+        exit_cmd = file_menu.Append(-1, _("&Quit"), _("Exit application"))
         self.Bind(wx.EVT_MENU, self.app.menu_controls.on_new, new_file)
         self.Bind(wx.EVT_MENU, self.app.menu_controls.on_open, open_file)
         self.Bind(wx.EVT_MENU_RANGE, self.app.menu_controls.on_file_history, id=wx.ID_FILE1, id2=wx.ID_FILE9)
@@ -98,9 +99,9 @@ class MainFrame(wx.Frame):
         modified = "*" if self.app.book.is_modified() else ""
         if self.app.settings.file_path:
             path, filename = os.path.split(self.app.settings.file_path)
-            title = "Style Stripper - %s%s" % (filename, modified)
+            title = "%s - %s%s" % (CONSTANTS.UI.APP_NAME, filename, modified)
         else:
-            title = "Style Stripper%s" % modified
+            title = "%s%s" % (CONSTANTS.UI.APP_NAME, modified)
         self.SetTitle(title)
 
     def refresh_contents(self):

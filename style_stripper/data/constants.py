@@ -1,5 +1,8 @@
 import os
 import re
+import wx
+
+_ = wx.GetTranslation
 
 
 class CONSTANTS(object):
@@ -42,3 +45,5 @@ class CONSTANTS(object):
     class UI(object):
         MAX_FILE_HISTORY = 8
         CATEGORY_NAME = "StyleStripper"
+        CONFIG_PARAM = "configuration"
+        APP_NAME = _("Style Stripper")
