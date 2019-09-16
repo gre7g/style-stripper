@@ -30,7 +30,7 @@ class MainFrame(wx.Frame):
         text = wx.StaticText(self.panel, label=_("Source file:"))
         sizer3.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
         sizer4 = wx.BoxSizer(wx.HORIZONTAL)
-        self.file_path_ctrl = wx.TextCtrl(self.panel)
+        self.file_path_ctrl = wx.StaticText(self.panel)
         sizer4.Add(self.file_path_ctrl, 1, wx.CENTER, 0)
         button = wx.Button(self.panel, label=_("Browse..."))
         button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_browse)
@@ -106,7 +106,7 @@ class MainFrame(wx.Frame):
 
     def refresh_contents(self):
         source = self.app.book.config[SOURCE]
-        self.file_path_ctrl.SetValue(source[PATH])
+        self.file_path_ctrl.SetLabel(source[PATH])
         self.author_ctrl.SetValue(source[AUTHOR])
         self.title_ctrl.SetValue(source[TITLE])
         self.word_count_ctrl.SetLabel("" if source[WORD_COUNT] is None else "{:n}".format(source[WORD_COUNT]))

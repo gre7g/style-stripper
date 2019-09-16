@@ -44,7 +44,7 @@ class OriginalDocx(object):
             paragraph_obj.fix_ticks(book.config, self.questionable_ticks)
             # must_change.append((offset, "‘" if ask_function(self, offset) else "’"))
 
-            LOG.debug(paragraph_obj.text)
+            # LOG.debug(paragraph_obj.text)
             self.paragraphs.append(paragraph_obj)
 
         source = self.book.config[SOURCE]
