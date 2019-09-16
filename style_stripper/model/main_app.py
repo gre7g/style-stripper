@@ -21,6 +21,8 @@ class StyleStripperApp(wx.App):
     settings: Settings
 
     def __init__(self, *args, **kwargs):
+        self.file_path = None
+
         # Controls
         self.frame_controls = FrameControl(self)
         self.menu_controls = MenuControl(self)

@@ -12,7 +12,6 @@ LOG = logging.getLogger(__name__)
 
 
 class Settings(object):
-    file_path = None
     window_rect = None
     maximized = False
 
