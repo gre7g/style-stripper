@@ -12,20 +12,12 @@ LOG = logging.getLogger(__name__)
 
 
 class Settings(object):
-    file_path = None
     window_rect = None
     maximized = False
 
     def __init__(self):
         self.file_version = 1
         self.latest_config = {
-            SOURCE: {
-                PATH: "",
-                AUTHOR: "",
-                TITLE: "",
-                WORD_COUNT: None,
-                LAST_MODIFIED: None
-            },
             SPACES: {
                 PURGE_DOUBLE_SPACES: True,
                 PURGE_LEADING_WHITESPACE: True,

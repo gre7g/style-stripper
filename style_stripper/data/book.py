@@ -9,6 +9,14 @@ class Book(object):
         self.file_version = 1
         self.original_docx = None
         self.config = config
+
+        self.current_page = 0
+        self.source_path = ""
+        self.author = ""
+        self.title = ""
+        self.word_count = None
+        self.last_modified = None
+
         self._modified = False
 
     def init(self):
@@ -27,6 +35,6 @@ class Book(object):
 
     def load(self, path: str):
         self.original_docx = OriginalDocx(path, self)
-        self.config[SOURCE][PATH] = path
+        self.source_path = path
         self.modified()
         wx.GetApp().frame.refresh_contents()

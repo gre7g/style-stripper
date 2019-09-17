@@ -47,11 +47,10 @@ class OriginalDocx(object):
             # LOG.debug(paragraph_obj.text)
             self.paragraphs.append(paragraph_obj)
 
-        source = self.book.config[SOURCE]
-        source[AUTHOR] = doc.core_properties.author
-        source[TITLE] = doc.core_properties.title
-        source[WORD_COUNT] = word_count
-        source[LAST_MODIFIED] = doc.core_properties.modified
+        self.book.author = doc.core_properties.author
+        self.book.title = doc.core_properties.title
+        self.book.word_count = word_count
+        self.book.last_modified = doc.core_properties.modified
 
     def find_divider_candidates(self) -> Tuple[int, int]:
         count_of_symbolic = count_of_blanks = 0

@@ -34,9 +34,9 @@ class MenuControl(object):
         self.app.frame.refresh_contents()
 
     def on_save(self, event: wx.MenuEvent):
-        if self.app.settings.file_path:
+        if self.app.file_path:
             try:
-                with open(self.app.settings.file_path, "wb") as file_obj:
+                with open(self.app.file_path, "wb") as file_obj:
                     pickle.dump(self.app.book, file_obj)
             except Exception as message:
                 dialog = wx.MessageDialog(self.app.frame, _("Error: %s") % message, _("Save Error"),
@@ -55,7 +55,7 @@ class MenuControl(object):
                                style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         try:
             if dialog.ShowModal() == wx.ID_OK:
-                self.app.settings.file_path = dialog.GetPath()
+                self.app.file_path = dialog.GetPath()
                 self.on_save(event)
                 self.app.frame.refresh_file_history()
         finally:
@@ -80,7 +80,7 @@ class MenuControl(object):
             dialog.Destroy()
 
     def load(self, path: str):
-        self.app.settings.file_path = path
+        self.app.file_path = path
         with open(path, "rb") as file_obj:
             self.app.book = pickle.load(file_obj).init()
         self.app.frame.refresh_contents()
