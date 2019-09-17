@@ -40,14 +40,23 @@ class FrameControl(object):
             dialog.Destroy()
 
     def on_next(self, event: wx.CommandEvent):
-        LOG.debug("next")
+        self.app.book.current_page += 1
+        self.app.frame.refresh_contents()
+
+    def on_prev(self, event: wx.CommandEvent):
+        self.app.book.current_page -= 1
+        self.app.frame.refresh_contents()
 
     def on_author(self, event: wx.CommandEvent):
-        self.app.book.config[SOURCE][AUTHOR] = event.GetString()
-        self.app.book.modified()
+        author = event.GetString()
+        if self.app.book.author != author:
+            self.app.book.author = author
+            self.app.book.modified()
         event.Skip()
 
     def on_title(self, event: wx.CommandEvent):
-        self.app.book.config[SOURCE][TITLE] = event.GetString()
-        self.app.book.modified()
+        title = event.GetString()
+        if self.app.book.title != title:
+            self.app.book.title = title
+            self.app.book.modified()
         event.Skip()

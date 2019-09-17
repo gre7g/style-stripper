@@ -55,13 +55,13 @@ class AuthorPanel(wx.Panel):
         self.SetSizer(sizer1)
 
     def refresh_contents(self):
-        source = self.app.book.config[SOURCE]
-        self.file_path_ctrl.SetLabel(source[PATH])
-        self.author_ctrl.SetValue(source[AUTHOR])
-        self.title_ctrl.SetValue(source[TITLE])
-        self.word_count_ctrl.SetLabel("" if source[WORD_COUNT] is None else "{:n}".format(source[WORD_COUNT]))
+        book = self.app.book
+        self.file_path_ctrl.SetLabel(book.source_path)
+        self.author_ctrl.SetValue(book.author)
+        self.title_ctrl.SetValue(book.title)
+        self.word_count_ctrl.SetLabel("" if book.word_count is None else "{:n}".format(book.word_count))
 
-        modified = source[LAST_MODIFIED]
+        modified = book.last_modified
         if modified is None:
             self.modified_ctrl.SetLabel("")
         else:

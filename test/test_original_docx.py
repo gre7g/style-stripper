@@ -33,7 +33,7 @@ class TestOriginalDocx(TestCase):
 
         orig = OriginalDocx("path/to/docx", book)
         config = orig.book.config
-        assert config[SOURCE][WORD_COUNT] == 15
+        assert orig.book.word_count == 15
         questionable_ticks = orig.questionable_ticks
 
         Document.assert_called_once_with("path/to/docx")

@@ -36,3 +36,4 @@ class StyleStripperApp(wx.App):
         self.frame.init()
 
         self.book = Book(self.settings.latest_config)
+        self.frame.refresh_contents()
