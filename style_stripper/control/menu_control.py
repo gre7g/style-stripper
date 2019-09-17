@@ -3,7 +3,6 @@ import logging
 import wx
 
 from style_stripper.data.book import Book
-from style_stripper.data.constants import CONSTANTS
 
 try:
     from style_stripper.model.main_app import StyleStripperApp

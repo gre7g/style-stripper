@@ -1,8 +1,6 @@
 import logging
 import wx
 
-from style_stripper.data.enums import *
-
 try:
     from style_stripper.model.main_app import StyleStripperApp
 except ImportError:

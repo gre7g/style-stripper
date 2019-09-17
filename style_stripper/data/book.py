@@ -1,6 +1,5 @@
 import wx
 
-from style_stripper.data.enums import *
 from style_stripper.data.original_docx import OriginalDocx
 
 
