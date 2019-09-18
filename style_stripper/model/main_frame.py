@@ -4,6 +4,7 @@ import wx
 
 from style_stripper.data.constants import CONSTANTS
 from style_stripper.model.author_panel import AuthorPanel
+from style_stripper.model.template_panel import TemplatePanel
 
 # Constants:
 _ = wx.GetTranslation
@@ -28,19 +29,8 @@ class MainFrame(wx.Frame):
         sizer2.Add(panel, 1, wx.EXPAND, 0)
         self.panels.append(panel)
 
-        panel = wx.Panel(self.main_panel)
-        sizer3 = wx.BoxSizer(wx.VERTICAL)
-        sizer4 = wx.BoxSizer(wx.VERTICAL)
-        button = wx.Button(panel, -1, "button1")
-        sizer4.Add(button, 0, wx.ALIGN_RIGHT)
-        sizer3.Add(sizer4, 1, wx.EXPAND)
-        button = wx.Button(panel, -1, "prev")
-        button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_prev)
-        sizer3.Add(button, 0, 0)
-        panel.SetSizer(sizer3)
+        panel = TemplatePanel(self.main_panel)
         sizer2.Add(panel, 1, wx.EXPAND, 0)
-        def x(): pass
-        panel.refresh_contents = x
         self.panels.append(panel)
 
         sizer1.Add(sizer2, 1, wx.EXPAND | wx.ALL, 10)
@@ -92,6 +82,10 @@ class MainFrame(wx.Frame):
 
     def refresh_contents(self):
         current = self.app.book.current_page
+        if current < 0:
+            current = self.app.book.current_page = 0
+        if current >= len(self.panels):
+            current = self.app.book.current_page = len(self.panels) - 1
         for index, panel in enumerate(self.panels):
             if index == current:
                 panel.Show()

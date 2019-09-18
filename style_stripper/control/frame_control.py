@@ -58,3 +58,12 @@ class FrameControl(object):
             self.app.book.title = title
             self.app.book.modified()
         event.Skip()
+
+    def on_dimensions(self, event: wx.CommandEvent):
+        LOG.debug('dimensions %r', event.GetSelection())
+        self.app.frame.refresh_contents()
+        event.Skip()
+
+    def on_variant(self, event: wx.ScrollEvent):
+        self.app.frame.refresh_contents()
+        event.Skip()

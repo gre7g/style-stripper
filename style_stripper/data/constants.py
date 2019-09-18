@@ -6,6 +6,11 @@ _ = wx.GetTranslation
 
 
 class CONSTANTS(object):
+    class MEASURING(object):
+        EMUS_PER_INCH = 914400
+        EMUS_PER_POINT = 12700
+        EMUS_PER_CM = 360000
+
     class DIVIDER(object):
         SEARCH = [
             re.compile(r"^\s*❰?#\s*#\s*#❱?\s*$"),
