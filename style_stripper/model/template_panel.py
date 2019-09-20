@@ -1,7 +1,7 @@
 import wx
 
 from style_stripper.data.enums import *
-from style_stripper.data.template_details import fetch_docx_details
+from style_stripper.data.template_details import TemplateParameters
 from style_stripper.model.preview_panel import PreviewPanel
 from style_stripper.model.utility import add_stretcher
 
@@ -24,6 +24,7 @@ class TemplatePanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
         self.app = wx.GetApp()
+        self.parameters = TemplateParameters()
 
         sizer1 = wx.BoxSizer(wx.VERTICAL)
         sizer2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -52,9 +53,11 @@ class TemplatePanel(wx.Panel):
         sizer2.Add(self.item, 0, wx.LEFT | wx.CENTER, 5)
 
         self.preview = PreviewPanel(self)
-        self.preview.set_template_dict(fetch_docx_details(r"..\docx_templates\5x8+bleed.docx"))
+        self.parameters.load(r"docx_templates\5x8+bleed.docx")
+        print(repr(self.parameters))
+        self.preview.set_parameters(self.parameters)
         self.preview.set_contents(OPEN_TO_PART, [SCOPE_ON_EVEN_HEADER, SCOPE_ON_EVEN_HEADER, SCOPE_ON_LEFT_MARGIN])
-        sizer1.Add(self.preview, 1, wx.EXPAND | wx.TOP, 10)
+        sizer1.Add(self.preview, 1, wx.EXPAND, 0)
 
         panel = wx.Panel(self, style=wx.BORDER_THEME)
         sizer2a = wx.BoxSizer(wx.VERTICAL)
@@ -62,7 +65,7 @@ class TemplatePanel(wx.Panel):
         page = wx.ScrollBar(panel, style=wx.SB_HORIZONTAL)
         page.SetScrollbar(0, 1, 5, 1)
         sizer2a.Add(page, 1, wx.EXPAND)
-        sizer1.Add(panel, 0, wx.EXPAND | wx.TOP, 5)
+        sizer1.Add(panel, 0, wx.EXPAND, 0)
 
         sizer3 = wx.BoxSizer(wx.HORIZONTAL)
         sizer1.Add(sizer3, 0, wx.EXPAND | wx.TOP, 10)

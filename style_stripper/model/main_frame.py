@@ -15,7 +15,7 @@ class MainFrame(wx.Frame):
     def __init__(self, *args, **kwargs):
         self.app = wx.GetApp()
         self.main_panel = self.file_history = self.statusbar = self.file_path_ctrl = self.author_ctrl = None
-        self.title_ctrl = self.word_count_ctrl = self.modified_ctrl = None
+        self.title_ctrl = self.word_count_ctrl = self.modified_ctrl = self.background_color = None
         self.panels = []
         wx.Frame.__init__(self, *args, **kwargs)
 
@@ -70,6 +70,8 @@ class MainFrame(wx.Frame):
             self.SetRect(self.app.settings.window_rect)
         if self.app.settings.maximized:
             self.Maximize()
+
+        self.background_color = self.main_panel.GetBackgroundColour()
 
     def show_title(self):
         modified = "*" if self.app.book.is_modified() else ""

@@ -73,7 +73,7 @@ class SettingsControl(object):
         try:
             pickle_data = b64decode(wx.FileConfig(CONSTANTS.UI.CATEGORY_NAME).Read(CONSTANTS.UI.CONFIG_PARAM, ""))
             self.app.settings = pickle.loads(pickle_data)
-        except (TypeError, binascii.Error, ModuleNotFoundError) as msg:
+        except (TypeError, binascii.Error, ModuleNotFoundError, EOFError) as msg:
             logging.exception(msg)
             self.app.settings = Settings()
         self.app.settings = self.app.settings.init()
