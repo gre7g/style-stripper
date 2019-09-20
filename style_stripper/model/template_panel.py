@@ -54,7 +54,7 @@ class TemplatePanel(wx.Panel):
 
         self.preview = PreviewPanel(self)
         self.parameters.load(r"docx_templates\5x8+bleed.docx")
-        print(repr(self.parameters))
+        print(self.parameters)
         self.preview.set_parameters(self.parameters)
         self.preview.set_contents(OPEN_TO_PART, [SCOPE_ON_EVEN_HEADER, SCOPE_ON_EVEN_HEADER, SCOPE_ON_LEFT_MARGIN])
         sizer1.Add(self.preview, 1, wx.EXPAND, 0)
@@ -87,6 +87,7 @@ class TemplatePanel(wx.Panel):
     def refresh_contents(self):
         book = self.app.book
         self.item.SetLabel("%d of 10" % (self.variant.GetThumbPosition() + 1))
+        self.preview.find_page_scaling()
 
 
 if __name__ == "__main__":

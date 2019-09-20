@@ -84,17 +84,19 @@ class MainFrame(wx.Frame):
 
     def refresh_contents(self):
         current = self.app.book.current_page
+        active_panel = None
         if current < 0:
             current = self.app.book.current_page = 0
         if current >= len(self.panels):
             current = self.app.book.current_page = len(self.panels) - 1
         for index, panel in enumerate(self.panels):
             if index == current:
+                active_panel = panel
                 panel.Show()
-                panel.refresh_contents()
             else:
                 panel.Hide()
         self.main_panel.Layout()
+        active_panel.refresh_contents()
 
     def refresh_file_history(self):
         self.file_history.AddFileToHistory(self.app.file_path)

@@ -18,7 +18,7 @@ class StyleParameters(object):
     space_before: Optional[int] = attr.ib(default=None)
     space_after: Optional[int] = attr.ib(default=None)
     first_line_indent: Optional[int] = attr.ib(default=None)
-    line_spacing: Optional[int] = attr.ib(default=None)
+    line_spacing: Optional[Union[int, float]] = attr.ib(default=None)
 
     def init(self, style: BaseStyle) -> StyleParameters:
         self.font = self._find(style, lambda style: style.font.name)
