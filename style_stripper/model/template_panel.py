@@ -1,6 +1,8 @@
 import wx
 
-from style_stripper.data.constants import CONSTANTS
+from style_stripper.data.enums import *
+from style_stripper.data.template_details import fetch_docx_details
+from style_stripper.model.preview_panel import PreviewPanel
 from style_stripper.model.utility import add_stretcher
 
 try:
@@ -49,7 +51,10 @@ class TemplatePanel(wx.Panel):
         self.item = wx.StaticText(self, label=_("1 of 10"))
         sizer2.Add(self.item, 0, wx.LEFT | wx.CENTER, 5)
 
-        add_stretcher(sizer1)
+        self.preview = PreviewPanel(self)
+        self.preview.set_template_dict(fetch_docx_details(r"..\docx_templates\5x8+bleed.docx"))
+        self.preview.set_contents(OPEN_TO_PART, [SCOPE_ON_EVEN_HEADER, SCOPE_ON_EVEN_HEADER, SCOPE_ON_LEFT_MARGIN])
+        sizer1.Add(self.preview, 1, wx.EXPAND | wx.TOP, 10)
 
         panel = wx.Panel(self, style=wx.BORDER_THEME)
         sizer2a = wx.BoxSizer(wx.VERTICAL)
@@ -57,7 +62,7 @@ class TemplatePanel(wx.Panel):
         page = wx.ScrollBar(panel, style=wx.SB_HORIZONTAL)
         page.SetScrollbar(0, 1, 5, 1)
         sizer2a.Add(page, 1, wx.EXPAND)
-        sizer1.Add(panel, 0, wx.EXPAND, 0)
+        sizer1.Add(panel, 0, wx.EXPAND | wx.TOP, 5)
 
         sizer3 = wx.BoxSizer(wx.HORIZONTAL)
         sizer1.Add(sizer3, 0, wx.EXPAND | wx.TOP, 10)
@@ -82,58 +87,8 @@ class TemplatePanel(wx.Panel):
 
 
 if __name__ == "__main__":
-    from docx import Document
-    d=Document(r"..\docx_templates\5x8+bleed.docx")
-    style={style.name:style for style in d.styles}
-    normal=style["Normal"]
-    section=d.sections[0]
-    details = {
-        "different_first_page_header_footer": bool(section.different_first_page_header_footer),
-        "page_height": section.page_height / CONSTANTS.MEASURING.EMUS_PER_INCH,
-        "page_width": section.page_width / CONSTANTS.MEASURING.EMUS_PER_INCH,
-        "top_margin": section.top_margin / CONSTANTS.MEASURING.EMUS_PER_INCH,
-        "bottom_margin": section.bottom_margin / CONSTANTS.MEASURING.EMUS_PER_INCH,
-        "left_margin": section.left_margin / CONSTANTS.MEASURING.EMUS_PER_INCH,
-        "right_margin": section.right_margin / CONSTANTS.MEASURING.EMUS_PER_INCH,
-        "header_distance": section.header_distance / CONSTANTS.MEASURING.EMUS_PER_INCH,
-        "footer_distance": section.footer_distance / CONSTANTS.MEASURING.EMUS_PER_INCH,
-        "gutter": section.gutter / CONSTANTS.MEASURING.EMUS_PER_INCH,
-        "first_line_indent": normal.paragraph_format.first_line_indent / CONSTANTS.MEASURING.EMUS_PER_INCH,
-        "line_spacing": normal.paragraph_format.line_spacing / CONSTANTS.MEASURING.EMUS_PER_INCH
-    }
-    for name in ["Normal", "Heading 1", "Heading 2", "Header", "Footer", "Separator", "First Paragraph"]:
-        details[name] = {}
-        for attr, func in [
-            ("font", lambda s: s.font.name),
-            ("font_size", lambda s: s.font.size),
-            ("italic", lambda s: s.font.italic),
-            ("bold", lambda s: s.font.bold),
-            ("alignment", lambda s: s.paragraph_format.alignment),
-            ("space_before", lambda s: s.paragraph_format.space_before),
-            ("space_after", lambda s: s.paragraph_format.space_after)
-        ]:
-            s = style[name]
-            while True:
-                value = func(s)
-                details[name][attr] = value
-                if value is None:
-                    if s.base_style is None:
-                        break
-                    else:
-                        s = style[s.base_style.name]
-                else:
-                    break
-        # details[name] = {
-        #     "font": s.font.name,
-        #     "base": None if s.base_style is None else s.base_style.name,
-        #     "font_size": (s.font.size or 0) / CONSTANTS.MEASURING.EMUS_PER_POINT,
-        #     "space_before": (s.paragraph_format.space_before or 0) / CONSTANTS.MEASURING.EMUS_PER_POINT,
-        #     "space_after": (s.paragraph_format.space_after or 0) / CONSTANTS.MEASURING.EMUS_PER_POINT,
-        #     "italic": bool(s.font.italic),
-        #     "bold": bool(s.font.bold),
-        # }
     from pprint import pprint
-    pprint(details)
+    pprint(fetch_docx_details(r"..\docx_templates\5x8+bleed.docx"))
 
 # doc.core_properties.comments
 # Comment on template:
