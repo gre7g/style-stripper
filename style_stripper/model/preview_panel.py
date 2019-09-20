@@ -128,9 +128,13 @@ class PreviewPanel(wx.Panel):
             size = gcdc.GetTextExtent(label)
             gcdc.SetFont(screen_font)
             gcdc.DrawText(label, x - (size.width * CONSTANTS.MEASURING.EMUS_PER_POINT // 2), self.y_orig + ((thickness - font_size) * 0.3))
+        for index, x in enumerate(range(CONSTANTS.MEASURING.EMUS_PER_INCH // 2, self.parameters.page_width, CONSTANTS.MEASURING.EMUS_PER_INCH)):
+            gcdc.DrawLine(x, self.y_orig + (thickness * 0.4), x, self.y_orig + (thickness * 0.6))
         for index, y in enumerate(range(0, self.parameters.page_height, CONSTANTS.MEASURING.EMUS_PER_INCH)):
             label = str(index)
             gcdc.SetFont(measuring_font)
             size = gcdc.GetTextExtent(label)
             gcdc.SetFont(screen_font)
             gcdc.DrawRotatedText(label, self.x_orig + ((thickness - font_size) * 0.4), y + (size.width * CONSTANTS.MEASURING.EMUS_PER_POINT // 2), 90)
+        for index, y in enumerate(range(CONSTANTS.MEASURING.EMUS_PER_INCH // 2, self.parameters.page_height, CONSTANTS.MEASURING.EMUS_PER_INCH)):
+            gcdc.DrawLine(self.x_orig + (thickness * 0.4), y, self.x_orig + (thickness * 0.6), y)

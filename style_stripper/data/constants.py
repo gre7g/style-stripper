@@ -54,6 +54,6 @@ class CONSTANTS(object):
         APP_NAME = _("Style Stripper")
 
         class PREVIEW(object):
-            SCOPE_RADIUS = 0.1  # 10% of preview panel
-            RULER_THICKNESS = 0.02  # 2% of preview panel
+            SCOPE_RADIUS = 0.15  # 15% of preview panel
+            RULER_THICKNESS = 0.017  # 1.7% of preview panel
             GAP = 0.02  # 2% of preview panel
