@@ -4,6 +4,8 @@ import logging
 import re
 from typing import Dict, Optional
 
+from style_stripper.data.constants import CONSTANTS
+
 # Constants:
 LOG = logging.getLogger(__name__)
 SEARCH_ITALIC = re.compile(r"❰(.*?)❱")
@@ -28,7 +30,9 @@ class Template(object):
             paragraph.style = style
             self.first_paragraph_of_section = True
         else:
-            paragraph.style = self.style_dict["First Paragraph" if self.first_paragraph_of_section else "Normal"]
+            name = CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH \
+                if self.first_paragraph_of_section else CONSTANTS.STYLING.NAMES.NORMAL
+            paragraph.style = self.style_dict[name]
             self.first_paragraph_of_section = False
 
         def add_to_paragraph(string: str, italic: bool = False) -> None:

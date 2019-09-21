@@ -4,6 +4,8 @@ from docx import Document
 from docx.styles.style import BaseStyle
 from typing import Callable, Union, Optional, Dict
 
+from style_stripper.data.constants import CONSTANTS
+
 # Constants:
 ParameterType = Union[None, int, str]
 
@@ -87,5 +89,9 @@ class TemplateParameters(object):
         self.styles = {}
         for style in doc.styles:
             name = style.name
-            if name in ["Normal", "Heading 1", "Heading 2", "Header", "Footer", "Separator", "First Paragraph"]:
+            if name in [
+                CONSTANTS.STYLING.NAMES.NORMAL, CONSTANTS.STYLING.NAMES.HEADING1, CONSTANTS.STYLING.NAMES.HEADING2,
+                CONSTANTS.STYLING.NAMES.HEADER, CONSTANTS.STYLING.NAMES.FOOTER, CONSTANTS.STYLING.NAMES.DIVIDER,
+                CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH
+            ]:
                 self.styles[name] = StyleParameters().init(style)

@@ -1,6 +1,7 @@
 import logging
+import os
 import re
-from typing import List
+from typing import List, Tuple
 import wx
 
 from style_stripper.data.constants import CONSTANTS
@@ -15,11 +16,13 @@ except ImportError:
 # Constants:
 SEARCH_VARIANT = re.compile(r"&\d+")
 LOG = logging.getLogger(__name__)
+_ = wx.GetTranslation
 
 
 class PreviewPanel(wx.Panel):
     app: StyleStripperApp
     parameters: TemplateParameters
+    lorem_ipsum: List[str]
 
     def __init__(self, parent):
         super(PreviewPanel, self).__init__(parent)
@@ -30,6 +33,10 @@ class PreviewPanel(wx.Panel):
 
         self.Bind(wx.EVT_PAINT, self.on_paint)
         self.Bind(wx.EVT_SIZE, self.on_size)
+
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "lorem_ipsum.txt")
+        with open(path, "rt") as file_obj:
+            self.lorem_ipsum = file_obj.readlines()
 
     def set_parameters(self, parameters: TemplateParameters):
         self.parameters = parameters
@@ -52,11 +59,12 @@ class PreviewPanel(wx.Panel):
         if (SCOPE_ON_EVEN_HEADER in self.scopes) or (SCOPE_ON_ODD_HEADER in self.scopes):
             measure_from_top = CONSTANTS.UI.PREVIEW.GAP + CONSTANTS.UI.PREVIEW.RULER_THICKNESS + \
                 CONSTANTS.UI.PREVIEW.GAP + scope_radius
-            top_point = self.parameters.header_distance + (self.parameters.styles["Header"].font_size // 2)
+            top_point = self.parameters.header_distance + \
+                (self.parameters.styles[CONSTANTS.STYLING.NAMES.HEADER].font_size // 2)
         if (SCOPE_ON_EVEN_FOOTER in self.scopes) or (SCOPE_ON_ODD_FOOTER in self.scopes):
             measure_from_bottom = 1.0 - CONSTANTS.UI.PREVIEW.GAP - scope_radius
             bottom_point = self.parameters.page_height - self.parameters.footer_distance -\
-                (self.parameters.styles["Footer"].font_size // 2)
+                (self.parameters.styles[CONSTANTS.STYLING.NAMES.FOOTER].font_size // 2)
         if SCOPE_ON_LEFT_MARGIN in self.scopes:
             measure_from_left = CONSTANTS.UI.PREVIEW.RULER_THICKNESS + CONSTANTS.UI.PREVIEW.GAP + scope_radius
             left_point = self.parameters.left_margin
@@ -163,7 +171,113 @@ class PreviewPanel(wx.Panel):
         self.draw_page(gcdc, 0)
         self.draw_page(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP)
 
-        gcdc.DrawCircle(self.parameters.page_width / 2, self.parameters.header_distance + (self.parameters.styles["Header"].font_size / 2), self.scope_radius)
+        # Draw text on pages
+        page_w_in_points = (self.parameters.page_width - self.parameters.left_margin - self.parameters.right_margin -
+            self.parameters.gutter) / CONSTANTS.MEASURING.EMUS_PER_POINT
+        if self.open_to == OPEN_TO_PART:
+            lines = self.gather_back_lines_to(gcdc, page_w_in_points, CONSTANTS.UI.PREVIEW.TEXT_TO_OPPOSITE_PART)
+            self.draw_in_style(gcdc, 0, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.NORMAL, lines)
+            # y_offset = self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.GAP, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.HEADING1, (0, _("Part II"), 0))
+            # lines, para_index, word_index = self.gather_forward_lines_from(gcdc, 0, 0, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH)
+            # self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.GAP, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH, lines)
+        elif self.open_to == OPEN_TO_CHAPTER:
+            lines = self.gather_back_lines_to(gcdc, page_w_in_points, CONSTANTS.UI.PREVIEW.TEXT_TO_OPPOSITE_CHAPTER)
+            self.draw_in_style(gcdc, 0, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.NORMAL, lines)
+            y_offset = self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.GAP, 0, CONSTANTS.STYLING.NAMES.HEADING1, (0, _("Chapter 7: Loren Ipsum"), 0))
+            lines, para_index, word_index = self.gather_forward_lines_from(gcdc, 0, 0, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH)
+            self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.GAP, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH, lines)
+        elif self.open_to == OPEN_TO_MID_CHAPTER:
+            lines, para_index, word_index = self.gather_forward_lines_from(gcdc, 0, 0, 0, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH)
+            self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.GAP, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH, lines)
+
+        gcdc.DrawCircle(self.parameters.page_width / 2, self.parameters.header_distance +
+            (self.parameters.styles[CONSTANTS.STYLING.NAMES.HEADER].font_size / 2), self.scope_radius)
+
+    def draw_in_style(
+        self, gcdc: wx.GCDC,  # Graphic context
+        x_offset: int,  # X-offset of text page
+        y_offset: int,  # Y-offset of first line
+        style_name: str,  # "Normal" or "First Paragraph"
+        lines: List[Tuple[int, List[Tuple[str, int]], int]]  # Each tuple is indent amount, words, space between each
+    ) -> int:  # New Y-offset
+        """Draw lines of text."""
+        line_spacing = self.get_line_spacing(CONSTANTS.STYLING.NAMES.NORMAL)
+        for indent, words, spacing in lines:
+            style = self.parameters.styles[style_name]
+            italic = wx.FONTSTYLE_ITALIC if style.italic else wx.FONTSTYLE_NORMAL
+            bold = wx.FONTWEIGHT_BOLD if style.bold else wx.FONTWEIGHT_NORMAL
+            font = wx.Font(style.font_size, wx.FONTFAMILY_DEFAULT, italic, bold, faceName=style.font)
+            gcdc.SetFont(font)
+            # Technically this resets us back to Normal after each line instead of each paragraph. This isn't ideal but
+            # I'm not certain I care enough to track the end of paragraphs.
+            style_name = CONSTANTS.STYLING.NAMES.NORMAL
+
+            x = self.parameters.left_margin + (indent * CONSTANTS.MEASURING.EMUS_PER_POINT)
+            for word, width in words:
+                gcdc.DrawText(word, x_offset + x, y_offset)
+                x += (width + spacing) * CONSTANTS.MEASURING.EMUS_PER_POINT
+            y_offset += line_spacing
+
+        return y_offset
+
+    def get_line_spacing(self, style_name: str) -> int:
+        style = self.parameters.styles[style_name]
+        if isinstance(style.line_spacing, float):
+            return style.font_size * style.line_spacing
+        else:
+            return style.line_spacing
+
+    def gather_back_lines_to(
+            self, gcdc: wx.GCDC,  # Graphic context
+            width_in_points: int,  # Line width in points
+            length_of_text: float  # How much text to generate (0.0=None, 1.0=Full page)
+    ) -> List[Tuple[int, List[Tuple[str, int]], int]]:  # Each tuple is indent amount, list of words, space between each
+        """Starting at the end of the lorem ipsum, gather lines to fill a percentage of a page."""
+        normal = self.parameters.styles[CONSTANTS.STYLING.NAMES.NORMAL]
+        italic = wx.FONTSTYLE_ITALIC if normal.italic else wx.FONTSTYLE_NORMAL
+        bold = wx.FONTWEIGHT_BOLD if normal.bold else wx.FONTWEIGHT_NORMAL
+        font = wx.Font(
+            normal.font_size / CONSTANTS.MEASURING.EMUS_PER_POINT, wx.FONTFAMILY_DEFAULT, italic, bold,
+            faceName=normal.font
+        )
+        gcdc.SetFont(font)
+        size = gcdc.GetTextExtent(" ")
+        width_of_space = size.width
+        line_index = -1
+        lines = []
+        y = self.parameters.top_margin
+        line_spacing = self.get_line_spacing(CONSTANTS.STYLING.NAMES.NORMAL)
+        while True:
+            line = self.lorem_ipsum[line_index].split(" ")
+            word_and_widths = []
+            for word in line:
+                size = gcdc.GetTextExtent(word)
+                word_and_widths.append((word, size.width))
+            line_index -= 1
+            paragraph = []
+            indent = self.parameters.styles[CONSTANTS.STYLING.NAMES.NORMAL].first_line_indent / CONSTANTS.MEASURING.EMUS_PER_POINT
+            line_start = 0
+            line_end = 1
+            current_line = None
+            while line_end < len(word_and_widths):
+                line_width = indent + sum(width for word, width in word_and_widths[line_start:line_end]) + \
+                    (width_of_space * (line_end - line_start - 1))
+                if line_width > width_in_points:
+                    words, total_width = current_line
+                    paragraph.append((indent, words, (width_in_points - total_width) / (len(words) - 1)))
+                    line_start = line_end
+                    word, width = word_and_widths[line_start]
+                    current_line = ([(word, width)], width)
+                    indent = 0
+                else:
+                    current_line = (word_and_widths[line_start:line_end], line_width)
+                line_end += 1
+            paragraph.append((indent, current_line[0], width_of_space))
+            while paragraph:
+                lines.insert(0, paragraph.pop())
+                y += line_spacing
+                if (y / self.parameters.page_height) >= length_of_text:
+                    return lines
 
     def draw_page(self, gcdc: wx.GCDC, x_offset: int):
         # White bar for horizontal ruler

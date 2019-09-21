@@ -42,6 +42,8 @@ class CONSTANTS(object):
             DIVIDER = "Separator"
             HEADING1 = "Heading 1"
             HEADING2 = "Heading 2"
+            HEADER = "Header"
+            FOOTER = "Footer"
             THE_END = "Separator"
 
     class PAGE(object):
@@ -61,3 +63,5 @@ class CONSTANTS(object):
             RULER_TEXT = 0.3  # 30% of ruler size
             TICK_FROM = 0.4  # Draw tick from 40%
             TICK_TO = 0.6  # to 60% point on ruler
+            TEXT_TO_OPPOSITE_PART = 0.7  # 70% text opposite the part page
+            TEXT_TO_OPPOSITE_CHAPTER = 0.4  # 40% text opposite the chapter page
