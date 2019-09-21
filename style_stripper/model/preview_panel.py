@@ -26,6 +26,8 @@ class PreviewPanel(wx.Panel):
         self.app = wx.GetApp()
         self.parameters = self.open_to = self.scopes = self.hf_variant = self.scale = self.x_orig = self.y_orig = None
         self.scope_radius = self.measure_to_emu = None
+        self.color_db = wx.ColourDatabase()
+
 
         self.Bind(wx.EVT_PAINT, self.on_paint)
         self.Bind(wx.EVT_SIZE, self.on_size)
@@ -67,7 +69,8 @@ class PreviewPanel(wx.Panel):
                   "bottom_point=%r left_point=%r right_point=%r", measure_from_top, measure_from_bottom,
                   measure_from_left, measure_from_right, top_point, bottom_point, left_point, right_point)
         height_in_emu = (bottom_point - top_point) / (measure_from_bottom - measure_from_top)
-        width_in_emu = (right_point - left_point) / (measure_from_right - measure_from_left)
+        width_in_emu = ((right_point - left_point) / (measure_from_right - measure_from_left) * 2) + \
+            CONSTANTS.UI.PREVIEW.PAGE_GAP
         LOG.debug("height_in_emu=%r width_in_emu=%r", height_in_emu, width_in_emu)
 
         # We need to scale according to image height or image width, depending on which will use the space more
@@ -109,19 +112,39 @@ class PreviewPanel(wx.Panel):
         gcdc = wx.GCDC(dc)
         gcdc.SetBackground(wx.Brush(self.app.frame.background_color))
         gcdc.Clear()
-        db = wx.ColourDatabase()
         gcdc.SetLogicalOrigin(self.x_orig, self.y_orig)
         gcdc.SetLogicalScale(self.scale, self.scale)
-        white = db.Find("WHITE")
+        white = self.color_db.Find("WHITE")
         gcdc.SetBrush(wx.Brush(white))
         gcdc.SetPen(wx.Pen(white))
         thickness = CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_emu
-        gap = CONSTANTS.UI.PREVIEW.GAP * self.measure_to_emu
-        gcdc.DrawRectangle(0, self.y_orig + gap, self.parameters.page_width, thickness)
         gcdc.DrawRectangle(self.x_orig, 0, thickness, self.parameters.page_height)
-        gcdc.SetPen(wx.Pen(db.Find("BLACK")))
-        gcdc.DrawRectangle(0, 0, self.parameters.page_width, self.parameters.page_height)
+        gcdc.SetPen(wx.Pen(self.color_db.Find("BLACK")))
+        self.draw_page(gcdc, 0)
+        self.draw_page(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP)
         gcdc.DrawCircle(self.parameters.page_width / 2, self.parameters.header_distance + (self.parameters.styles["Header"].font_size / 2), self.scope_radius)
+        font_size = thickness // 2
+        screen_font = wx.Font(font_size, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+        measuring_font = wx.Font(
+            font_size / CONSTANTS.MEASURING.EMUS_PER_POINT, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL,
+            wx.FONTWEIGHT_NORMAL
+        )
+        for index, y in enumerate(range(0, self.parameters.page_height, CONSTANTS.MEASURING.EMUS_PER_INCH)):
+            label = str(index)
+            gcdc.SetFont(measuring_font)
+            size = gcdc.GetTextExtent(label)
+            gcdc.SetFont(screen_font)
+            gcdc.DrawRotatedText(label, self.x_orig + ((thickness - font_size) * 0.4), y + (size.width * CONSTANTS.MEASURING.EMUS_PER_POINT // 2), 90)
+        for index, y in enumerate(range(CONSTANTS.MEASURING.EMUS_PER_INCH // 2, self.parameters.page_height, CONSTANTS.MEASURING.EMUS_PER_INCH)):
+            gcdc.DrawLine(self.x_orig + (thickness * 0.4), y, self.x_orig + (thickness * 0.6), y)
+
+    def draw_page(self, gcdc: wx.GCDC, x_offset: int):
+        thickness = CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_emu
+        gap = CONSTANTS.UI.PREVIEW.GAP * self.measure_to_emu
+        gcdc.SetPen(wx.Pen(self.color_db.Find("WHITE")))
+        gcdc.DrawRectangle(x_offset, self.y_orig + gap, self.parameters.page_width, thickness)
+        gcdc.SetPen(wx.Pen(self.color_db.Find("BLACK")))
+        gcdc.DrawRectangle(x_offset, 0, self.parameters.page_width, self.parameters.page_height)
 
         font_size = thickness // 2
         screen_font = wx.Font(font_size, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
@@ -134,15 +157,6 @@ class PreviewPanel(wx.Panel):
             gcdc.SetFont(measuring_font)
             size = gcdc.GetTextExtent(label)
             gcdc.SetFont(screen_font)
-            gcdc.DrawText(label, x - (size.width * CONSTANTS.MEASURING.EMUS_PER_POINT // 2), self.y_orig + gap + ((
-                                                                                                                     thickness - font_size) * 0.3))
+            gcdc.DrawText(label, x_offset + x - (size.width * CONSTANTS.MEASURING.EMUS_PER_POINT // 2), self.y_orig + gap + ((thickness - font_size) * 0.3))
         for index, x in enumerate(range(CONSTANTS.MEASURING.EMUS_PER_INCH // 2, self.parameters.page_width, CONSTANTS.MEASURING.EMUS_PER_INCH)):
-            gcdc.DrawLine(x, self.y_orig + gap + (thickness * 0.4), x, self.y_orig + gap + (thickness * 0.6))
-        for index, y in enumerate(range(0, self.parameters.page_height, CONSTANTS.MEASURING.EMUS_PER_INCH)):
-            label = str(index)
-            gcdc.SetFont(measuring_font)
-            size = gcdc.GetTextExtent(label)
-            gcdc.SetFont(screen_font)
-            gcdc.DrawRotatedText(label, self.x_orig + ((thickness - font_size) * 0.4), y + (size.width * CONSTANTS.MEASURING.EMUS_PER_POINT // 2), 90)
-        for index, y in enumerate(range(CONSTANTS.MEASURING.EMUS_PER_INCH // 2, self.parameters.page_height, CONSTANTS.MEASURING.EMUS_PER_INCH)):
-            gcdc.DrawLine(self.x_orig + (thickness * 0.4), y, self.x_orig + (thickness * 0.6), y)
+            gcdc.DrawLine(x_offset + x, self.y_orig + gap + (thickness * 0.4), x_offset + x, self.y_orig + gap + (thickness * 0.6))

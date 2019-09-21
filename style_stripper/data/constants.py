@@ -57,3 +57,4 @@ class CONSTANTS(object):
             SCOPE_RADIUS = 0.15  # 15% of preview panel
             RULER_THICKNESS = 0.02  # 1.7% of preview panel
             GAP = 0.02  # 2% of preview panel
+            PAGE_GAP = 914400 * 0.25  # 0.25"
