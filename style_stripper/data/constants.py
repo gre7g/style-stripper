@@ -58,3 +58,6 @@ class CONSTANTS(object):
             RULER_THICKNESS = 0.02  # 1.7% of preview panel
             GAP = 0.02  # 2% of preview panel
             PAGE_GAP = 914400 * 0.25  # 0.25"
+            RULER_TEXT = 0.3  # 30% of ruler size
+            TICK_FROM = 0.4  # Draw tick from 40%
+            TICK_TO = 0.6  # to 60% point on ruler

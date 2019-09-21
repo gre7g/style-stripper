@@ -13,7 +13,7 @@ except ImportError:
     StyleStripperApp = None
 
 # Constants:
-SEARCH_VARIANT = re.compile("&\d+")
+SEARCH_VARIANT = re.compile(r"&\d+")
 LOG = logging.getLogger(__name__)
 
 
@@ -27,7 +27,6 @@ class PreviewPanel(wx.Panel):
         self.parameters = self.open_to = self.scopes = self.hf_variant = self.scale = self.x_orig = self.y_orig = None
         self.scope_radius = self.measure_to_emu = None
         self.color_db = wx.ColourDatabase()
-
 
         self.Bind(wx.EVT_PAINT, self.on_paint)
         self.Bind(wx.EVT_SIZE, self.on_size)
@@ -122,49 +121,86 @@ class PreviewPanel(wx.Panel):
         gcdc.Clear()
         gcdc.SetLogicalOrigin(self.x_orig, self.y_orig)
         gcdc.SetLogicalScale(self.scale, self.scale)
+
+        # Draw white bar for vertical ruler
         white = self.color_db.Find("WHITE")
         gcdc.SetBrush(wx.Brush(white))
         gcdc.SetPen(wx.Pen(white))
         thickness = CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_emu
         gcdc.DrawRectangle(self.x_orig, 0, thickness, self.parameters.page_height)
-        gcdc.SetPen(wx.Pen(self.color_db.Find("BLACK")))
-        self.draw_page(gcdc, 0)
-        self.draw_page(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP)
-        gcdc.DrawCircle(self.parameters.page_width / 2, self.parameters.header_distance + (self.parameters.styles["Header"].font_size / 2), self.scope_radius)
+
+        # For some reason, Windows won't measure text in really big font sizes, so calling SetLogicalScale() to let us
+        # work in EMUs has sabotaged us. So we'll just use one font for drawing and another for measuring.
         font_size = thickness // 2
         screen_font = wx.Font(font_size, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
         measuring_font = wx.Font(
             font_size / CONSTANTS.MEASURING.EMUS_PER_POINT, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL,
             wx.FONTWEIGHT_NORMAL
         )
+
+        # Label the vertical ruler
+        gcdc.SetPen(wx.Pen(self.color_db.Find("BLACK")))
         for index, y in enumerate(range(0, self.parameters.page_height, CONSTANTS.MEASURING.EMUS_PER_INCH)):
             label = str(index)
             gcdc.SetFont(measuring_font)
             size = gcdc.GetTextExtent(label)
             gcdc.SetFont(screen_font)
-            gcdc.DrawRotatedText(label, self.x_orig + ((thickness - font_size) * 0.4), y + (size.width * CONSTANTS.MEASURING.EMUS_PER_POINT // 2), 90)
-        for index, y in enumerate(range(CONSTANTS.MEASURING.EMUS_PER_INCH // 2, self.parameters.page_height, CONSTANTS.MEASURING.EMUS_PER_INCH)):
-            gcdc.DrawLine(self.x_orig + (thickness * 0.4), y, self.x_orig + (thickness * 0.6), y)
+            gcdc.DrawRotatedText(
+                label,
+                self.x_orig + ((thickness - font_size) * CONSTANTS.UI.PREVIEW.RULER_TEXT),
+                y + (size.width * CONSTANTS.MEASURING.EMUS_PER_POINT // 2), 90
+            )
+
+        # Draw ticks at the half-inch spots along the horizontal ruler
+        half_inch = CONSTANTS.MEASURING.EMUS_PER_INCH // 2
+        for index, y in enumerate(range(half_inch, self.parameters.page_height, CONSTANTS.MEASURING.EMUS_PER_INCH)):
+            gcdc.DrawLine(
+                self.x_orig + (thickness * CONSTANTS.UI.PREVIEW.TICK_FROM), y,
+                self.x_orig + (thickness * CONSTANTS.UI.PREVIEW.TICK_TO), y
+            )
+
+        # Draw blank pages and horizontal rulers
+        self.draw_page(gcdc, 0)
+        self.draw_page(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP)
+
+        gcdc.DrawCircle(self.parameters.page_width / 2, self.parameters.header_distance + (self.parameters.styles["Header"].font_size / 2), self.scope_radius)
 
     def draw_page(self, gcdc: wx.GCDC, x_offset: int):
+        # White bar for horizontal ruler
         thickness = CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_emu
         gap = CONSTANTS.UI.PREVIEW.GAP * self.measure_to_emu
         gcdc.SetPen(wx.Pen(self.color_db.Find("WHITE")))
         gcdc.DrawRectangle(x_offset, self.y_orig + gap, self.parameters.page_width, thickness)
+
+        # White box for page
         gcdc.SetPen(wx.Pen(self.color_db.Find("BLACK")))
         gcdc.DrawRectangle(x_offset, 0, self.parameters.page_width, self.parameters.page_height)
 
+        # For some reason, Windows won't measure text in really big font sizes, so calling SetLogicalScale() to let us
+        # work in EMUs has sabotaged us. So we'll just use one font for drawing and another for measuring.
         font_size = thickness // 2
         screen_font = wx.Font(font_size, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
         measuring_font = wx.Font(
             font_size / CONSTANTS.MEASURING.EMUS_PER_POINT, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL,
             wx.FONTWEIGHT_NORMAL
         )
+
+        # Label the horizontal ruler
         for index, x in enumerate(range(0, self.parameters.page_width, CONSTANTS.MEASURING.EMUS_PER_INCH)):
             label = str(index)
             gcdc.SetFont(measuring_font)
             size = gcdc.GetTextExtent(label)
             gcdc.SetFont(screen_font)
-            gcdc.DrawText(label, x_offset + x - (size.width * CONSTANTS.MEASURING.EMUS_PER_POINT // 2), self.y_orig + gap + ((thickness - font_size) * 0.3))
-        for index, x in enumerate(range(CONSTANTS.MEASURING.EMUS_PER_INCH // 2, self.parameters.page_width, CONSTANTS.MEASURING.EMUS_PER_INCH)):
-            gcdc.DrawLine(x_offset + x, self.y_orig + gap + (thickness * 0.4), x_offset + x, self.y_orig + gap + (thickness * 0.6))
+            gcdc.DrawText(
+                label,
+                x_offset + x - (size.width * CONSTANTS.MEASURING.EMUS_PER_POINT // 2),
+                self.y_orig + gap + ((thickness - font_size) * CONSTANTS.UI.PREVIEW.RULER_TEXT)
+            )
+
+        # Draw ticks at the half-inch spots along the horizontal ruler
+        half_inch = CONSTANTS.MEASURING.EMUS_PER_INCH // 2
+        for index, x in enumerate(range(half_inch, self.parameters.page_width, CONSTANTS.MEASURING.EMUS_PER_INCH)):
+            gcdc.DrawLine(
+                x_offset + x, self.y_orig + gap + (thickness * CONSTANTS.UI.PREVIEW.TICK_FROM),
+                x_offset + x, self.y_orig + gap + (thickness * CONSTANTS.UI.PREVIEW.TICK_TO)
+            )
