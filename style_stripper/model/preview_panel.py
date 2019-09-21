@@ -49,28 +49,27 @@ class PreviewPanel(wx.Panel):
         top_point = 0
         bottom_point = self.parameters.page_height
         left_point = 0
-        right_point = self.parameters.page_width
-        for scope in self.scopes:
-            if scope in [SCOPE_ON_EVEN_HEADER, SCOPE_ON_ODD_HEADER]:
-                measure_from_top = CONSTANTS.UI.PREVIEW.GAP + CONSTANTS.UI.PREVIEW.RULER_THICKNESS + \
-                    CONSTANTS.UI.PREVIEW.GAP + scope_radius
-                top_point = self.parameters.header_distance + (self.parameters.styles["Header"].font_size // 2)
-            elif scope in [SCOPE_ON_EVEN_FOOTER, SCOPE_ON_ODD_FOOTER]:
-                measure_from_bottom = 1.0 - CONSTANTS.UI.PREVIEW.GAP - scope_radius
-                bottom_point = self.parameters.page_height - self.parameters.footer_distance -\
-                    (self.parameters.styles["Footer"].font_size // 2)
-            elif scope == SCOPE_ON_LEFT_MARGIN:
-                measure_from_left = CONSTANTS.UI.PREVIEW.RULER_THICKNESS + CONSTANTS.UI.PREVIEW.GAP + scope_radius
-                left_point = self.parameters.left_margin
-            elif scope == SCOPE_ON_RIGHT_MARGIN:
-                measure_from_right = 1.0 - CONSTANTS.UI.PREVIEW.GAP - scope_radius
-                right_point = self.parameters.page_width - self.parameters.right_margin
+        right_point = (self.parameters.page_width * 2) + CONSTANTS.UI.PREVIEW.PAGE_GAP
+        if (SCOPE_ON_EVEN_HEADER in self.scopes) or (SCOPE_ON_ODD_HEADER in self.scopes):
+            measure_from_top = CONSTANTS.UI.PREVIEW.GAP + CONSTANTS.UI.PREVIEW.RULER_THICKNESS + \
+                CONSTANTS.UI.PREVIEW.GAP + scope_radius
+            top_point = self.parameters.header_distance + (self.parameters.styles["Header"].font_size // 2)
+        if (SCOPE_ON_EVEN_FOOTER in self.scopes) or (SCOPE_ON_ODD_FOOTER in self.scopes):
+            measure_from_bottom = 1.0 - CONSTANTS.UI.PREVIEW.GAP - scope_radius
+            bottom_point = self.parameters.page_height - self.parameters.footer_distance -\
+                (self.parameters.styles["Footer"].font_size // 2)
+        if SCOPE_ON_LEFT_MARGIN in self.scopes:
+            measure_from_left = CONSTANTS.UI.PREVIEW.RULER_THICKNESS + CONSTANTS.UI.PREVIEW.GAP + scope_radius
+            left_point = self.parameters.left_margin
+        if SCOPE_ON_RIGHT_MARGIN in self.scopes:
+            measure_from_right = 1.0 - CONSTANTS.UI.PREVIEW.GAP - scope_radius
+            right_point = (self.parameters.page_width * 2) + CONSTANTS.UI.PREVIEW.PAGE_GAP - \
+                self.parameters.right_margin
         LOG.debug("measure_from_top=%r measure_from_bottom=%r measure_from_left=%r measure_from_right=%r top_point=%r "
                   "bottom_point=%r left_point=%r right_point=%r", measure_from_top, measure_from_bottom,
                   measure_from_left, measure_from_right, top_point, bottom_point, left_point, right_point)
         height_in_emu = (bottom_point - top_point) / (measure_from_bottom - measure_from_top)
-        width_in_emu = ((right_point - left_point) / (measure_from_right - measure_from_left) * 2) + \
-            CONSTANTS.UI.PREVIEW.PAGE_GAP
+        width_in_emu = (right_point - left_point) / (measure_from_right - measure_from_left)
         LOG.debug("height_in_emu=%r width_in_emu=%r", height_in_emu, width_in_emu)
 
         # We need to scale according to image height or image width, depending on which will use the space more
@@ -79,12 +78,17 @@ class PreviewPanel(wx.Panel):
         LOG.debug("panel height=%r width=%r", size.height, size.width)
         panel_hw_ratio = size.height / size.width
         content_hw_ratio = height_in_emu / width_in_emu
+        LOG.debug("content_hw_ratio=%r panel_hw_ratio=%r", content_hw_ratio, panel_hw_ratio)
         if content_hw_ratio > panel_hw_ratio:
             # Content taller than panel
             self.scale = size.height / height_in_emu
             self.measure_to_emu = size.height / self.scale
-            panel_w_in_emu = size.width / self.scale
-            self.x_orig = -(panel_w_in_emu - width_in_emu) / 2
+            if SCOPE_ON_LEFT_MARGIN in self.scopes:
+                left_point -= scope_radius * self.measure_to_emu
+            if SCOPE_ON_RIGHT_MARGIN in self.scopes:
+                right_point += scope_radius * self.measure_to_emu
+            blank_space = (size.width / self.scale) - (right_point - left_point)
+            self.x_orig = left_point - (blank_space // 2)
             self.y_orig = top_point - (measure_from_top * self.measure_to_emu)
             self.scope_radius = CONSTANTS.UI.PREVIEW.SCOPE_RADIUS * self.measure_to_emu
             LOG.debug("taller scale=%r radius=%r", self.scale, self.scope_radius)
@@ -92,9 +96,13 @@ class PreviewPanel(wx.Panel):
             # Content wider than panel
             self.scale = size.width / width_in_emu
             self.measure_to_emu = size.width / self.scale
-            panel_h_in_emu = size.height / self.scale
+            if (SCOPE_ON_EVEN_HEADER in self.scopes) or (SCOPE_ON_ODD_HEADER in self.scopes):
+                top_point -= scope_radius * self.measure_to_emu
+            if (SCOPE_ON_EVEN_FOOTER in self.scopes) or (SCOPE_ON_ODD_FOOTER in self.scopes):
+                bottom_point += scope_radius * self.measure_to_emu
+            blank_space = (size.height / self.scale) - (bottom_point - top_point)
             self.x_orig = left_point - (measure_from_left * self.measure_to_emu)
-            self.y_orig = -(panel_h_in_emu - height_in_emu) / 2
+            self.y_orig = top_point - (blank_space // 2)
             self.scope_radius = CONSTANTS.UI.PREVIEW.SCOPE_RADIUS * self.measure_to_emu
             LOG.debug("wider scale=%r radius=%r", self.scale, self.scope_radius)
 
