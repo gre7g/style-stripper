@@ -25,9 +25,10 @@ class PreviewPanel(wx.Panel):
         super(PreviewPanel, self).__init__(parent)
         self.app = wx.GetApp()
         self.parameters = self.open_to = self.scopes = self.hf_variant = self.scale = self.x_orig = self.y_orig = None
-        self.scope_radius = self.panel_w_in_emu = None
+        self.scope_radius = self.measure_to_emu = None
 
         self.Bind(wx.EVT_PAINT, self.on_paint)
+        self.Bind(wx.EVT_SIZE, self.on_size)
 
     def set_parameters(self, parameters: TemplateParameters):
         self.parameters = parameters
@@ -78,25 +79,30 @@ class PreviewPanel(wx.Panel):
         if content_hw_ratio > panel_hw_ratio:
             # Content taller than panel
             self.scale = size.height / height_in_emu
-            measure_to_emu = size.height / self.scale
-            self.panel_w_in_emu = size.width / self.scale
-            self.x_orig = -(self.panel_w_in_emu - width_in_emu) / 2
-            self.y_orig = top_point - (measure_from_top * measure_to_emu)
-            self.scope_radius = CONSTANTS.UI.PREVIEW.SCOPE_RADIUS * measure_to_emu
+            self.measure_to_emu = size.height / self.scale
+            panel_w_in_emu = size.width / self.scale
+            self.x_orig = -(panel_w_in_emu - width_in_emu) / 2
+            self.y_orig = top_point - (measure_from_top * self.measure_to_emu)
+            self.scope_radius = CONSTANTS.UI.PREVIEW.SCOPE_RADIUS * self.measure_to_emu
             LOG.debug("taller scale=%r radius=%r", self.scale, self.scope_radius)
         else:
             # Content wider than panel
             self.scale = size.width / width_in_emu
-            measure_to_emu = size.width / self.scale
-            self.panel_h_in_emu = size.height / self.scale
-            self.x_orig = left_point - (measure_from_left * measure_to_emu)
-            self.y_orig = -(self.panel_h_in_emu - height_in_emu) / 2
-            self.scope_radius = CONSTANTS.UI.PREVIEW.SCOPE_RADIUS * size.width / self.scale
+            self.measure_to_emu = size.width / self.scale
+            panel_h_in_emu = size.height / self.scale
+            self.x_orig = left_point - (measure_from_left * self.measure_to_emu)
+            self.y_orig = -(panel_h_in_emu - height_in_emu) / 2
+            self.scope_radius = CONSTANTS.UI.PREVIEW.SCOPE_RADIUS * self.measure_to_emu
             LOG.debug("wider scale=%r radius=%r", self.scale, self.scope_radius)
 
     def set_contents(self, open_to: Enums, scopes: List[Enums]):
         self.open_to, self.scopes = open_to, scopes
         self.Refresh()
+
+    def on_size(self, event: wx.PaintEvent):
+        self.find_page_scaling()
+        self.Refresh()
+        event.Skip()
 
     def on_paint(self, event: wx.PaintEvent):
         dc = wx.BufferedPaintDC(self)
@@ -109,8 +115,9 @@ class PreviewPanel(wx.Panel):
         white = db.Find("WHITE")
         gcdc.SetBrush(wx.Brush(white))
         gcdc.SetPen(wx.Pen(white))
-        thickness = CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.panel_w_in_emu
-        gcdc.DrawRectangle(0, self.y_orig, self.parameters.page_width, thickness)
+        thickness = CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_emu
+        gap = CONSTANTS.UI.PREVIEW.GAP * self.measure_to_emu
+        gcdc.DrawRectangle(0, self.y_orig + gap, self.parameters.page_width, thickness)
         gcdc.DrawRectangle(self.x_orig, 0, thickness, self.parameters.page_height)
         gcdc.SetPen(wx.Pen(db.Find("BLACK")))
         gcdc.DrawRectangle(0, 0, self.parameters.page_width, self.parameters.page_height)
@@ -127,9 +134,10 @@ class PreviewPanel(wx.Panel):
             gcdc.SetFont(measuring_font)
             size = gcdc.GetTextExtent(label)
             gcdc.SetFont(screen_font)
-            gcdc.DrawText(label, x - (size.width * CONSTANTS.MEASURING.EMUS_PER_POINT // 2), self.y_orig + ((thickness - font_size) * 0.3))
+            gcdc.DrawText(label, x - (size.width * CONSTANTS.MEASURING.EMUS_PER_POINT // 2), self.y_orig + gap + ((
+                                                                                                                     thickness - font_size) * 0.3))
         for index, x in enumerate(range(CONSTANTS.MEASURING.EMUS_PER_INCH // 2, self.parameters.page_width, CONSTANTS.MEASURING.EMUS_PER_INCH)):
-            gcdc.DrawLine(x, self.y_orig + (thickness * 0.4), x, self.y_orig + (thickness * 0.6))
+            gcdc.DrawLine(x, self.y_orig + gap + (thickness * 0.4), x, self.y_orig + gap + (thickness * 0.6))
         for index, y in enumerate(range(0, self.parameters.page_height, CONSTANTS.MEASURING.EMUS_PER_INCH)):
             label = str(index)
             gcdc.SetFont(measuring_font)

@@ -55,5 +55,5 @@ class CONSTANTS(object):
 
         class PREVIEW(object):
             SCOPE_RADIUS = 0.15  # 15% of preview panel
-            RULER_THICKNESS = 0.017  # 1.7% of preview panel
+            RULER_THICKNESS = 0.02  # 1.7% of preview panel
             GAP = 0.02  # 2% of preview panel
