@@ -2,12 +2,14 @@ from __future__ import annotations
 import attr
 from docx import Document
 from docx.styles.style import BaseStyle
+import re
 from typing import Callable, Union, Optional, Dict
 
 from style_stripper.data.constants import CONSTANTS
 
 # Constants:
 ParameterType = Union[None, int, str]
+SEARCH_VARIANT = re.compile(r"&\d+")
 
 
 def rounding(value: float) -> str:
@@ -77,6 +79,7 @@ class StyleParameters(object):
 @attr.s
 class TemplateParameters(object):
     comments: Optional[str] = attr.ib(default=None)
+    head_foot_variant: int = attr.ib(default=1)
     different_first_page_header_footer: bool = attr.ib(default=True)
     page_height: Optional[int] = attr.ib(default=None)
     page_width: Optional[int] = attr.ib(default=None)
@@ -118,6 +121,10 @@ class TemplateParameters(object):
         # Basic info we need can be found in the first (only) section
         first_section = doc.sections[0]
         self.comments = doc.core_properties.comments
+
+        match = SEARCH_VARIANT.search(self.comments)
+        self.head_foot_variant = int(match.group()) if match else 1
+
         self.different_first_page_header_footer = bool(first_section.different_first_page_header_footer)
         self.page_height = first_section.page_height / CONSTANTS.MEASURING.EMUS_PER_TWIP
         self.page_width = first_section.page_width / CONSTANTS.MEASURING.EMUS_PER_TWIP

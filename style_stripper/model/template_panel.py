@@ -58,7 +58,7 @@ class TemplatePanel(wx.Panel):
         self.parameters.load(r"docx_templates\5x8+bleed.docx")
         LOG.debug("%r", self.parameters)
         self.preview.set_parameters(self.parameters)
-        self.preview.set_contents(OPEN_TO_PART, [SCOPE_ON_EVEN_HEADER, SCOPE_ON_EVEN_HEADER, SCOPE_ON_LEFT_MARGIN])
+        self.preview.set_contents(OPEN_TO_PART, [SCOPE_ON_EVEN_HEADER, SCOPE_ON_EVEN_FOOTER, SCOPE_ON_GUTTER])
         sizer1.Add(self.preview, 1, wx.EXPAND, 0)
 
         panel = wx.Panel(self, style=wx.BORDER_THEME)
