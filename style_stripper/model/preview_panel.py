@@ -1,7 +1,8 @@
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 import logging
 import os
 import re
-from typing import List, Tuple
+from typing import List, Tuple, Union
 import wx
 
 from style_stripper.data.constants import CONSTANTS
@@ -17,7 +18,8 @@ except ImportError:
 SEARCH_VARIANT = re.compile(r"&\d+")
 LOG = logging.getLogger(__name__)
 _ = wx.GetTranslation
-
+WORDS_TYPE = List[Tuple[str, int]]  # Each word is a string and the width in twips
+LINE_TYPE = Tuple[int, WORDS_TYPE, int]  # Indent, words, additional spacing to justify
 
 class PreviewPanel(wx.Panel):
     app: StyleStripperApp
@@ -165,16 +167,14 @@ class PreviewPanel(wx.Panel):
         self.draw_page(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP)
 
         # Draw text on pages
-        line_width = (self.parameters.page_width - self.parameters.left_margin - self.parameters.right_margin -
-            self.parameters.gutter)
         if self.open_to == OPEN_TO_PART:
-            lines = self.gather_back_lines_to(gcdc, line_width, CONSTANTS.UI.PREVIEW.TEXT_TO_OPPOSITE_PART)
+            lines = self.gather_back_lines_to(gcdc, CONSTANTS.UI.PREVIEW.TEXT_TO_OPPOSITE_PART)
             self.draw_in_style(gcdc, 0, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.NORMAL, lines)
-            # y_offset = self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.GAP, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.HEADING1, (0, _("Part II"), 0))
+            y_offset = self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.GAP + self.parameters.gutter, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.HEADING1, _("Part II"))
             # lines, para_index, word_index = self.gather_forward_lines_from(gcdc, 0, 0, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH)
             # self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.GAP, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH, lines)
         elif self.open_to == OPEN_TO_CHAPTER:
-            lines = self.gather_back_lines_to(gcdc, line_width, CONSTANTS.UI.PREVIEW.TEXT_TO_OPPOSITE_CHAPTER)
+            lines = self.gather_back_lines_to(gcdc, CONSTANTS.UI.PREVIEW.TEXT_TO_OPPOSITE_CHAPTER)
             self.draw_in_style(gcdc, 0, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.NORMAL, lines)
             y_offset = self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.GAP, 0, CONSTANTS.STYLING.NAMES.HEADING1, (0, _("Chapter 7: Loren Ipsum"), 0))
             lines, para_index, word_index = self.gather_forward_lines_from(gcdc, 0, 0, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH)
@@ -191,33 +191,53 @@ class PreviewPanel(wx.Panel):
         x_offset: int,  # X-offset of text page
         y_offset: int,  # Y-offset of first line
         style_name: str,  # "Normal" or "First Paragraph"
-        lines: List[Tuple[int, List[Tuple[str, int]], int]]  # Each tuple is indent amount, words, space between each
+        lines: Union[str, List[LINE_TYPE]]  # Either a single string or a list of lines
     ) -> int:  # New Y-offset
         """Draw lines of text."""
+        width_in_twips = (self.parameters.page_width - self.parameters.left_margin - self.parameters.right_margin -
+                          self.parameters.gutter)
+
+        style = self.parameters.styles[style_name]
+        italic = wx.FONTSTYLE_ITALIC if style.italic else wx.FONTSTYLE_NORMAL
+        bold = wx.FONTWEIGHT_BOLD if style.bold else wx.FONTWEIGHT_NORMAL
+        font = wx.Font(style.font_size, wx.FONTFAMILY_DEFAULT, italic, bold, faceName=style.font)
+        gcdc.SetFont(font)
+
+        size = gcdc.GetTextExtent(" ")
+        width_of_space = size.width
+        if isinstance(lines, str):
+            size = gcdc.GetTextExtent(lines)
+            lines = [(style.first_line_indent, [(lines, size.width)], 0)]
+
         for indent, words, spacing in lines:
-            style = self.parameters.styles[style_name]
-            italic = wx.FONTSTYLE_ITALIC if style.italic else wx.FONTSTYLE_NORMAL
-            bold = wx.FONTWEIGHT_BOLD if style.bold else wx.FONTWEIGHT_NORMAL
-            font = wx.Font(style.font_size, wx.FONTFAMILY_DEFAULT, italic, bold, faceName=style.font)
-            gcdc.SetFont(font)
             # Technically this resets us back to Normal after each line instead of each paragraph. This isn't ideal but
             # I'm not certain I care enough to track the end of paragraphs.
             style_name = CONSTANTS.STYLING.NAMES.NORMAL
 
+            total_width = sum(width for word, width in words)
+
             x = self.parameters.left_margin + indent
+            if style.alignment == WD_PARAGRAPH_ALIGNMENT.CENTER:
+                x += (width_in_twips - total_width) // 2
+            elif style.alignment == WD_PARAGRAPH_ALIGNMENT.RIGHT:
+                x += width_in_twips - total_width
             for word, width in words:
                 gcdc.DrawText(word, x_offset + x, y_offset)
-                x += width + spacing
+                if style.alignment == WD_PARAGRAPH_ALIGNMENT.JUSTIFY:
+                    x += width + spacing
+                else:
+                    x += width + width_of_space
             y_offset += style.line_spacing
 
         return y_offset
 
     def gather_back_lines_to(
             self, gcdc: wx.GCDC,  # Graphic context
-            width_in_twips: int,  # Line width in twips
             length_of_text: float  # How much text to generate (0.0=None, 1.0=Full page)
     ) -> List[Tuple[int, List[Tuple[str, int]], int]]:  # Each tuple is indent amount, list of words, space between each
         """Starting at the end of the lorem ipsum, gather lines to fill a percentage of a page."""
+        width_in_twips = (self.parameters.page_width - self.parameters.left_margin - self.parameters.right_margin -
+                          self.parameters.gutter)
         normal = self.parameters.styles[CONSTANTS.STYLING.NAMES.NORMAL]
         italic = wx.FONTSTYLE_ITALIC if normal.italic else wx.FONTSTYLE_NORMAL
         bold = wx.FONTWEIGHT_BOLD if normal.bold else wx.FONTWEIGHT_NORMAL

@@ -68,6 +68,10 @@ class Enums(Enum):
     RIGHT_EDGE = auto()
     LEFT_MARGIN = auto()
     RIGHT_MARGIN = auto()
+    FIRST_LINE = auto()
+    MIDDLE_LINE = auto()
+    LAST_LINE = auto()
+    ONLY_LINE = auto()
 
 
 SOURCE = Enums.SOURCE
@@ -136,3 +140,7 @@ LEFT_EDGE = Enums.LEFT_EDGE
 RIGHT_EDGE = Enums.RIGHT_EDGE
 LEFT_MARGIN = Enums.LEFT_MARGIN
 RIGHT_MARGIN = Enums.RIGHT_MARGIN
+FIRST_LINE = Enums.FIRST_LINE
+MIDDLE_LINE = Enums.MIDDLE_LINE
+LAST_LINE = Enums.LAST_LINE
+ONLY_LINE = Enums.ONLY_LINE
