@@ -31,7 +31,7 @@ class StyleParameters(object):
 
     def init(self, style: BaseStyle) -> StyleParameters:
         self.font = self._find(style, lambda style: style.font.name)
-        self.font_size = self._find(style, lambda style: style.font.size) / CONSTANTS.MEASURING.EMUS_PER_POINT
+        self.font_size = self._find(style, lambda style: style.font.size) / CONSTANTS.MEASURING.EMUS_PER_TWIP
         self.italic = bool(self._find(style, lambda style: style.font.italic))
         self.bold = bool(self._find(style, lambda style: style.font.bold))
 
@@ -41,19 +41,19 @@ class StyleParameters(object):
 
         self.alignment = self._find(style, lambda style: style.paragraph_format.alignment)
         self.space_before = (self._find(style, lambda style: style.paragraph_format.space_before) or 0) / \
-            CONSTANTS.MEASURING.EMUS_PER_POINT
+            CONSTANTS.MEASURING.EMUS_PER_TWIP
         self.space_after = (self._find(style, lambda style: style.paragraph_format.space_after) or 0) / \
-            CONSTANTS.MEASURING.EMUS_PER_POINT
+            CONSTANTS.MEASURING.EMUS_PER_TWIP
 
         self.first_line_indent = (self._find(style, lambda style: style.paragraph_format.first_line_indent) or 0) / \
-            CONSTANTS.MEASURING.EMUS_PER_POINT
+            CONSTANTS.MEASURING.EMUS_PER_TWIP
         self.indent_imperial = '%s"' % rounding(self.first_line_indent / CONSTANTS.MEASURING.EMUS_PER_INCH)
         self.indent_metric = "%scm" % rounding(self.first_line_indent / CONSTANTS.MEASURING.EMUS_PER_CM)
 
         line_spacing = self._find(style, lambda style: style.paragraph_format.line_spacing) or self.font_size
         if isinstance(line_spacing, float):
             line_spacing *= self.font_size
-        self.line_spacing = line_spacing / CONSTANTS.MEASURING.EMUS_PER_POINT
+        self.line_spacing = line_spacing / CONSTANTS.MEASURING.EMUS_PER_TWIP
 
         return self
 
@@ -119,15 +119,15 @@ class TemplateParameters(object):
         first_section = doc.sections[0]
         self.comments = doc.core_properties.comments
         self.different_first_page_header_footer = bool(first_section.different_first_page_header_footer)
-        self.page_height = first_section.page_height / CONSTANTS.MEASURING.EMUS_PER_POINT
-        self.page_width = first_section.page_width / CONSTANTS.MEASURING.EMUS_PER_POINT
-        self.top_margin = first_section.top_margin / CONSTANTS.MEASURING.EMUS_PER_POINT
-        self.bottom_margin = first_section.bottom_margin / CONSTANTS.MEASURING.EMUS_PER_POINT
-        self.left_margin = first_section.left_margin / CONSTANTS.MEASURING.EMUS_PER_POINT
-        self.right_margin = first_section.right_margin / CONSTANTS.MEASURING.EMUS_PER_POINT
-        self.header_distance = first_section.header_distance / CONSTANTS.MEASURING.EMUS_PER_POINT
-        self.footer_distance = first_section.footer_distance / CONSTANTS.MEASURING.EMUS_PER_POINT
-        self.gutter = first_section.gutter / CONSTANTS.MEASURING.EMUS_PER_POINT
+        self.page_height = first_section.page_height / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        self.page_width = first_section.page_width / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        self.top_margin = first_section.top_margin / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        self.bottom_margin = first_section.bottom_margin / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        self.left_margin = first_section.left_margin / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        self.right_margin = first_section.right_margin / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        self.header_distance = first_section.header_distance / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        self.footer_distance = first_section.footer_distance / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        self.gutter = first_section.gutter / CONSTANTS.MEASURING.EMUS_PER_TWIP
 
         self.height_imperial = '%s"' % rounding(first_section.page_height / CONSTANTS.MEASURING.EMUS_PER_INCH)
         self.width_imperial = '%s"' % rounding(first_section.page_width / CONSTANTS.MEASURING.EMUS_PER_INCH)

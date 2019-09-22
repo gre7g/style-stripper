@@ -28,7 +28,7 @@ class PreviewPanel(wx.Panel):
         super(PreviewPanel, self).__init__(parent)
         self.app = wx.GetApp()
         self.parameters = self.open_to = self.scopes = self.hf_variant = self.scale = self.x_orig = self.y_orig = None
-        self.scope_radius = self.measure_to_points = None
+        self.scope_radius = self.measure_to_twips = None
         self.color_db = wx.ColourDatabase()
 
         self.Bind(wx.EVT_PAINT, self.on_paint)
@@ -89,28 +89,28 @@ class PreviewPanel(wx.Panel):
         if content_hw_ratio > panel_hw_ratio:
             # Content taller than panel
             self.scale = size.height / height
-            self.measure_to_points = size.height / self.scale
+            self.measure_to_twips = size.height / self.scale
             if SCOPE_ON_LEFT_MARGIN in self.scopes:
-                left_point -= scope_radius * self.measure_to_points
+                left_point -= scope_radius * self.measure_to_twips
             if SCOPE_ON_RIGHT_MARGIN in self.scopes:
-                right_point += scope_radius * self.measure_to_points
+                right_point += scope_radius * self.measure_to_twips
             blank_space = (size.width / self.scale) - (right_point - left_point)
             self.x_orig = left_point - (blank_space // 2)
-            self.y_orig = top_point - (measure_from_top * self.measure_to_points)
-            self.scope_radius = CONSTANTS.UI.PREVIEW.SCOPE_RADIUS * self.measure_to_points
+            self.y_orig = top_point - (measure_from_top * self.measure_to_twips)
+            self.scope_radius = CONSTANTS.UI.PREVIEW.SCOPE_RADIUS * self.measure_to_twips
             LOG.debug("taller scale=%r radius=%r", self.scale, self.scope_radius)
         else:
             # Content wider than panel
             self.scale = size.width / width
-            self.measure_to_points = size.width / self.scale
+            self.measure_to_twips = size.width / self.scale
             if (SCOPE_ON_EVEN_HEADER in self.scopes) or (SCOPE_ON_ODD_HEADER in self.scopes):
-                top_point -= scope_radius * self.measure_to_points
+                top_point -= scope_radius * self.measure_to_twips
             if (SCOPE_ON_EVEN_FOOTER in self.scopes) or (SCOPE_ON_ODD_FOOTER in self.scopes):
-                bottom_point += scope_radius * self.measure_to_points
+                bottom_point += scope_radius * self.measure_to_twips
             blank_space = (size.height / self.scale) - (bottom_point - top_point)
-            self.x_orig = left_point - (measure_from_left * self.measure_to_points)
+            self.x_orig = left_point - (measure_from_left * self.measure_to_twips)
             self.y_orig = top_point - (blank_space // 2)
-            self.scope_radius = CONSTANTS.UI.PREVIEW.SCOPE_RADIUS * self.measure_to_points
+            self.scope_radius = CONSTANTS.UI.PREVIEW.SCOPE_RADIUS * self.measure_to_twips
             LOG.debug("wider scale=%r radius=%r", self.scale, self.scope_radius)
 
     def set_contents(self, open_to: Enums, scopes: List[Enums]):
@@ -134,7 +134,7 @@ class PreviewPanel(wx.Panel):
         white = self.color_db.Find("WHITE")
         gcdc.SetBrush(wx.Brush(white))
         gcdc.SetPen(wx.Pen(white))
-        thickness = CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_points
+        thickness = CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_twips
         gcdc.DrawRectangle(self.x_orig, 0, thickness, self.parameters.page_height)
 
         font_size = thickness // 2
@@ -142,7 +142,7 @@ class PreviewPanel(wx.Panel):
 
         # Label the vertical ruler
         gcdc.SetPen(wx.Pen(self.color_db.Find("BLACK")))
-        for index, y in enumerate(range(0, int(self.parameters.page_height), CONSTANTS.MEASURING.POINTS_PER_INCH)):
+        for index, y in enumerate(range(0, int(self.parameters.page_height), CONSTANTS.MEASURING.TWIPS_PER_INCH)):
             label = str(index)
             size = gcdc.GetTextExtent(label)
             gcdc.DrawRotatedText(
@@ -152,9 +152,9 @@ class PreviewPanel(wx.Panel):
             )
 
         # Draw ticks at the half-inch spots along the horizontal ruler
-        half_inch = CONSTANTS.MEASURING.POINTS_PER_INCH // 2
+        half_inch = CONSTANTS.MEASURING.TWIPS_PER_INCH // 2
         for index, y in enumerate(range(half_inch, int(self.parameters.page_height),
-                                        CONSTANTS.MEASURING.POINTS_PER_INCH)):
+                                        CONSTANTS.MEASURING.TWIPS_PER_INCH)):
             gcdc.DrawLine(
                 self.x_orig + (thickness * CONSTANTS.UI.PREVIEW.TICK_FROM), y,
                 self.x_orig + (thickness * CONSTANTS.UI.PREVIEW.TICK_TO), y
@@ -214,7 +214,7 @@ class PreviewPanel(wx.Panel):
 
     def gather_back_lines_to(
             self, gcdc: wx.GCDC,  # Graphic context
-            width_in_points: int,  # Line width in points
+            width_in_twips: int,  # Line width in twips
             length_of_text: float  # How much text to generate (0.0=None, 1.0=Full page)
     ) -> List[Tuple[int, List[Tuple[str, int]], int]]:  # Each tuple is indent amount, list of words, space between each
         """Starting at the end of the lorem ipsum, gather lines to fill a percentage of a page."""
@@ -242,9 +242,9 @@ class PreviewPanel(wx.Panel):
             while line_end < len(word_and_widths):
                 line_width = indent + sum(width for word, width in word_and_widths[line_start:line_end]) + \
                     (width_of_space * (line_end - line_start - 1))
-                if line_width > width_in_points:
+                if line_width > width_in_twips:
                     words, total_width = current_line
-                    paragraph.append((indent, words, (width_in_points - total_width) / (len(words) - 1)))
+                    paragraph.append((indent, words, (width_in_twips - total_width) / (len(words) - 1)))
                     line_start = line_end
                     word, width = word_and_widths[line_start]
                     current_line = ([(word, width)], width)
@@ -261,8 +261,8 @@ class PreviewPanel(wx.Panel):
 
     def draw_page(self, gcdc: wx.GCDC, x_offset: int):
         # White bar for horizontal ruler
-        thickness = CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_points
-        gap = CONSTANTS.UI.PREVIEW.GAP * self.measure_to_points
+        thickness = CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_twips
+        gap = CONSTANTS.UI.PREVIEW.GAP * self.measure_to_twips
         gcdc.SetPen(wx.Pen(self.color_db.Find("WHITE")))
         gcdc.DrawRectangle(x_offset, self.y_orig + gap, self.parameters.page_width, thickness)
 
@@ -274,7 +274,7 @@ class PreviewPanel(wx.Panel):
         gcdc.SetFont(wx.Font(font_size, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
         # Label the horizontal ruler
-        for index, x in enumerate(range(0, int(self.parameters.page_width), CONSTANTS.MEASURING.POINTS_PER_INCH)):
+        for index, x in enumerate(range(0, int(self.parameters.page_width), CONSTANTS.MEASURING.TWIPS_PER_INCH)):
             label = str(index)
             size = gcdc.GetTextExtent(label)
             gcdc.DrawText(
@@ -284,9 +284,9 @@ class PreviewPanel(wx.Panel):
             )
 
         # Draw ticks at the half-inch spots along the horizontal ruler
-        half_inch = CONSTANTS.MEASURING.POINTS_PER_INCH // 2
+        half_inch = CONSTANTS.MEASURING.TWIPS_PER_INCH // 2
         for index, x in enumerate(range(half_inch, int(self.parameters.page_width),
-                                        CONSTANTS.MEASURING.POINTS_PER_INCH)):
+                                        CONSTANTS.MEASURING.TWIPS_PER_INCH)):
             gcdc.DrawLine(
                 x_offset + x, self.y_orig + gap + (thickness * CONSTANTS.UI.PREVIEW.TICK_FROM),
                 x_offset + x, self.y_orig + gap + (thickness * CONSTANTS.UI.PREVIEW.TICK_TO)
