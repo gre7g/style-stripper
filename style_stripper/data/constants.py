@@ -10,6 +10,8 @@ class CONSTANTS(object):
         EMUS_PER_INCH = 914400
         EMUS_PER_POINT = 12700
         EMUS_PER_CM = 360000
+        POINTS_PER_INCH = 72
+        POINTS_PER_CM = 28.3465
 
     class DIVIDER(object):
         SEARCH = [
@@ -59,7 +61,7 @@ class CONSTANTS(object):
             SCOPE_RADIUS = 0.15  # 15% of preview panel
             RULER_THICKNESS = 0.02  # 1.7% of preview panel
             GAP = 0.02  # 2% of preview panel
-            PAGE_GAP = 914400 * 0.25  # 0.25"
+            PAGE_GAP = 72 * 0.25  # 0.25"
             RULER_TEXT = 0.3  # 30% of ruler size
             TICK_FROM = 0.4  # Draw tick from 40%
             TICK_TO = 0.6  # to 60% point on ruler

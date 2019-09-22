@@ -28,7 +28,7 @@ class PreviewPanel(wx.Panel):
         super(PreviewPanel, self).__init__(parent)
         self.app = wx.GetApp()
         self.parameters = self.open_to = self.scopes = self.hf_variant = self.scale = self.x_orig = self.y_orig = None
-        self.scope_radius = self.measure_to_emu = None
+        self.scope_radius = self.measure_to_points = None
         self.color_db = wx.ColourDatabase()
 
         self.Bind(wx.EVT_PAINT, self.on_paint)
@@ -75,42 +75,42 @@ class PreviewPanel(wx.Panel):
         LOG.debug("measure_from_top=%r measure_from_bottom=%r measure_from_left=%r measure_from_right=%r top_point=%r "
                   "bottom_point=%r left_point=%r right_point=%r", measure_from_top, measure_from_bottom,
                   measure_from_left, measure_from_right, top_point, bottom_point, left_point, right_point)
-        height_in_emu = (bottom_point - top_point) / (measure_from_bottom - measure_from_top)
-        width_in_emu = (right_point - left_point) / (measure_from_right - measure_from_left)
-        LOG.debug("height_in_emu=%r width_in_emu=%r", height_in_emu, width_in_emu)
+        height = (bottom_point - top_point) / (measure_from_bottom - measure_from_top)
+        width = (right_point - left_point) / (measure_from_right - measure_from_left)
+        LOG.debug("height=%r width=%r", height, width)
 
         # We need to scale according to image height or image width, depending on which will use the space more
         # efficiently. Determine that now.
         size = self.GetSize()
         LOG.debug("panel height=%r width=%r", size.height, size.width)
         panel_hw_ratio = size.height / size.width
-        content_hw_ratio = height_in_emu / width_in_emu
+        content_hw_ratio = height / width
         LOG.debug("content_hw_ratio=%r panel_hw_ratio=%r", content_hw_ratio, panel_hw_ratio)
         if content_hw_ratio > panel_hw_ratio:
             # Content taller than panel
-            self.scale = size.height / height_in_emu
-            self.measure_to_emu = size.height / self.scale
+            self.scale = size.height / height
+            self.measure_to_points = size.height / self.scale
             if SCOPE_ON_LEFT_MARGIN in self.scopes:
-                left_point -= scope_radius * self.measure_to_emu
+                left_point -= scope_radius * self.measure_to_points
             if SCOPE_ON_RIGHT_MARGIN in self.scopes:
-                right_point += scope_radius * self.measure_to_emu
+                right_point += scope_radius * self.measure_to_points
             blank_space = (size.width / self.scale) - (right_point - left_point)
             self.x_orig = left_point - (blank_space // 2)
-            self.y_orig = top_point - (measure_from_top * self.measure_to_emu)
-            self.scope_radius = CONSTANTS.UI.PREVIEW.SCOPE_RADIUS * self.measure_to_emu
+            self.y_orig = top_point - (measure_from_top * self.measure_to_points)
+            self.scope_radius = CONSTANTS.UI.PREVIEW.SCOPE_RADIUS * self.measure_to_points
             LOG.debug("taller scale=%r radius=%r", self.scale, self.scope_radius)
         else:
             # Content wider than panel
-            self.scale = size.width / width_in_emu
-            self.measure_to_emu = size.width / self.scale
+            self.scale = size.width / width
+            self.measure_to_points = size.width / self.scale
             if (SCOPE_ON_EVEN_HEADER in self.scopes) or (SCOPE_ON_ODD_HEADER in self.scopes):
-                top_point -= scope_radius * self.measure_to_emu
+                top_point -= scope_radius * self.measure_to_points
             if (SCOPE_ON_EVEN_FOOTER in self.scopes) or (SCOPE_ON_ODD_FOOTER in self.scopes):
-                bottom_point += scope_radius * self.measure_to_emu
+                bottom_point += scope_radius * self.measure_to_points
             blank_space = (size.height / self.scale) - (bottom_point - top_point)
-            self.x_orig = left_point - (measure_from_left * self.measure_to_emu)
+            self.x_orig = left_point - (measure_from_left * self.measure_to_points)
             self.y_orig = top_point - (blank_space // 2)
-            self.scope_radius = CONSTANTS.UI.PREVIEW.SCOPE_RADIUS * self.measure_to_emu
+            self.scope_radius = CONSTANTS.UI.PREVIEW.SCOPE_RADIUS * self.measure_to_points
             LOG.debug("wider scale=%r radius=%r", self.scale, self.scope_radius)
 
     def set_contents(self, open_to: Enums, scopes: List[Enums]):
@@ -134,34 +134,27 @@ class PreviewPanel(wx.Panel):
         white = self.color_db.Find("WHITE")
         gcdc.SetBrush(wx.Brush(white))
         gcdc.SetPen(wx.Pen(white))
-        thickness = CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_emu
+        thickness = CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_points
         gcdc.DrawRectangle(self.x_orig, 0, thickness, self.parameters.page_height)
 
-        # For some reason, Windows won't measure text in really big font sizes, so calling SetLogicalScale() to let us
-        # work in EMUs has sabotaged us. So we'll just use one font for drawing and another for measuring.
         font_size = thickness // 2
-        screen_font = wx.Font(font_size, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
-        measuring_font = wx.Font(
-            font_size / CONSTANTS.MEASURING.EMUS_PER_POINT, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL,
-            wx.FONTWEIGHT_NORMAL
-        )
+        gcdc.SetFont(wx.Font(font_size, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
         # Label the vertical ruler
         gcdc.SetPen(wx.Pen(self.color_db.Find("BLACK")))
-        for index, y in enumerate(range(0, self.parameters.page_height, CONSTANTS.MEASURING.EMUS_PER_INCH)):
+        for index, y in enumerate(range(0, int(self.parameters.page_height), CONSTANTS.MEASURING.POINTS_PER_INCH)):
             label = str(index)
-            gcdc.SetFont(measuring_font)
             size = gcdc.GetTextExtent(label)
-            gcdc.SetFont(screen_font)
             gcdc.DrawRotatedText(
                 label,
                 self.x_orig + ((thickness - font_size) * CONSTANTS.UI.PREVIEW.RULER_TEXT),
-                y + (size.width * CONSTANTS.MEASURING.EMUS_PER_POINT // 2), 90
+                y + (size.width // 2), 90
             )
 
         # Draw ticks at the half-inch spots along the horizontal ruler
-        half_inch = CONSTANTS.MEASURING.EMUS_PER_INCH // 2
-        for index, y in enumerate(range(half_inch, self.parameters.page_height, CONSTANTS.MEASURING.EMUS_PER_INCH)):
+        half_inch = CONSTANTS.MEASURING.POINTS_PER_INCH // 2
+        for index, y in enumerate(range(half_inch, int(self.parameters.page_height),
+                                        CONSTANTS.MEASURING.POINTS_PER_INCH)):
             gcdc.DrawLine(
                 self.x_orig + (thickness * CONSTANTS.UI.PREVIEW.TICK_FROM), y,
                 self.x_orig + (thickness * CONSTANTS.UI.PREVIEW.TICK_TO), y
@@ -172,16 +165,16 @@ class PreviewPanel(wx.Panel):
         self.draw_page(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP)
 
         # Draw text on pages
-        page_w_in_points = (self.parameters.page_width - self.parameters.left_margin - self.parameters.right_margin -
-            self.parameters.gutter) / CONSTANTS.MEASURING.EMUS_PER_POINT
+        line_width = (self.parameters.page_width - self.parameters.left_margin - self.parameters.right_margin -
+            self.parameters.gutter)
         if self.open_to == OPEN_TO_PART:
-            lines = self.gather_back_lines_to(gcdc, page_w_in_points, CONSTANTS.UI.PREVIEW.TEXT_TO_OPPOSITE_PART)
+            lines = self.gather_back_lines_to(gcdc, line_width, CONSTANTS.UI.PREVIEW.TEXT_TO_OPPOSITE_PART)
             self.draw_in_style(gcdc, 0, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.NORMAL, lines)
             # y_offset = self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.GAP, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.HEADING1, (0, _("Part II"), 0))
             # lines, para_index, word_index = self.gather_forward_lines_from(gcdc, 0, 0, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH)
             # self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.GAP, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH, lines)
         elif self.open_to == OPEN_TO_CHAPTER:
-            lines = self.gather_back_lines_to(gcdc, page_w_in_points, CONSTANTS.UI.PREVIEW.TEXT_TO_OPPOSITE_CHAPTER)
+            lines = self.gather_back_lines_to(gcdc, line_width, CONSTANTS.UI.PREVIEW.TEXT_TO_OPPOSITE_CHAPTER)
             self.draw_in_style(gcdc, 0, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.NORMAL, lines)
             y_offset = self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.GAP, 0, CONSTANTS.STYLING.NAMES.HEADING1, (0, _("Chapter 7: Loren Ipsum"), 0))
             lines, para_index, word_index = self.gather_forward_lines_from(gcdc, 0, 0, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH)
@@ -201,7 +194,6 @@ class PreviewPanel(wx.Panel):
         lines: List[Tuple[int, List[Tuple[str, int]], int]]  # Each tuple is indent amount, words, space between each
     ) -> int:  # New Y-offset
         """Draw lines of text."""
-        line_spacing = self.get_line_spacing(CONSTANTS.STYLING.NAMES.NORMAL)
         for indent, words, spacing in lines:
             style = self.parameters.styles[style_name]
             italic = wx.FONTSTYLE_ITALIC if style.italic else wx.FONTSTYLE_NORMAL
@@ -212,20 +204,13 @@ class PreviewPanel(wx.Panel):
             # I'm not certain I care enough to track the end of paragraphs.
             style_name = CONSTANTS.STYLING.NAMES.NORMAL
 
-            x = self.parameters.left_margin + (indent * CONSTANTS.MEASURING.EMUS_PER_POINT)
+            x = self.parameters.left_margin + indent
             for word, width in words:
                 gcdc.DrawText(word, x_offset + x, y_offset)
-                x += (width + spacing) * CONSTANTS.MEASURING.EMUS_PER_POINT
-            y_offset += line_spacing
+                x += width + spacing
+            y_offset += style.line_spacing
 
         return y_offset
-
-    def get_line_spacing(self, style_name: str) -> int:
-        style = self.parameters.styles[style_name]
-        if isinstance(style.line_spacing, float):
-            return style.font_size * style.line_spacing
-        else:
-            return style.line_spacing
 
     def gather_back_lines_to(
             self, gcdc: wx.GCDC,  # Graphic context
@@ -236,17 +221,12 @@ class PreviewPanel(wx.Panel):
         normal = self.parameters.styles[CONSTANTS.STYLING.NAMES.NORMAL]
         italic = wx.FONTSTYLE_ITALIC if normal.italic else wx.FONTSTYLE_NORMAL
         bold = wx.FONTWEIGHT_BOLD if normal.bold else wx.FONTWEIGHT_NORMAL
-        font = wx.Font(
-            normal.font_size / CONSTANTS.MEASURING.EMUS_PER_POINT, wx.FONTFAMILY_DEFAULT, italic, bold,
-            faceName=normal.font
-        )
-        gcdc.SetFont(font)
+        gcdc.SetFont(wx.Font(normal.font_size, wx.FONTFAMILY_DEFAULT, italic, bold, faceName=normal.font))
         size = gcdc.GetTextExtent(" ")
         width_of_space = size.width
         line_index = -1
         lines = []
         y = self.parameters.top_margin
-        line_spacing = self.get_line_spacing(CONSTANTS.STYLING.NAMES.NORMAL)
         while True:
             line = self.lorem_ipsum[line_index].split(" ")
             word_and_widths = []
@@ -255,7 +235,7 @@ class PreviewPanel(wx.Panel):
                 word_and_widths.append((word, size.width))
             line_index -= 1
             paragraph = []
-            indent = self.parameters.styles[CONSTANTS.STYLING.NAMES.NORMAL].first_line_indent / CONSTANTS.MEASURING.EMUS_PER_POINT
+            indent = self.parameters.styles[CONSTANTS.STYLING.NAMES.NORMAL].first_line_indent
             line_start = 0
             line_end = 1
             current_line = None
@@ -275,14 +255,14 @@ class PreviewPanel(wx.Panel):
             paragraph.append((indent, current_line[0], width_of_space))
             while paragraph:
                 lines.insert(0, paragraph.pop())
-                y += line_spacing
+                y += normal.line_spacing
                 if (y / self.parameters.page_height) >= length_of_text:
                     return lines
 
     def draw_page(self, gcdc: wx.GCDC, x_offset: int):
         # White bar for horizontal ruler
-        thickness = CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_emu
-        gap = CONSTANTS.UI.PREVIEW.GAP * self.measure_to_emu
+        thickness = CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_points
+        gap = CONSTANTS.UI.PREVIEW.GAP * self.measure_to_points
         gcdc.SetPen(wx.Pen(self.color_db.Find("WHITE")))
         gcdc.DrawRectangle(x_offset, self.y_orig + gap, self.parameters.page_width, thickness)
 
@@ -290,30 +270,23 @@ class PreviewPanel(wx.Panel):
         gcdc.SetPen(wx.Pen(self.color_db.Find("BLACK")))
         gcdc.DrawRectangle(x_offset, 0, self.parameters.page_width, self.parameters.page_height)
 
-        # For some reason, Windows won't measure text in really big font sizes, so calling SetLogicalScale() to let us
-        # work in EMUs has sabotaged us. So we'll just use one font for drawing and another for measuring.
         font_size = thickness // 2
-        screen_font = wx.Font(font_size, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
-        measuring_font = wx.Font(
-            font_size / CONSTANTS.MEASURING.EMUS_PER_POINT, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL,
-            wx.FONTWEIGHT_NORMAL
-        )
+        gcdc.SetFont(wx.Font(font_size, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
         # Label the horizontal ruler
-        for index, x in enumerate(range(0, self.parameters.page_width, CONSTANTS.MEASURING.EMUS_PER_INCH)):
+        for index, x in enumerate(range(0, int(self.parameters.page_width), CONSTANTS.MEASURING.POINTS_PER_INCH)):
             label = str(index)
-            gcdc.SetFont(measuring_font)
             size = gcdc.GetTextExtent(label)
-            gcdc.SetFont(screen_font)
             gcdc.DrawText(
                 label,
-                x_offset + x - (size.width * CONSTANTS.MEASURING.EMUS_PER_POINT // 2),
+                x_offset + x - (size.width // 2),
                 self.y_orig + gap + ((thickness - font_size) * CONSTANTS.UI.PREVIEW.RULER_TEXT)
             )
 
         # Draw ticks at the half-inch spots along the horizontal ruler
-        half_inch = CONSTANTS.MEASURING.EMUS_PER_INCH // 2
-        for index, x in enumerate(range(half_inch, self.parameters.page_width, CONSTANTS.MEASURING.EMUS_PER_INCH)):
+        half_inch = CONSTANTS.MEASURING.POINTS_PER_INCH // 2
+        for index, x in enumerate(range(half_inch, int(self.parameters.page_width),
+                                        CONSTANTS.MEASURING.POINTS_PER_INCH)):
             gcdc.DrawLine(
                 x_offset + x, self.y_orig + gap + (thickness * CONSTANTS.UI.PREVIEW.TICK_FROM),
                 x_offset + x, self.y_orig + gap + (thickness * CONSTANTS.UI.PREVIEW.TICK_TO)
