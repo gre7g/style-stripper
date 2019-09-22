@@ -1,7 +1,7 @@
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 import logging
 import os
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 import wx
 
 from style_stripper.data.constants import CONSTANTS
@@ -165,47 +165,49 @@ class PreviewPanel(wx.Panel):
         self.draw_page(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP)
 
         # Draw text on pages
+        even_page = self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP + self.parameters.gutter
         if self.open_to == OPEN_TO_PART:
             lines = self.gather_back_lines_to(gcdc, CONSTANTS.UI.PREVIEW.TEXT_TO_OPPOSITE_PART)
             self.draw_in_style(gcdc, 0, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.NORMAL, lines)
-            self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.GAP + self.parameters.gutter, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.HEADING1, _("Part II"))
+            self.draw_in_style(gcdc, even_page, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.HEADING1, _("Part II"))
         elif self.open_to == OPEN_TO_CHAPTER:
             lines = self.gather_back_lines_to(gcdc, CONSTANTS.UI.PREVIEW.TEXT_TO_OPPOSITE_CHAPTER)
             self.draw_in_style(gcdc, 0, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.NORMAL, lines)
-            y_offset = self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.GAP, 0, CONSTANTS.STYLING.NAMES.HEADING1, (0, _("Chapter 7: Loren Ipsum"), 0))
+            y_offset = self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP, 0, CONSTANTS.STYLING.NAMES.HEADING1, (0, _("Chapter 7: Loren Ipsum"), 0))
             lines, para_index, word_index = self.gather_forward_lines_from(gcdc, 0, 0, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH)
-            self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.GAP, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH, lines)
+            self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH, lines)
         elif self.open_to == OPEN_TO_MID_CHAPTER:
             lines, para_index, word_index = self.gather_forward_lines_from(gcdc, 0, 0, 0, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH)
-            self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.GAP, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH, lines)
+            self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH, lines)
 
         width_in_twips = (self.parameters.page_width - self.parameters.left_margin - self.parameters.right_margin -
                           self.parameters.gutter)
         left_centered = self.parameters.left_margin + (width_in_twips // 2)
-        right_centered = left_centered + self.parameters.page_width + CONSTANTS.UI.PREVIEW.GAP + self.parameters.gutter
+        right_centered = left_centered + self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP + self.parameters.gutter
         mid_vertical = self.parameters.page_height // 2
         style = self.parameters.styles[CONSTANTS.STYLING.NAMES.HEADING1]
         part = self.parameters.top_margin + style.space_before + (style.font_size // 2)
         style = self.parameters.styles[CONSTANTS.STYLING.NAMES.HEADING2]
         chapter = self.parameters.top_margin + style.space_before + (style.font_size // 2)
         if True:  # self.parameters.head_foot_variant == 1:
-            even_header = (
-                left_centered,
-                self.parameters.header_distance + (self.parameters.styles[CONSTANTS.STYLING.NAMES.HEADER].font_size / 2)
-            )
-            even_footer = (
-                self.parameters.left_margin, self.parameters.page_height - self.parameters.footer_distance -
-                (self.parameters.styles[CONSTANTS.STYLING.NAMES.FOOTER].font_size / 2)
-            )
-            odd_header = (
-                right_centered,
-                self.parameters.header_distance + (self.parameters.styles[CONSTANTS.STYLING.NAMES.HEADER].font_size / 2)
-            )
-            odd_footer = (
-                (self.parameters.page_width * 2) + CONSTANTS.UI.PREVIEW.GAP - self.parameters.right_margin,
-                self.parameters.page_height - self.parameters.footer_distance -
-                (self.parameters.styles[CONSTANTS.STYLING.NAMES.FOOTER].font_size / 2)
-            )
+            header = self.parameters.header_distance
+            font_size = self.parameters.styles[CONSTANTS.STYLING.NAMES.HEADER].font_size
+            self.draw_in_style(gcdc, 0, header, CONSTANTS.STYLING.NAMES.HEADER, _("Author’s Name"),
+                               align=WD_PARAGRAPH_ALIGNMENT.CENTER)
+            even_header = (left_centered, header + (font_size / 2))
+            if self.open_to == OPEN_TO_MID_CHAPTER:
+                self.draw_in_style(gcdc, even_page, header, CONSTANTS.STYLING.NAMES.HEADER, _("Book Title"),
+                                   align=WD_PARAGRAPH_ALIGNMENT.CENTER)
+            odd_header = (right_centered, header + (font_size / 2))
+            footer = self.parameters.page_height - self.parameters.footer_distance
+            font_size = self.parameters.styles[CONSTANTS.STYLING.NAMES.FOOTER].font_size
+            self.draw_in_style(gcdc, 0, footer - font_size, CONSTANTS.STYLING.NAMES.FOOTER, _("126"),
+                               align=WD_PARAGRAPH_ALIGNMENT.LEFT)
+            even_footer = (self.parameters.left_margin, footer - (font_size // 2))
+            if self.open_to == OPEN_TO_MID_CHAPTER:
+                self.draw_in_style(gcdc, even_page, footer - font_size, CONSTANTS.STYLING.NAMES.FOOTER, _("127"),
+                                   align=WD_PARAGRAPH_ALIGNMENT.RIGHT)
+            odd_footer = (even_page, footer - (font_size // 2))
 
         gcdc.SetBrush(wx.Brush(white))
         if SCOPE_ON_EVEN_HEADER in self.scopes:
@@ -219,7 +221,7 @@ class PreviewPanel(wx.Panel):
         if SCOPE_ON_LEFT_MARGIN in self.scopes:
             gcdc.DrawCircle(self.parameters.left_margin, mid_vertical, self.scope_radius)
         if SCOPE_ON_RIGHT_MARGIN in self.scopes:
-            gcdc.DrawCircle((self.parameters.page_width * 2) + CONSTANTS.UI.PREVIEW.GAP - self.parameters.right_margin,
+            gcdc.DrawCircle((self.parameters.page_width * 2) + CONSTANTS.UI.PREVIEW.PAGE_GAP - self.parameters.right_margin,
                             mid_vertical, self.scope_radius)
         if SCOPE_ON_GUTTER in self.scopes:
             gcdc.DrawCircle(self.parameters.page_width - self.parameters.gutter, mid_vertical, self.scope_radius)
@@ -233,7 +235,8 @@ class PreviewPanel(wx.Panel):
         x_offset: int,  # X-offset of text page
         y_offset: int,  # Y-offset of first line
         style_name: str,  # "Normal" or "First Paragraph"
-        lines: Union[str, List[LINE_TYPE]]  # Either a single string or a list of lines
+        lines: Union[str, List[LINE_TYPE]],  # Either a single string or a list of lines
+        align: Optional[int] = None  # Alignment override
     ) -> int:  # New Y-offset
         """Draw lines of text."""
         width_in_twips = (self.parameters.page_width - self.parameters.left_margin - self.parameters.right_margin -
@@ -262,13 +265,15 @@ class PreviewPanel(wx.Panel):
                 y_offset += style.space_before
 
             x = self.parameters.left_margin + indent
-            if style.alignment == WD_PARAGRAPH_ALIGNMENT.CENTER:
+            if align is None:
+                align = style.alignment
+            if align == WD_PARAGRAPH_ALIGNMENT.CENTER:
                 x += (width_in_twips - total_width) // 2
-            elif style.alignment == WD_PARAGRAPH_ALIGNMENT.RIGHT:
+            elif align == WD_PARAGRAPH_ALIGNMENT.RIGHT:
                 x += width_in_twips - total_width
             for word, width in words:
                 gcdc.DrawText(word, x_offset + x, y_offset)
-                if style.alignment == WD_PARAGRAPH_ALIGNMENT.JUSTIFY:
+                if align == WD_PARAGRAPH_ALIGNMENT.JUSTIFY:
                     x += width + spacing
                 else:
                     x += width + width_of_space
