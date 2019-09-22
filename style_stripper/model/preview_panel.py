@@ -244,7 +244,9 @@ class PreviewPanel(wx.Panel):
                     (width_of_space * (line_end - line_start - 1))
                 if line_width > width_in_twips:
                     words, total_width = current_line
-                    paragraph.append((indent, words, (width_in_twips - total_width) / (len(words) - 1)))
+                    paragraph.append(
+                        (indent, words, width_of_space + (width_in_twips - total_width) / (len(words) - 1))
+                    )
                     line_start = line_end
                     word, width = word_and_widths[line_start]
                     current_line = ([(word, width)], width)
