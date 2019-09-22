@@ -1,3 +1,4 @@
+import logging
 import wx
 
 from style_stripper.data.enums import *
@@ -11,6 +12,7 @@ except ImportError:
     StyleStripperApp = None
 
 # Constants:
+LOG = logging.getLogger(__name__)
 _ = wx.GetTranslation
 DIMENSIONS = [
     '5" x 8"', '5.06" x 7.81"', '5.25" x 8"', '5.5" x 8.5"', '6" x 9"', '6.14" x 9.21"', '6.69" x 9.61"', '7" x 10"',
@@ -54,7 +56,7 @@ class TemplatePanel(wx.Panel):
 
         self.preview = PreviewPanel(self)
         self.parameters.load(r"docx_templates\5x8+bleed.docx")
-        print(self.parameters)
+        LOG.debug("%r", self.parameters)
         self.preview.set_parameters(self.parameters)
         self.preview.set_contents(OPEN_TO_PART, [SCOPE_ON_EVEN_HEADER, SCOPE_ON_EVEN_HEADER, SCOPE_ON_LEFT_MARGIN])
         sizer1.Add(self.preview, 1, wx.EXPAND, 0)
