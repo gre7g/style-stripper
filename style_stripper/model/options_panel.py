@@ -4,6 +4,7 @@ import wx
 
 from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.enums import *
+from style_stripper.model.utility import add_stretcher
 
 try:
     from style_stripper.model.main_app import StyleStripperApp
@@ -20,6 +21,7 @@ class OptionsPanel(wx.Panel):
 
     def __init__(self, parent):
         super(OptionsPanel, self).__init__(parent)
+        self.app = wx.GetApp()
         big_font = wx.Font(20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, faceName="Times New Roman")
 
         sizer1 = wx.BoxSizer(wx.VERTICAL)
@@ -98,20 +100,22 @@ class OptionsPanel(wx.Panel):
         self.ellipses4_text.SetFont(big_font)
         sizer9.Add(self.ellipses4_text, 0, 0, 0)
 
+        sizer18 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer1.Add(sizer18, 0, wx.EXPAND | wx.TOP, 10)
         box = wx.StaticBox(self, label=_("Headings"))
-        sizer1.Add(box, 0, wx.EXPAND | wx.TOP, 10)
+        sizer18.Add(box, 1, 0, 0)
         sizer10 = wx.BoxSizer(wx.VERTICAL)
         sizer11 = wx.BoxSizer(wx.VERTICAL)
         box.SetSizer(sizer10)
         sizer10.Add(sizer11, 1, wx.EXPAND | wx.ALL, 10)
         self.template_headings = wx.StaticText(box, label=_("Selected template supports both parts and chapters"))
-        sizer11.Add(self.template_headings, 0, wx.TOP, 10)
+        sizer11.Add(self.template_headings, 0, wx.TOP, 15)
         self.part_chapter = wx.CheckBox(box, label=_("Style parts and chapters"))
-        sizer11.Add(self.part_chapter, 0, wx.TOP, 5)
+        sizer11.Add(self.part_chapter, 0, wx.TOP, 7)
         self.style_end = wx.CheckBox(box, label=_('Style "The End"'))
-        sizer11.Add(self.style_end, 0, wx.TOP, 12)
+        sizer11.Add(self.style_end, 0, wx.TOP, 10)
         sizer13 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer11.Add(sizer13, 0, wx.EXPAND | wx.TOP, 10)
+        sizer11.Add(sizer13, 0, wx.EXPAND | wx.TOP, 7)
         self.add_end = wx.CheckBox(box, label=_("Add if missing:"))
         sizer13.Add(self.add_end, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         self.end = wx.TextCtrl(box, value="The End")
@@ -122,9 +126,11 @@ class OptionsPanel(wx.Panel):
         sizer14.Add(self.breaks_text, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         self.breaks = wx.Choice(box, choices=["Continuous (no breaks before part/chapter text)", "Next page (keep headers/footers on first page of part/chapter)", "Next page (no headers/footers on first page of part/chapter)", "Odd page (no headers/footers on first page of part/chapter)", "Even page (no headers/footers on first page of part/chapter)"])
         sizer14.Add(self.breaks, 1, wx.LEFT, 5)
+        self.indent = wx.CheckBox(box, label=_("Indent first paragraph of scenes"))
+        sizer11.Add(self.indent, 0, wx.TOP, 8)
 
         box = wx.StaticBox(self, label=_("Dashes and Hyphens"))
-        sizer1.Add(box, 0, wx.EXPAND, 0)
+        sizer18.Add(box, 1, wx.LEFT, 20)
         sizer15 = wx.BoxSizer(wx.VERTICAL)
         sizer16 = wx.BoxSizer(wx.VERTICAL)
         box.SetSizer(sizer15)
@@ -132,11 +138,11 @@ class OptionsPanel(wx.Panel):
         self.replace_dashes = wx.CheckBox(box, label=_("Replace dashes"))
         sizer16.Add(self.replace_dashes, 0, wx.TOP, 15)
         self.replace_hyphens = wx.CheckBox(box, label=_("Replace double-hyphens (--)"))
-        sizer16.Add(self.replace_hyphens, 0, wx.TOP, 15)
+        sizer16.Add(self.replace_hyphens, 0, wx.TOP, 12)
         self.hyphen_at_end = wx.CheckBox(box, label=_('Fix hyphen at end of quotes (before-")'))
-        sizer16.Add(self.hyphen_at_end, 0, wx.TOP, 15)
-        sizer17 = wx.FlexGridSizer(2, 10, 2)
-        sizer16.Add(sizer17, 0, wx.TOP, 5)
+        sizer16.Add(self.hyphen_at_end, 0, wx.TOP, 12)
+        sizer17 = wx.FlexGridSizer(2, 5, 2)
+        sizer16.Add(sizer17, 0, wx.TOP, 10)
         self.en_dash = wx.RadioButton(box)
         sizer17.Add(self.en_dash, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         self.en_dash_text = wx.StaticText(box, label="before – after")
@@ -147,6 +153,17 @@ class OptionsPanel(wx.Panel):
         self.em_dash_text = wx.StaticText(box, label="before—after")
         self.em_dash_text.SetFont(big_font)
         sizer17.Add(self.em_dash_text, 0, 0, 0)
+
+        add_stretcher(sizer1)
+        sizer19 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer1.Add(sizer19, 0, wx.EXPAND | wx.TOP, 10)
+        button = wx.Button(self, label=_("Prev"))
+        button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_prev)
+        sizer19.Add(button, 0, 0, 0)
+        add_stretcher(sizer19)
+        button = wx.Button(self, label=_("Next"))
+        button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_next)
+        sizer19.Add(button, 0, 0, 0)
 
         self.SetSizer(sizer1)
 
