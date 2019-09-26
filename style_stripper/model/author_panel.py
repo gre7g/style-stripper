@@ -47,9 +47,10 @@ class AuthorPanel(wx.Panel):
         sizer2.Add(text, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
         self.modified_ctrl = wx.StaticText(self)
         sizer2.Add(self.modified_ctrl, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 0)
-        button = wx.Button(self, label=_("Next"))
-        button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_next)
-        sizer1.Add(button, 0, wx.ALIGN_RIGHT | wx.TOP, 10)
+        self.next = wx.Button(self, label=_("Next"))
+        self.next.Enable(False)
+        self.next.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_next)
+        sizer1.Add(self.next, 0, wx.ALIGN_RIGHT | wx.TOP, 10)
         self.SetSizer(sizer1)
 
     def refresh_contents(self):
@@ -66,3 +67,6 @@ class AuthorPanel(wx.Panel):
             dt_obj = wx.DateTime(modified.day, modified.month - 1, modified.year, modified.hour, modified.minute,
                                  modified.second)
             self.modified_ctrl.SetLabel("%s %s" % (dt_obj.FormatDate(), dt_obj.FormatTime()))
+
+    def book_loaded(self, is_loaded: bool = True):
+        self.next.Enable(is_loaded)

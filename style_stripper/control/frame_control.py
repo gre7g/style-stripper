@@ -34,6 +34,7 @@ class FrameControl(object):
         try:
             if dialog.ShowModal() == wx.ID_OK:
                 self.app.book.load(dialog.GetPath())
+                self.app.frame.book_loaded()
         finally:
             dialog.Destroy()
 

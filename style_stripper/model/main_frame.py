@@ -111,3 +111,6 @@ class MainFrame(wx.Frame):
     def refresh_file_history(self):
         self.file_history.AddFileToHistory(self.app.file_path)
         self.file_history.Save(wx.FileConfig(CONSTANTS.UI.CATEGORY_NAME))
+
+    def book_loaded(self, is_loaded: bool = True):
+        self.panels[0].book_loaded(is_loaded)

@@ -1,8 +1,7 @@
+from copy import deepcopy
 import logging
-from typing import List, Tuple, Union, Optional
 import wx
 
-from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.enums import *
 from style_stripper.model.utility import add_stretcher
 
@@ -263,6 +262,7 @@ class OptionsPanel(wx.Panel):
 
     def grab_contents(self):
         config = self.app.settings.latest_config
+        config_copy = deepcopy(config)
         refresh = False
         config[SPACES][PURGE_DOUBLE_SPACES] = self.double.GetValue()
         config[SPACES][PURGE_LEADING_WHITESPACE] = self.leading.GetValue()
@@ -314,5 +314,8 @@ class OptionsPanel(wx.Panel):
         config[DASHES][CONVERT_TO_EN_DASH] = self.en_dash.GetValue()
         config[DASHES][CONVERT_TO_EM_DASH] = self.em_dash.GetValue()
 
+        if config != config_copy:
+            self.app.book.is_modified()
+
         if refresh:
-            self.refresh_contents()
+            self.app.frame.refresh_contents()

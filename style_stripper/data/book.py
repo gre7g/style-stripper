@@ -21,6 +21,9 @@ class Book(object):
     def init(self):
         return self
 
+    def is_loaded(self):
+        return self.original_docx is not None
+
     def is_modified(self):
         return self._modified
 

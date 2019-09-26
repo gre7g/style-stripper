@@ -82,6 +82,8 @@ class MenuControl(object):
         self.app.file_path = path
         with open(path, "rb") as file_obj:
             self.app.book = pickle.load(file_obj).init()
+        if self.app.book.is_loaded():
+            self.app.frame.book_loaded()
         self.app.frame.refresh_contents()
         self.app.book.not_modified()
         self.app.frame.refresh_file_history()
