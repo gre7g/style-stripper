@@ -315,7 +315,7 @@ class OptionsPanel(wx.Panel):
         config[DASHES][CONVERT_TO_EM_DASH] = self.em_dash.GetValue()
 
         if config != config_copy:
-            self.app.book.is_modified()
+            self.app.book.modified()
 
         if refresh:
             self.app.frame.refresh_contents()
