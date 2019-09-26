@@ -5,6 +5,7 @@ import wx
 from style_stripper.data.constants import CONSTANTS
 from style_stripper.model.author_panel import AuthorPanel
 from style_stripper.model.template_panel import TemplatePanel
+from style_stripper.model.options_panel import OptionsPanel
 
 # Constants:
 _ = wx.GetTranslation
@@ -30,6 +31,10 @@ class MainFrame(wx.Frame):
         self.panels.append(panel)
 
         panel = TemplatePanel(self.main_panel)
+        sizer2.Add(panel, 1, wx.EXPAND, 0)
+        self.panels.append(panel)
+
+        panel = OptionsPanel(self.main_panel)
         sizer2.Add(panel, 1, wx.EXPAND, 0)
         self.panels.append(panel)
 
