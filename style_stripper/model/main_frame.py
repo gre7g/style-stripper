@@ -103,6 +103,11 @@ class MainFrame(wx.Frame):
         self.main_panel.Layout()
         active_panel.refresh_contents()
 
+    def grab_contents(self):
+        if self.app.initialized:
+            panel = self.panels[self.app.book.current_page]
+            panel.grab_contents()
+
     def refresh_file_history(self):
         self.file_history.AddFileToHistory(self.app.file_path)
         self.file_history.Save(wx.FileConfig(CONSTANTS.UI.CATEGORY_NAME))

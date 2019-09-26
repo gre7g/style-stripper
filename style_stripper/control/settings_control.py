@@ -33,17 +33,16 @@ class Settings(object):
                 BLANK_PARAGRAPH_IF_NO_OTHER: True,
                 REPLACE_WITH_NEW: True,
                 NEW: "# # #",
-                REMOVE_DIVIDERS_BEFORE_HEADINGS: True
             },
             ELLIPSES: {
                 REPLACE_WITH_NEW: True,
                 NEW: "\u200a.\u200a.\u200a.\u200a"  # Alternative is \u2009
             },
             HEADINGS: {
-                STYLE_PART: True,
-                STYLE_CHAPTER: True,
+                STYLE_PARTS_AND_CHAPTER: True,
                 STYLE_THE_END: True,
-                FLATTEN_IF_NO_PARTS: True,
+                ADD_THE_END: True,
+                THE_END: "The End",
                 HEADER_FOOTER_AFTER_BREAK: False,
                 BREAK_BEFORE_HEADING: ODD_PAGE
             },
@@ -56,7 +55,6 @@ class Settings(object):
             },
             STYLING: {
                 INDENT_FIRST_PARAGRAPH: False,
-                CENTER_DIVIDER: True
             }
         }
 

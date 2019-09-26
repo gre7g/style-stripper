@@ -67,3 +67,7 @@ class FrameControl(object):
     def on_variant(self, event: wx.ScrollEvent):
         self.app.frame.refresh_contents()
         event.Skip()
+
+    def on_option(self, event: wx.CommandEvent):
+        self.app.frame.grab_contents()
+        event.Skip()

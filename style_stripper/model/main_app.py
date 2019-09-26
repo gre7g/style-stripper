@@ -23,6 +23,7 @@ class StyleStripperApp(wx.App):
 
     def __init__(self, *args, **kwargs):
         self.file_path = None
+        self.initialized = False
 
         # Controls
         self.frame_controls = FrameControl(self)
@@ -38,4 +39,5 @@ class StyleStripperApp(wx.App):
         self.frame.init()
 
         self.book = Book(self.settings.latest_config)
+        self.initialized = True
         self.frame.refresh_contents()
