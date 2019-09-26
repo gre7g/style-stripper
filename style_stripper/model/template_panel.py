@@ -2,7 +2,6 @@ import logging
 import wx
 
 from style_stripper.data.enums import *
-from style_stripper.data.template_details import TemplateParameters
 from style_stripper.model.preview_panel import PreviewPanel
 from style_stripper.model.utility import add_stretcher
 
@@ -26,7 +25,6 @@ class TemplatePanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
         self.app = wx.GetApp()
-        self.parameters = TemplateParameters()
 
         sizer1 = wx.BoxSizer(wx.VERTICAL)
         sizer2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -55,9 +53,9 @@ class TemplatePanel(wx.Panel):
         sizer2.Add(self.item, 0, wx.LEFT | wx.CENTER, 5)
 
         self.preview = PreviewPanel(self)
-        self.parameters.load(r"docx_templates\5x8+bleed.docx")
-        LOG.debug("%r", self.parameters)
-        self.preview.set_parameters(self.parameters)
+        self.app.parameters.load(r"docx_templates\5x8+bleed.docx")
+        LOG.debug("%r", self.app.parameters)
+        self.preview.set_parameters(self.app.parameters)
         self.preview.set_contents(OPEN_TO_PART, [SCOPE_ON_EVEN_HEADER, SCOPE_ON_EVEN_FOOTER, SCOPE_ON_GUTTER])
         sizer1.Add(self.preview, 1, wx.EXPAND, 0)
 
@@ -73,16 +71,14 @@ class TemplatePanel(wx.Panel):
         sizer1.Add(sizer3, 0, wx.EXPAND | wx.TOP, 10)
         button = wx.Button(self, label=_("Prev"))
         button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_prev)
-        sizer3.Add(button, 0, 0, 0)
+        sizer3.Add(button, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         add_stretcher(sizer3)
-        text = wx.StaticText(self, label=_("Estimated pages with this template:"))
-        sizer3.Add(text, 0, wx.CENTER, 0)
-        text = wx.StaticText(self, label=_("395"))
-        sizer3.Add(text, 0, wx.CENTER | wx.LEFT, 5)
+        self.notes = wx.StaticText(self, label=_("Template includes both Part and Chapter headings\nEstimated pages with this template: 395"), style=wx.ALIGN_CENTER_HORIZONTAL)
+        sizer3.Add(self.notes, 0, wx.CENTER, 0)
         add_stretcher(sizer3)
         button = wx.Button(self, label=_("Next"))
         button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_next)
-        sizer3.Add(button, 0, 0, 0)
+        sizer3.Add(button, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
         self.SetSizer(sizer1)
 
