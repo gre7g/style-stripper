@@ -98,7 +98,8 @@ class TemplatePanel(wx.Panel):
 
         template = self.get_template()
         pages = self.app.book.word_count * template.pages_per_100k // 100000
-        self.notes.SetLabel(_("Template includes both Part and Chapter headings\nEstimated pages with this template: %s") % pages)
+        includes = _("both Part and Chapter headings") if template.part_and_chapter else _("Chapter headings only")
+        self.notes.SetLabel(_("Template includes %(includes)s\nEstimated pages with this template: %(pages)s") % {"includes": includes, "pages": pages})
         self.Layout()
 
     def get_templates(self):
@@ -122,6 +123,7 @@ if __name__ == "__main__":
 
 # doc.core_properties.comments
 # Comment on template:
-# 1,395
+# 1,395,1
 # 1 first variant of headers and footers
 # 395p typ for 100k words
+# 1=both part & chapter, 0=chapter only

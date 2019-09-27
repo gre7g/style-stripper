@@ -80,6 +80,7 @@ class TemplateParameters(object):
     comments: Optional[str] = attr.ib(default=None)
     head_foot_variant: int = attr.ib(default=1)
     pages_per_100k: int = attr.ib(default=300)
+    part_and_chapter: bool = attr.ib(default=True)
     different_first_page_header_footer: bool = attr.ib(default=True)
     page_height: Optional[int] = attr.ib(default=None)
     page_width: Optional[int] = attr.ib(default=None)
@@ -125,6 +126,7 @@ class TemplateParameters(object):
         parts = self.comments.split(",")
         self.head_foot_variant = int(parts[0])
         self.pages_per_100k = int(parts[1])
+        self.part_and_chapter = parts[2] == "1"
 
         self.different_first_page_header_footer = bool(first_section.different_first_page_header_footer)
         self.page_height = first_section.page_height / CONSTANTS.MEASURING.EMUS_PER_TWIP

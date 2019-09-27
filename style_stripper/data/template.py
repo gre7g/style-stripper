@@ -32,7 +32,7 @@ class Template(TemplateParameters):
     def __init__(self, path: str) -> None:
         super(Template, self).__init__()
         self.doc = Document(path)
-        self.load(self.doc)
+        self.load = self.load(self.doc)
         self.bleed = "bleed" in path
         self.add_page_break = self.doc.add_page_break
         self.add_section = self.doc.add_section
