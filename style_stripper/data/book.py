@@ -1,11 +1,15 @@
 from copy import deepcopy
+from docx.enum.section import WD_SECTION_START
 import logging
 import wx
 
+from style_stripper.data.constants import CONSTANTS
+from style_stripper.data.enums import *
 from style_stripper.data.original_docx import OriginalDocx
 
 # Constants:
 LOG = logging.getLogger(__name__)
+BREAK_MAP = {NEW_PAGE: WD_SECTION_START.NEW_PAGE, ODD_PAGE: WD_SECTION_START.ODD_PAGE, EVEN_PAGE: WD_SECTION_START.EVEN_PAGE}
 
 
 class Book(object):
@@ -56,21 +60,22 @@ class Book(object):
 
     def export(self, path: str):
         # Open a template file to format the output
-        template = Template(CONSTANTS.PAGE.TEMPLATE)
+        template = wx.GetApp().template
+        template.set_properties(self.author, self.title)
 
         # Dump paragraphs into the template
-        for paragraph in document.paragraphs:
+        for paragraph in self.original_docx.paragraphs:
             # May need to insert breaks before the headings
             if paragraph.style in [CONSTANTS.STYLING.NAMES.HEADING1, CONSTANTS.STYLING.NAMES.HEADING2]:
-                if CONSTANTS.HEADINGS.BREAK_BEFORE_HEADING is not None:
-                    if CONSTANTS.HEADINGS.HEADER_FOOTER_AFTER_BREAK:
+                if self.config[HEADINGS][BREAK_BEFORE_HEADING] != CONTINUOUS:
+                    if self.config[HEADINGS][HEADER_FOOTER_AFTER_BREAK]:
                         template.add_page_break()
                     else:
                         # template.add_content()
                         template.add_content()
-                        template.add_section(CONSTANTS.HEADINGS.BREAK_BEFORE_HEADING)
+                        template.add_section(BREAK_MAP[self.config[HEADINGS][BREAK_BEFORE_HEADING]])
 
             template.add_content(paragraph.text, paragraph.style)
 
         # Save the resulting file
-        template.save_as(r"..\temp.docx")
+        template.save_as(path)

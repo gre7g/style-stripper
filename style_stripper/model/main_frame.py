@@ -15,6 +15,12 @@ LOG = logging.getLogger(__name__)
 
 
 class MainFrame(wx.Frame):
+    author_panel: AuthorPanel
+    template_panel: TemplatePanel
+    options_panel: OptionsPanel
+    review_panel: ReviewPanel
+    done_panel: DonePanel
+
     def __init__(self, *args, **kwargs):
         self.app = wx.GetApp()
         self.main_panel = self.file_history = self.statusbar = self.file_path_ctrl = self.author_ctrl = None

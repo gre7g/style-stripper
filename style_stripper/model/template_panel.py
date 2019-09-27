@@ -15,8 +15,21 @@ except ImportError:
 LOG = logging.getLogger(__name__)
 _ = wx.GetTranslation
 DIMENSIONS = [
-    '5" x 8"', '5.06" x 7.81"', '5.25" x 8"', '5.5" x 8.5"', '6" x 9"', '6.14" x 9.21"', '6.69" x 9.61"', '7" x 10"',
-    '7.44" x 9.69"', '7.5" x 9.25"', '8" x 10"', '8.25" x 6"', '8.25" x 8.25"', '8.5" x 11"', '8.27" x 11.69"'
+    '5" x 8"',
+    '5.06" x 7.81"',
+    '5.25" x 8"',
+    '5.5" x 8.5"',
+    '6" x 9"',
+    '6.14" x 9.21"',
+    '6.69" x 9.61"',
+    '7" x 10"',
+    '7.44" x 9.69"',
+    '7.5" x 9.25"',
+    '8" x 10"',
+    '8.25" x 6"',
+    '8.25" x 8.25"',
+    '8.5" x 11"',
+    '8.27" x 11.69"',
 ]
 
 
@@ -99,8 +112,12 @@ class TemplatePanel(wx.Panel):
         template = self.get_template()
         pages = self.app.book.word_count * template.pages_per_100k // 100000
         includes = _("both Part and Chapter headings") if template.part_and_chapter else _("Chapter headings only")
-        self.notes.SetLabel(_("Template includes %(includes)s\nEstimated pages with this template: %(pages)s") % {"includes": includes, "pages": pages})
+        self.notes.SetLabel(
+            _("Template includes %(includes)s\nEstimated pages with this template: %(pages)s")
+            % {"includes": includes, "pages": pages}
+        )
         self.Layout()
+        self.app.template = template
 
     def get_templates(self):
         size = self.dimensions.GetString(self.dimensions.GetSelection())
@@ -119,6 +136,7 @@ class TemplatePanel(wx.Panel):
 
 if __name__ == "__main__":
     from pprint import pprint
+
     pprint(fetch_docx_details(r"..\docx_templates\5x8+bleed.docx"))
 
 # doc.core_properties.comments

@@ -77,6 +77,10 @@ class Template(TemplateParameters):
     def save_as(self, filename: str) -> None:
         self.doc.save(filename)
 
+    def set_properties(self, author, title):
+        self.doc.core_properties.author = author
+        self.doc.core_properties.title = title
+
 
 if __name__ == "__main__":
     d = Template(r"docx_templates\5x8+bleed.docx")

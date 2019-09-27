@@ -106,8 +106,6 @@ class Paragraph(object):
         inside_quote = False
         must_change: List[Tuple[int, str]] = []  # [(offset, new_tick), ...]
         change_unknown: List[int] = []  # [offset, ...]
-        if "give you some paper" in self.text:
-            print()
         offset = 0
         while True:
             match = SEARCH_QUOTES_OR_TICKS.search(self.text, offset)
@@ -174,7 +172,11 @@ class Paragraph(object):
 class QuestionableTick(object):
     paragraph: Paragraph = attr.ib()
     start: int = attr.ib()
+    checkbox: wx.CheckBox = attr.ib(default=None)
 
     def __str__(self):
         match = SEARCH_END_TICK.search(self.paragraph.text, self.start+1)
         return SEARCH_ITALIC_CHARS.sub("", self.paragraph.text[self.start:match.end(1)])
+
+    def apply(self):
+        self.paragraph.text = self.paragraph.text[:self.start] + "‘" + self.paragraph.text[self.start+1:]

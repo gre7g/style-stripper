@@ -1,10 +1,11 @@
 import logging
+from typing import List
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
 
 from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.enums import *
-from style_stripper.data.paragraph import Paragraph
+from style_stripper.data.paragraph import Paragraph, QuestionableTick
 from style_stripper.model.utility import add_stretcher
 
 try:
@@ -19,6 +20,7 @@ _ = wx.GetTranslation
 
 class ReviewPanel(wx.Panel):
     app: StyleStripperApp
+    questionable: List[QuestionableTick]
 
     def __init__(self, parent):
         super(ReviewPanel, self).__init__(parent)
@@ -132,12 +134,12 @@ class ReviewPanel(wx.Panel):
 
         elif self.state == STATE_FIX_TICKS:
             if config[QUOTES][CONVERT_TO_CURLY]:
-                self.questionable = {}
+                self.questionable = []
                 for question in document.fix_ticks():
-                    checkbox = wx.CheckBox(self.scroll, label=str(question))
-                    checkbox.SetValue(True)
-                    self.questionable[checkbox.GetId()] = question
-                    self.sizer3.Add(checkbox, 0, wx.TOP, 5)
+                    question.checkbox = wx.CheckBox(self.scroll, label=str(question))
+                    question.checkbox.SetValue(True)
+                    self.questionable.append(question)
+                    self.sizer3.Add(question.checkbox, 0, wx.TOP, 5)
                 self.scroll.SetupScrolling()
                 self.ticks.SetLabel(_("Located %d special cases") % len(self.questionable))
             else:
@@ -213,3 +215,6 @@ class ReviewPanel(wx.Panel):
         elif self.state == STATE_DONE:
             self.processing.SetLabel(_("Processing complete."))
             self.apply_button.Enable(True)
+
+    def get_ticks(self):
+        return [question for question in self.questionable if question.checkbox.GetValue()]

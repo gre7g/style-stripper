@@ -5,7 +5,7 @@ from typing import List, Tuple, Optional
 
 from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.enums import *
-from style_stripper.data.paragraph import Paragraph
+from style_stripper.data.paragraph import Paragraph, QuestionableTick
 
 try:
     from style_stripper.data.book import Book
@@ -56,7 +56,7 @@ class OriginalDocx(object):
         for paragraph in self.paragraphs:
             paragraph.fix_quotes_and_dashes(self.book.config)
 
-    def fix_ticks(self) -> List[Tuple[Paragraph, int]]:
+    def fix_ticks(self) -> List[QuestionableTick]:
         self.questionable_ticks = []
         for paragraph in self.paragraphs:
             paragraph.fix_ticks(self.book.config, self.questionable_ticks)

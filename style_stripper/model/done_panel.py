@@ -37,3 +37,7 @@ class DonePanel(wx.Panel):
     def refresh_contents(self):
         pass
 
+    def apply(self):
+        questionable = self.app.frame.review_panel.get_ticks()
+        for question in questionable:
+            question.apply()
