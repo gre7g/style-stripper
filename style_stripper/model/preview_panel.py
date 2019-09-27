@@ -32,8 +32,6 @@ class PreviewPanel(wx.Panel):
         self.parameters = self.open_to = self.scopes = self.scale = self.x_orig = self.y_orig = self.scope_radius = None
         self.measure_to_twips = None
         self.color_db = wx.ColourDatabase()
-        # points = [(5000+cos(a*6.283/15)*2000, 5000+sin(a*6.283/15)*2000) for a in range(15)]
-        # self.region = wx.Region(points)
 
         self.Bind(wx.EVT_PAINT, self.on_paint)
         self.Bind(wx.EVT_SIZE, self.on_size)
@@ -131,7 +129,6 @@ class PreviewPanel(wx.Panel):
         gcdc.Clear()
         gcdc.SetLogicalOrigin(self.x_orig, self.y_orig)
         gcdc.SetLogicalScale(self.scale, self.scale)
-        # gcdc.SetDeviceClippingRegion(self.region)
 
         # Draw white bar for vertical ruler
         white = self.color_db.Find("WHITE")
@@ -210,6 +207,16 @@ class PreviewPanel(wx.Panel):
                                    align=WD_PARAGRAPH_ALIGNMENT.RIGHT)
 
     def draw_scope(self, gcdc: wx.GCDC, x: int, y: int):
+        gcdc.SetLogicalOrigin(x - ((x - self.x_orig) / CONSTANTS.UI.PREVIEW.MAGNIFIER_SCALING), y - ((y - self.y_orig) / CONSTANTS.UI.PREVIEW.MAGNIFIER_SCALING))
+        gcdc.SetLogicalScale(self.scale * CONSTANTS.UI.PREVIEW.MAGNIFIER_SCALING, self.scale * CONSTANTS.UI.PREVIEW.MAGNIFIER_SCALING)
+        points = [(x+cos(a*6.283/15)*self.scope_radius/CONSTANTS.UI.PREVIEW.MAGNIFIER_SCALING, y+sin(a*6.283/15)*self.scope_radius/CONSTANTS.UI.PREVIEW.MAGNIFIER_SCALING) for a in range(15)]
+        region = wx.Region(points)
+        gcdc.SetDeviceClippingRegion(region)
+        self.draw_content(gcdc)
+        gcdc.DestroyClippingRegion()
+        gcdc.SetLogicalOrigin(self.x_orig, self.y_orig)
+        gcdc.SetLogicalScale(self.scale, self.scale)
+        gcdc.SetBrush(wx.NullBrush)
         gcdc.DrawCircle(x, y, self.scope_radius)
 
     def draw_scopes(self, gcdc: wx.GCDC):

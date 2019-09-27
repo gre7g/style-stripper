@@ -70,4 +70,4 @@ class CONSTANTS(object):
             TICK_TO = 0.6  # to 60% point on ruler
             TEXT_TO_OPPOSITE_PART = 0.7  # 70% text opposite the part page
             TEXT_TO_OPPOSITE_CHAPTER = 0.4  # 40% text opposite the chapter page
-            MAGNIFIER_SCALING = 2.0  # 2x magnification
+            MAGNIFIER_SCALING = 3.0  # 3x magnification
