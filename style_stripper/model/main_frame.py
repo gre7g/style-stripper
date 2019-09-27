@@ -122,4 +122,5 @@ class MainFrame(wx.Frame):
         self.author_panel.book_loaded(is_loaded)
 
     def apply(self):
-        self.review_panel.apply()
+        panel = self.panels[self.app.book.current_page]
+        panel.apply()

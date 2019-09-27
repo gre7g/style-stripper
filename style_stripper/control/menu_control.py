@@ -89,6 +89,10 @@ class MenuControl(object):
         self.app.book.not_modified()
         self.app.frame.refresh_file_history()
 
+        if self.app.book.current_page == 3:
+            self.app.book.reload()
+            self.app.frame.apply()
+
     def on_file_history(self, event: wx.MenuEvent):
         self.load(self.app.frame.file_history.GetHistoryFile(event.GetId() - wx.ID_FILE1))
 

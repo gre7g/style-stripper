@@ -79,6 +79,10 @@ class ReviewPanel(wx.Panel):
         button = wx.Button(self, label=_("Back (reload document)"))
         button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_reload)
         sizer23.Add(button, 0, 0, 0)
+        add_stretcher(sizer23)
+        button = wx.Button(self, label=_("Apply Options"))
+        button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_apply)
+        sizer23.Add(button, 0, 0, 0)
 
     def apply(self):
         self.state = STATE_READY
