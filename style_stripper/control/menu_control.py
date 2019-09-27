@@ -30,6 +30,7 @@ class MenuControl(object):
                 dialog.Destroy()
 
         self.app.book = Book(self.app.settings.latest_config)
+        self.app.file_path = None
         self.app.frame.refresh_contents()
 
     def on_save(self, event: wx.MenuEvent):

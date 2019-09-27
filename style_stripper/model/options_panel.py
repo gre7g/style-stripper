@@ -58,7 +58,7 @@ class OptionsPanel(wx.Panel):
         self.quotes.Bind(wx.EVT_CHECKBOX, self.app.frame_controls.on_option)
         sizer7.Add(self.quotes, 0, wx.TOP, 16)
 
-        box = wx.StaticBox(self, label=_("Scene breaks"))
+        box = wx.StaticBox(self, label=_("Scene Breaks"))
         sizer3.Add(box, 0, wx.EXPAND | wx.TOP, 16)
         sizer8 = wx.BoxSizer(wx.VERTICAL)
         sizer9 = wx.BoxSizer(wx.VERTICAL)

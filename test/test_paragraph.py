@@ -18,7 +18,7 @@ class TestParagraph(TestCase):
         paragraph.add("more plain", False)
         paragraph.add("more italic", True)
         paragraph.add("even more italic", True)
-        paragraph.set_word_count()
+        paragraph.get_word_count()
         assert paragraph.text == "plain❰italic❱more plain❰more italiceven more italic❱"
         assert paragraph.word_count == 8
 

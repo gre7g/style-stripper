@@ -38,12 +38,12 @@ class TestOriginalDocx(TestCase):
 
         Document.assert_called_once_with("path/to/docx")
         para_objs[0].assert_has_calls([
-            call.add('one', False), call.add('two', True), call.set_word_count(),
+            call.add('one', False), call.add('two', True), call.get_word_count(),
             call.fix_spaces(config), call.fix_italic_boundaries(config), call.fix_quotes_and_dashes(config),
             call.fix_ticks(config, questionable_ticks)
         ])
         para_objs[1].assert_has_calls([
-            call.add('three', False), call.set_word_count(),
+            call.add('three', False), call.get_word_count(),
             call.fix_spaces(config), call.fix_italic_boundaries(config), call.fix_quotes_and_dashes(config),
             call.fix_ticks(config, questionable_ticks)
         ])

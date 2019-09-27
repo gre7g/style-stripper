@@ -4,6 +4,8 @@ from style_stripper.data.original_docx import OriginalDocx
 
 
 class Book(object):
+    original_docx: OriginalDocx
+
     def __init__(self, config):
         self.file_version = 1
         self.original_docx = None

@@ -14,12 +14,7 @@ class CONSTANTS(object):
         TWIPS_PER_CM = 566.9291
 
     class DIVIDER(object):
-        SEARCH = [
-            re.compile(r"^\s*❰?#\s*#\s*#❱?\s*$"),
-            re.compile(r"^\s*❰?#❱?\s*$"),
-            re.compile(r"^\s*❰?\*\s*\*\s*\*❱?\s*$"),
-            re.compile(r"^\s*❰?\*❱?\s*$"),
-        ]
+        SEARCH = re.compile(r"\w")
         MAX_BLANK_PARAGRAPH_DIVIDERS = 400
 
     class ELLIPSES(object):

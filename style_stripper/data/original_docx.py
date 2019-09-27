@@ -1,5 +1,6 @@
 from docx import Document
 import logging
+import re
 from typing import List, Tuple, Optional
 
 from style_stripper.data.constants import CONSTANTS
@@ -20,10 +21,6 @@ class OriginalDocx(object):
         self.book = book
         self.questionable_ticks: List[Tuple[Paragraph, int]] = []
 
-        # The Paragraph class has a class member that tracks what sort of dash we're using so we don't have to do this
-        # comparison constantly. Set the class member now based on book configuration.
-        Paragraph.set_dash_class_member(book.config)
-
         self.paragraphs: List[Paragraph] = []
         self.symbolic_divider_indexes: List[int] = []
         doc = Document(path)
@@ -34,15 +31,10 @@ class OriginalDocx(object):
 
             for run in paragraph.runs:
                 paragraph_obj.add(run.text, run.italic)
-            paragraph_obj.set_word_count()
+            paragraph_obj.get_word_count()
             word_count += paragraph_obj.word_count
 
-            paragraph_obj.fix_spaces(book.config)
-            paragraph_obj.fix_italic_boundaries(book.config)
-            paragraph_obj.fix_quotes_and_dashes(book.config)
-            self.questionable_ticks = []
-            paragraph_obj.fix_ticks(book.config, self.questionable_ticks)
-            # must_change.append((offset, "‘" if ask_function(self, offset) else "’"))
+            # # must_change.append((offset, "‘" if ask_function(self, offset) else "’"))
 
             # LOG.debug(paragraph_obj.text)
             self.paragraphs.append(paragraph_obj)
@@ -52,23 +44,125 @@ class OriginalDocx(object):
         self.book.word_count = word_count
         self.book.last_modified = doc.core_properties.modified
 
+    def fix_spaces(self):
+        for paragraph in self.paragraphs:
+            paragraph.fix_spaces(self.book.config)
+
+    def fix_italic_boundaries(self):
+        for paragraph in self.paragraphs:
+            paragraph.fix_italic_boundaries(self.book.config)
+
+    def fix_quotes_and_dashes(self):
+        for paragraph in self.paragraphs:
+            paragraph.fix_quotes_and_dashes(self.book.config)
+
+    def fix_ticks(self) -> List[Tuple[Paragraph, int]]:
+        self.questionable_ticks = []
+        for paragraph in self.paragraphs:
+            paragraph.fix_ticks(self.book.config, self.questionable_ticks)
+        return self.questionable_ticks
+
+    def find_heading_candidates(self) -> Tuple[int, int, int]:
+        part = chapter = end = 0
+        for paragraph in self.paragraphs:
+            for pattern in CONSTANTS.HEADINGS.SEARCH_PART:
+                if pattern.search(paragraph.text):
+                    part += 1
+                    break
+            for pattern in CONSTANTS.HEADINGS.SEARCH_CHAPTER:
+                if pattern.search(paragraph.text):
+                    chapter += 1
+                    break
+            for pattern in CONSTANTS.HEADINGS.SEARCH_THE_END:
+                if pattern.search(paragraph.text):
+                    end += 1
+                    break
+
+        LOG.debug("parts found: %d", part)
+        LOG.debug("chapters found: %d", chapter)
+        LOG.debug("the end found: %d", end)
+        return part, chapter, end
+
+    @staticmethod
+    def matches_any(searches: re.Pattern, text: str):
+        for search in searches:
+            if search.search(text):
+                return True
+        else:
+            return False
+
+    def style_part_chapter(self, chapter_style: str):
+        found_part = found_chapter = None
+        group = []
+        index = 0
+        while index < len(self.paragraphs):
+            paragraph = self.paragraphs[index]
+            if paragraph.text == "":
+                group.append(index)
+            elif self.matches_any(CONSTANTS.HEADINGS.SEARCH_PART, paragraph.text):
+                group.append(index)
+                found_part = paragraph
+            elif found_part:
+                found_part.style = CONSTANTS.STYLING.NAMES.HEADING1
+                self.paragraphs[group[0]:group[-1] + 1] = [found_part]
+                index = group[0]
+                found_part = None
+                group = []
+            elif self.matches_any(CONSTANTS.HEADINGS.SEARCH_CHAPTER, paragraph.text):
+                group.append(index)
+                found_chapter = paragraph
+            elif found_chapter:
+                found_chapter.style = chapter_style
+                self.paragraphs[group[0]:group[-1]+1] = [found_chapter]
+                index = group[0]
+                found_chapter = None
+                group = []
+            else:
+                group = []
+
+            index += 1
+
+    def style_end(self):
+        found_end = None
+        group = []
+        index = 0
+        while index < len(self.paragraphs):
+            paragraph = self.paragraphs[index]
+            if paragraph.text == "":
+                group.append(index)
+            elif self.matches_any(CONSTANTS.HEADINGS.SEARCH_THE_END, paragraph.text):
+                group.append(index)
+                found_end = paragraph
+            elif found_end:
+                found_end.style = CONSTANTS.STYLING.NAMES.THE_END
+                self.paragraphs[group[0]:group[-1]+1] = [found_end]
+                index = group[0]
+                found_end = None
+                group = []
+            else:
+                group = []
+
+            index += 1
+
     def find_divider_candidates(self) -> Tuple[int, int]:
         count_of_symbolic = count_of_blanks = 0
-        in_blanks = False
+        found_blank = found_symbol = False
+        group = []
         for index, paragraph in enumerate(self.paragraphs):
-            for pattern in CONSTANTS.DIVIDER.SEARCH:
-                if pattern.search(paragraph.text):
-                    count_of_symbolic += 1
-                    self.symbolic_divider_indexes.append(index)
-                    in_blanks = False
-                    break
-            else:
+            if not CONSTANTS.DIVIDER.SEARCH.search(paragraph.text):  # No word content
+                group.append(index)
                 if paragraph.text == "":
-                    if not in_blanks:
-                        in_blanks = True
-                        count_of_blanks += 1
+                    found_blank = True
                 else:
-                    in_blanks = False
+                    found_symbol = True
+            else:
+                if found_symbol:
+                    self.symbolic_divider_indexes.append(group)
+                    count_of_symbolic += 1
+                elif found_blank:
+                    count_of_blanks += 1
+                found_blank = found_symbol = False
+                group = []
 
         LOG.debug("symbolic dividers found: %d", count_of_symbolic)
         LOG.debug("symbolic blanks found: %d", count_of_blanks)
@@ -115,27 +209,6 @@ class OriginalDocx(object):
                     self.paragraphs[index].style = CONSTANTS.STYLING.NAMES.DIVIDER
                     index += 1
                     in_blanks = True
-
-    def find_heading_candidates(self) -> Tuple[int, int, int]:
-        part = chapter = end = 0
-        for paragraph in self.paragraphs:
-            for pattern in CONSTANTS.HEADINGS.SEARCH_PART:
-                if pattern.search(paragraph.text):
-                    part += 1
-                    break
-            for pattern in CONSTANTS.HEADINGS.SEARCH_CHAPTER:
-                if pattern.search(paragraph.text):
-                    chapter += 1
-                    break
-            for pattern in CONSTANTS.HEADINGS.SEARCH_THE_END:
-                if pattern.search(paragraph.text):
-                    end += 1
-                    break
-
-        LOG.debug("parts found: %d", part)
-        LOG.debug("chapters found: %d", chapter)
-        LOG.debug("the end found: %d", end)
-        return part, chapter, end
 
     def style_headings(self, part: Optional[str] = None, chapter: Optional[str] = None, end: Optional[str] = None):
         LOG.debug("styling parts as: %r", part)
