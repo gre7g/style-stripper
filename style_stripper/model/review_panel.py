@@ -143,5 +143,29 @@ class ReviewPanel(wx.Panel):
             wx.CallAfter(self.refresh_contents)
 
         elif self.state == STATE_SEARCH_DIVIDERS:
-            self.symbolic, self.blanks = document.find_divider_candidates()
+            if config[DIVIDER][REPLACE_WITH_NEW]:
+                self.symbolic, self.blanks = document.find_divider_candidates()
+                symbolic_blank = {"symbolic": self.symbolic, "blank": self.blanks}
+                self.scene_breaks.SetLabel(_("Found %(symbolic)d symbolic and %(blank)d blank candidates") % symbolic_blank)
+            else:
+                self.scene_breaks.SetLabel(_("Disabled"))
             self.state = STATE_DONE
+            self.state = STATE_FIX_DIVIDERS
+            wx.CallAfter(self.refresh_contents)
+
+        elif self.state == STATE_FIX_DIVIDERS:
+            if config[DIVIDER][REPLACE_WITH_NEW]:
+                if self.symbolic:
+                    document.replace_symbolic()
+                    document.remove_blanks()
+                    symbolic_blank = {"symbolic": self.symbolic, "blank": self.blanks}
+                    self.scene_breaks.SetLabel(_("Fixed %(symbolic)d symbolic dividers, removed %(blank)d blanks") % symbolic_blank)
+                elif config[DIVIDER][BLANK_PARAGRAPH_IF_NO_OTHER] and self.blanks:
+                    if self.blanks < CONSTANTS.DIVIDER.MAX_BLANK_PARAGRAPH_DIVIDERS:
+                        document.replace_blanks()
+                        self.scene_breaks.SetLabel(_("Converted %d blanks into dividers") % self.blanks)
+                    else:
+                        document.remove_blanks()
+                        self.scene_breaks.SetLabel(_("Removed %d blanks") % self.blanks)
+            self.state = STATE_DONE
+
