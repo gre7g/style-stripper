@@ -51,6 +51,7 @@ class CONSTANTS(object):
         CATEGORY_NAME = "StyleStripper"
         CONFIG_PARAM = "configuration"
         APP_NAME = _("Style Stripper")
+        APPLY_DELAY = 5  # 0.005s
 
         class PREVIEW(object):
             SCOPE_RADIUS = 0.15  # 15% of preview panel

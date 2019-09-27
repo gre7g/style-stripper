@@ -86,7 +86,7 @@ class ReviewPanel(wx.Panel):
 
     def apply(self):
         self.state = STATE_READY
-        wx.CallAfter(self.refresh_contents)
+        wx.CallLater(CONSTANTS.UI.APPLY_DELAY, self.refresh_contents)
 
     def refresh_contents(self):
         document = self.app.book.original_docx
@@ -98,7 +98,7 @@ class ReviewPanel(wx.Panel):
             Paragraph.set_dash_class_member(config)
 
             self.state = STATE_FIX_SPACES
-            wx.CallAfter(self.refresh_contents)
+            wx.CallLater(CONSTANTS.UI.APPLY_DELAY, self.refresh_contents)
 
         elif self.state == STATE_FIX_SPACES:
             self.app.book.modified()
@@ -112,7 +112,7 @@ class ReviewPanel(wx.Panel):
             else:
                 self.spaces.SetLabel(_("Disabled"))
             self.state = STATE_FIX_ITALICS
-            wx.CallAfter(self.app.frame.refresh_contents)
+            wx.CallLater(CONSTANTS.UI.APPLY_DELAY, self.app.frame.refresh_contents)
 
         elif self.state == STATE_FIX_ITALICS:
             if config[ITALIC][ADJUST_TO_INCLUDE_PUNCTUATION]:
@@ -121,13 +121,13 @@ class ReviewPanel(wx.Panel):
             else:
                 self.italics.SetLabel(_("Disabled"))
             self.state = STATE_FIX_QUOTES_AND_DASHES
-            wx.CallAfter(self.refresh_contents)
+            wx.CallLater(CONSTANTS.UI.APPLY_DELAY, self.refresh_contents)
 
         elif self.state == STATE_FIX_QUOTES_AND_DASHES:
             document.fix_quotes_and_dashes()
             self.quotes_and_dashes.SetLabel(_("Fixed"))
             self.state = STATE_FIX_TICKS
-            wx.CallAfter(self.refresh_contents)
+            wx.CallLater(CONSTANTS.UI.APPLY_DELAY, self.refresh_contents)
 
         elif self.state == STATE_FIX_TICKS:
             if config[QUOTES][CONVERT_TO_CURLY]:
@@ -142,7 +142,7 @@ class ReviewPanel(wx.Panel):
             else:
                 self.ticks.SetLabel(_("Disabled"))
             self.state = STATE_SEARCH_HEADINGS
-            wx.CallAfter(self.refresh_contents)
+            wx.CallLater(CONSTANTS.UI.APPLY_DELAY, self.refresh_contents)
 
         elif self.state == STATE_SEARCH_HEADINGS:
             text = []
@@ -158,7 +158,7 @@ class ReviewPanel(wx.Panel):
             else:
                 self.headers.SetLabel(_("Disabled"))
             self.state = STATE_REPLACE_HEADINGS
-            wx.CallAfter(self.refresh_contents)
+            wx.CallLater(CONSTANTS.UI.APPLY_DELAY, self.refresh_contents)
 
         elif self.state == STATE_REPLACE_HEADINGS:
             text = []
@@ -175,7 +175,7 @@ class ReviewPanel(wx.Panel):
             if text:
                 self.headers.SetLabel(_("Styled: ") + _(", ").join(text))
             self.state = STATE_SEARCH_DIVIDERS
-            wx.CallAfter(self.refresh_contents)
+            wx.CallLater(CONSTANTS.UI.APPLY_DELAY, self.refresh_contents)
 
         elif self.state == STATE_SEARCH_DIVIDERS:
             if config[DIVIDER][REPLACE_WITH_NEW]:
@@ -188,7 +188,7 @@ class ReviewPanel(wx.Panel):
                 self.scene_breaks.SetLabel(_("Disabled"))
             self.state = STATE_DONE
             self.state = STATE_FIX_DIVIDERS
-            wx.CallAfter(self.refresh_contents)
+            wx.CallLater(CONSTANTS.UI.APPLY_DELAY, self.refresh_contents)
 
         elif self.state == STATE_FIX_DIVIDERS:
             if config[DIVIDER][REPLACE_WITH_NEW]:
@@ -207,3 +207,7 @@ class ReviewPanel(wx.Panel):
                         document.remove_blanks()
                         self.scene_breaks.SetLabel(_("Removed %d blanks") % self.blanks)
             self.state = STATE_DONE
+            wx.CallLater(CONSTANTS.UI.APPLY_DELAY, self.refresh_contents)
+
+        elif self.state == STATE_DONE:
+            self.processing.SetLabel(_("Processing complete."))
