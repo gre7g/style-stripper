@@ -1,5 +1,6 @@
 import logging
 import wx
+from wx.lib.scrolledpanel import ScrolledPanel
 
 from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.enums import *
@@ -29,34 +30,44 @@ class ReviewPanel(wx.Panel):
         self.SetSizer(sizer1)
         self.processing = wx.StaticText(self, label=_("Processing..."))
         sizer1.Add(self.processing, 0, 0, 0)
-        sizer2 = wx.FlexGridSizer(2, 10, 10)
-        sizer1.Add(sizer2, 1, wx.EXPAND | wx.TOP, 10)
+        sizer2 = wx.FlexGridSizer(4, 10, 10)
+        sizer2.AddGrowableCol(1)
+        sizer2.AddGrowableCol(3)
+        sizer1.Add(sizer2, 0, wx.EXPAND | wx.TOP, 10)
         text = wx.StaticText(self, label=_("• Spaces"))
         sizer2.Add(text, 0, 0, 0)
         self.spaces = wx.StaticText(self)
         sizer2.Add(self.spaces)
-        text = wx.StaticText(self, label=_("• Italics"))
-        sizer2.Add(text, 0, 0, 0)
-        self.italics = wx.StaticText(self)
-        sizer2.Add(self.italics)
-        text = wx.StaticText(self, label=_("• Quotes and dashes"))
-        sizer2.Add(text, 0, 0, 0)
-        self.quotes_and_dashes = wx.StaticText(self)
-        sizer2.Add(self.quotes_and_dashes)
         text = wx.StaticText(self, label=_("• Ticks"))
         sizer2.Add(text, 0, 0, 0)
         self.ticks = wx.StaticText(self)
         sizer2.Add(self.ticks)
+        text = wx.StaticText(self, label=_("• Italics"))
+        sizer2.Add(text, 0, 0, 0)
+        self.italics = wx.StaticText(self)
+        sizer2.Add(self.italics)
         text = wx.StaticText(self, label=_("• Headers"))
         sizer2.Add(text, 0, 0, 0)
         self.headers = wx.StaticText(self)
         sizer2.Add(self.headers)
+        text = wx.StaticText(self, label=_("• Quotes and dashes"))
+        sizer2.Add(text, 0, 0, 0)
+        self.quotes_and_dashes = wx.StaticText(self)
+        sizer2.Add(self.quotes_and_dashes)
         text = wx.StaticText(self, label=_("• Scene breaks"))
         sizer2.Add(text, 0, 0, 0)
         self.scene_breaks = wx.StaticText(self)
         sizer2.Add(self.scene_breaks)
 
-        add_stretcher(sizer1)
+        text = wx.StaticText(self, label=_("The following are probably all quoted text found inside dialogue. Leave checked if they are, uncheck if not:"))
+        sizer1.Add(text, 0, wx.TOP, 20)
+        self.scroll = ScrolledPanel(self, style=wx.BORDER_STATIC)
+        sizer1.Add(self.scroll, 1, wx.EXPAND, 0)
+        sizer3 = wx.BoxSizer(wx.VERTICAL)
+        self.scroll.SetSizer(sizer3)
+        self.sizer3 = wx.BoxSizer(wx.VERTICAL)
+        sizer3.Add(self.sizer3, 1, wx.EXPAND | wx.LEFT, 5)
+
         sizer23 = wx.BoxSizer(wx.HORIZONTAL)
         sizer1.Add(sizer23, 0, wx.EXPAND | wx.TOP, 10)
         button = wx.Button(self, label=_("Prev"))
@@ -102,7 +113,13 @@ class ReviewPanel(wx.Panel):
 
         elif self.state == STATE_FIX_TICKS:
             if config[QUOTES][CONVERT_TO_CURLY]:
-                self.questionable = document.fix_ticks()
+                self.questionable = {}
+                for question in document.fix_ticks():
+                    checkbox = wx.CheckBox(self.scroll, label=str(question))
+                    checkbox.SetValue(True)
+                    self.questionable[checkbox.GetId()] = question
+                    self.sizer3.Add(checkbox, 0, wx.TOP, 5)
+                self.scroll.SetupScrolling()
                 self.ticks.SetLabel(_("Located %d special cases") % len(self.questionable))
             else:
                 self.ticks.SetLabel(_("Disabled"))

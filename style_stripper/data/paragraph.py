@@ -1,6 +1,7 @@
 """Paragraphs"""
 
 from __future__ import annotations  # Allows a parameter to have type hinting of the class that contains it
+import attr
 import logging
 import re
 from typing import List, Tuple, Optional, ClassVar
@@ -25,6 +26,8 @@ SEARCH_QUOTES_OR_TICKS = re.compile(r"(\w?)([“”'‘’])(\w?)")
 SEARCH_DASH_END_OF_QUOTE = re.compile(r'[—–-]+”')
 SEARCH_EN_OR_EM = re.compile(" – |—")
 SEARCH_WORD = re.compile("[a-z]+", re.I)
+SEARCH_END_TICK = re.compile("(’)[\W$]")
+SEARCH_ITALIC_CHARS = re.compile(r"[❰❱]")
 
 LOG = logging.getLogger(__name__)
 
@@ -98,12 +101,19 @@ class Paragraph(object):
 
     def fix_ticks(
         self, config: dict,  # Configuration dictionary
-        questionable_ticks: List[Tuple[Paragraph, int]]
+        questionable_ticks: List[QuestionableTick]
     ):
         inside_quote = False
         must_change: List[Tuple[int, str]] = []  # [(offset, new_tick), ...]
         change_unknown: List[int] = []  # [offset, ...]
-        for match in SEARCH_QUOTES_OR_TICKS.finditer(self.text):
+        if "give you some paper" in self.text:
+            print()
+        offset = 0
+        while True:
+            match = SEARCH_QUOTES_OR_TICKS.search(self.text, offset)
+            if not match:
+                break
+
             # Start quote?
             if match.group(2) == '“':
                 inside_quote = True
@@ -125,7 +135,7 @@ class Paragraph(object):
                         must_change.append((match.start(2), "’"))
                         while change_unknown:
                             offset = change_unknown.pop()
-                            questionable_ticks.append((self, offset))
+                            questionable_ticks.append(QuestionableTick(self, offset))
                 else:
                     if match.group(3):
                         # Start of a word, but is it inside quotes?
@@ -141,7 +151,9 @@ class Paragraph(object):
                         must_change.append((match.start(2), "’"))
                         while change_unknown:
                             offset = change_unknown.pop()
-                            questionable_ticks.append((self, offset))
+                            questionable_ticks.append(QuestionableTick(self, offset))
+
+            offset = match.end(2)
 
         # There was no matching end tick so leftovers must be close
         while change_unknown:
@@ -156,3 +168,13 @@ class Paragraph(object):
 
     def __repr__(self) -> str:
         return repr(self.text)
+
+
+@attr.s
+class QuestionableTick(object):
+    paragraph: Paragraph = attr.ib()
+    start: int = attr.ib()
+
+    def __str__(self):
+        match = SEARCH_END_TICK.search(self.paragraph.text, self.start+1)
+        return SEARCH_ITALIC_CHARS.sub("", self.paragraph.text[self.start:match.end(1)])
