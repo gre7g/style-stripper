@@ -209,6 +209,9 @@ class PreviewPanel(wx.Panel):
                 self.draw_in_style(gcdc, even_page, footer - font_size, CONSTANTS.STYLING.NAMES.FOOTER, _("127"),
                                    align=WD_PARAGRAPH_ALIGNMENT.RIGHT)
 
+    def draw_scope(self, gcdc: wx.GCDC, x: int, y: int):
+        gcdc.DrawCircle(x, y, self.scope_radius)
+
     def draw_scopes(self, gcdc: wx.GCDC):
         width_in_twips = (self.parameters.page_width - self.parameters.left_margin - self.parameters.right_margin -
                           self.parameters.gutter)
@@ -221,8 +224,8 @@ class PreviewPanel(wx.Panel):
         chapter = self.parameters.top_margin + style.space_before + (style.font_size // 2)
         font_size = self.parameters.styles[CONSTANTS.STYLING.NAMES.HEADER].font_size
         header = self.parameters.header_distance
-        even_header = (left_centered, header + (font_size / 2))
-        odd_header = (right_centered, header + (font_size / 2))
+        even_header = (left_centered, header + (font_size // 2))
+        odd_header = (right_centered, header + (font_size // 2))
         footer = self.parameters.page_height - self.parameters.footer_distance
         even_footer = (self.parameters.left_margin, footer - (font_size // 2))
         even_page = self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP + self.parameters.gutter
@@ -230,24 +233,24 @@ class PreviewPanel(wx.Panel):
 
         gcdc.SetBrush(wx.Brush(self.color_db.Find("WHITE")))
         if SCOPE_ON_EVEN_HEADER in self.scopes:
-            gcdc.DrawCircle(even_header[0], even_header[1], self.scope_radius)
+            self.draw_scope(gcdc, even_header[0], even_header[1])
         if SCOPE_ON_ODD_HEADER in self.scopes:
-            gcdc.DrawCircle(odd_header[0], odd_header[1], self.scope_radius)
+            self.draw_scope(gcdc, odd_header[0], odd_header[1])
         if SCOPE_ON_EVEN_FOOTER in self.scopes:
-            gcdc.DrawCircle(even_footer[0], even_footer[1], self.scope_radius)
+            self.draw_scope(gcdc, even_footer[0], even_footer[1])
         if SCOPE_ON_ODD_FOOTER in self.scopes:
-            gcdc.DrawCircle(odd_footer[0], odd_footer[1], self.scope_radius)
+            self.draw_scope(gcdc, odd_footer[0], odd_footer[1])
         if SCOPE_ON_LEFT_MARGIN in self.scopes:
-            gcdc.DrawCircle(self.parameters.left_margin, mid_vertical, self.scope_radius)
+            self.draw_scope(gcdc, self.parameters.left_margin, mid_vertical)
         if SCOPE_ON_RIGHT_MARGIN in self.scopes:
-            gcdc.DrawCircle((self.parameters.page_width * 2) + CONSTANTS.UI.PREVIEW.PAGE_GAP - self.parameters.right_margin,
-                            mid_vertical, self.scope_radius)
+            self.draw_scope(gcdc, (self.parameters.page_width * 2) + CONSTANTS.UI.PREVIEW.PAGE_GAP - self.parameters.right_margin,
+                            mid_vertical)
         if SCOPE_ON_GUTTER in self.scopes:
-            gcdc.DrawCircle(self.parameters.page_width - self.parameters.gutter, mid_vertical, self.scope_radius)
+            self.draw_scope(gcdc, self.parameters.page_width - self.parameters.gutter, mid_vertical)
         if SCOPE_ON_PART in self.scopes:
-            gcdc.DrawCircle(right_centered, part, self.scope_radius)
+            self.draw_scope(gcdc, right_centered, part)
         if SCOPE_ON_CHAPTER in self.scopes:
-            gcdc.DrawCircle(right_centered, chapter, self.scope_radius)
+            self.draw_scope(gcdc, right_centered, chapter)
 
     def draw_in_style(
         self, gcdc: wx.GCDC,  # Graphic context
