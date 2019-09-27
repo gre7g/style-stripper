@@ -70,7 +70,7 @@ class TemplatePanel(wx.Panel):
         self.app.parameters.load(r"docx_templates\5x8+bleed.docx")
         LOG.debug("%r", self.app.parameters)
         self.preview.set_parameters(self.app.parameters)
-        self.preview.set_contents(OPEN_TO_PART, [SCOPE_ON_EVEN_HEADER, SCOPE_ON_EVEN_FOOTER, SCOPE_ON_GUTTER])
+        self.preview.set_contents(OPEN_TO_PART, [])#TODO:SCOPE_ON_EVEN_HEADER, SCOPE_ON_EVEN_FOOTER, SCOPE_ON_GUTTER])
         sizer1.Add(self.preview, 1, wx.EXPAND, 0)
 
         panel = wx.Panel(self, style=wx.BORDER_THEME)
@@ -105,8 +105,9 @@ class TemplatePanel(wx.Panel):
             self.dimensions.SetSelection(0)
             self.new_dimensions()
             self.initialized = True
-        book = self.app.book
-        self.item.SetLabel("%d of 10" % (self.variant.GetThumbPosition() + 1))
+
+        num_templates = len(self.get_templates())
+        self.item.SetLabel("%(template)d of %(num_templates)d" % {"template": self.variant.GetThumbPosition() + 1, "num_templates": num_templates})
         self.preview.find_page_scaling()
 
         template = self.get_template()
