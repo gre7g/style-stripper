@@ -69,7 +69,7 @@ class TemplatePanel(wx.Panel):
 
         sizer3 = wx.BoxSizer(wx.HORIZONTAL)
         sizer1.Add(sizer3, 0, wx.EXPAND | wx.TOP, 10)
-        button = wx.Button(self, label=_("Prev"))
+        button = wx.Button(self, label=_("Previous"))
         button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_prev)
         sizer3.Add(button, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         add_stretcher(sizer3)

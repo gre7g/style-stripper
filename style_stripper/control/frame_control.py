@@ -72,3 +72,11 @@ class FrameControl(object):
     def on_option(self, event: wx.CommandEvent):
         self.app.frame.grab_contents()
         event.Skip()
+
+    def on_reload(self, event: wx.CommandEvent):
+        self.app.book.reload()
+        self.on_prev(event)
+
+    def on_apply(self, event: wx.CommandEvent):
+        self.app.frame.apply()
+        self.on_next(event)

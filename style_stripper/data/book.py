@@ -1,14 +1,20 @@
+from copy import deepcopy
+import logging
 import wx
 
 from style_stripper.data.original_docx import OriginalDocx
 
+# Constants:
+LOG = logging.getLogger(__name__)
+
 
 class Book(object):
     original_docx: OriginalDocx
+    backup_docx: OriginalDocx
 
     def __init__(self, config):
         self.file_version = 1
-        self.original_docx = None
+        self.original_docx = self.backup_docx = None
         self.config = config
 
         self.current_page = 0
@@ -39,6 +45,11 @@ class Book(object):
 
     def load(self, path: str):
         self.original_docx = OriginalDocx(path, self)
+        self.backup_docx = deepcopy(self.original_docx)
         self.source_path = path
         self.modified()
         wx.GetApp().frame.refresh_contents()
+
+    def reload(self):
+        LOG.debug("Reloading .docx from backup")
+        self.original_docx = deepcopy(self.backup_docx)

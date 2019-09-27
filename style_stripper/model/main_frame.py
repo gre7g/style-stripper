@@ -18,6 +18,7 @@ class MainFrame(wx.Frame):
         self.app = wx.GetApp()
         self.main_panel = self.file_history = self.statusbar = self.file_path_ctrl = self.author_ctrl = None
         self.title_ctrl = self.word_count_ctrl = self.modified_ctrl = self.background_color = None
+        self.author_panel = self.template_panel = self.options_panel = self.review_panel = None
         self.panels = []
         wx.Frame.__init__(self, *args, **kwargs)
 
@@ -27,21 +28,21 @@ class MainFrame(wx.Frame):
         sizer1 = wx.BoxSizer(wx.VERTICAL)
         sizer2 = wx.BoxSizer(wx.VERTICAL)
 
-        panel = AuthorPanel(self.main_panel)
-        sizer2.Add(panel, 1, wx.EXPAND, 0)
-        self.panels.append(panel)
+        self.author_panel = AuthorPanel(self.main_panel)
+        sizer2.Add(self.author_panel, 1, wx.EXPAND, 0)
+        self.panels.append(self.author_panel)
 
-        panel = TemplatePanel(self.main_panel)
-        sizer2.Add(panel, 1, wx.EXPAND, 0)
-        self.panels.append(panel)
+        self.template_panel = TemplatePanel(self.main_panel)
+        sizer2.Add(self.template_panel, 1, wx.EXPAND, 0)
+        self.panels.append(self.template_panel)
 
-        panel = OptionsPanel(self.main_panel)
-        sizer2.Add(panel, 1, wx.EXPAND, 0)
-        self.panels.append(panel)
+        self.options_panel = OptionsPanel(self.main_panel)
+        sizer2.Add(self.options_panel, 1, wx.EXPAND, 0)
+        self.panels.append(self.options_panel)
 
-        panel = ReviewPanel(self.main_panel)
-        sizer2.Add(panel, 1, wx.EXPAND, 0)
-        self.panels.append(panel)
+        self.review_panel = ReviewPanel(self.main_panel)
+        sizer2.Add(self.review_panel, 1, wx.EXPAND, 0)
+        self.panels.append(self.review_panel)
 
         sizer1.Add(sizer2, 1, wx.EXPAND | wx.ALL, 10)
 
@@ -118,4 +119,7 @@ class MainFrame(wx.Frame):
         self.file_history.Save(wx.FileConfig(CONSTANTS.UI.CATEGORY_NAME))
 
     def book_loaded(self, is_loaded: bool = True):
-        self.panels[0].book_loaded(is_loaded)
+        self.author_panel.book_loaded(is_loaded)
+
+    def apply(self):
+        self.review_panel.apply()

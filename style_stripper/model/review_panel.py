@@ -23,7 +23,7 @@ class ReviewPanel(wx.Panel):
     def __init__(self, parent):
         super(ReviewPanel, self).__init__(parent)
         self.app = wx.GetApp()
-        self.state = STATE_READY
+        self.state = STATE_IDLE
         self.part = self.chapter = self.end = self.symbolic = self.blanks = self.questionable = None
 
         sizer1 = wx.BoxSizer(wx.VERTICAL)
@@ -59,7 +59,13 @@ class ReviewPanel(wx.Panel):
         self.scene_breaks = wx.StaticText(self)
         sizer2.Add(self.scene_breaks)
 
-        text = wx.StaticText(self, label=_("The following are probably all quoted text found inside dialogue. Leave checked if they are, uncheck if not:"))
+        text = wx.StaticText(
+            self,
+            label=_(
+                "The following are probably all quoted text found inside dialogue. "
+                "Leave checked if they are, uncheck if not:"
+            ),
+        )
         sizer1.Add(text, 0, wx.TOP, 20)
         self.scroll = ScrolledPanel(self, style=wx.BORDER_STATIC)
         sizer1.Add(self.scroll, 1, wx.EXPAND, 0)
@@ -70,17 +76,21 @@ class ReviewPanel(wx.Panel):
 
         sizer23 = wx.BoxSizer(wx.HORIZONTAL)
         sizer1.Add(sizer23, 0, wx.EXPAND | wx.TOP, 10)
-        button = wx.Button(self, label=_("Prev"))
-        button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_prev)
+        button = wx.Button(self, label=_("Back (reload document)"))
+        button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_reload)
         sizer23.Add(button, 0, 0, 0)
+
+    def apply(self):
+        self.state = STATE_READY
+        wx.CallAfter(self.refresh_contents)
 
     def refresh_contents(self):
         document = self.app.book.original_docx
         config = self.app.settings.latest_config
 
         if self.state == STATE_READY:
-            # The Paragraph class has a class member that tracks what sort of dash we're using so we don't have to do this
-            # comparison constantly. Set the class member now based on book configuration.
+            # The Paragraph class has a class member that tracks what sort of dash we're using so we don't have to do
+            # this comparison constantly. Set the class member now based on book configuration.
             Paragraph.set_dash_class_member(config)
 
             self.state = STATE_FIX_SPACES
@@ -88,7 +98,11 @@ class ReviewPanel(wx.Panel):
 
         elif self.state == STATE_FIX_SPACES:
             self.app.book.modified()
-            if config[SPACES][PURGE_DOUBLE_SPACES] or config[SPACES][PURGE_LEADING_WHITESPACE] or config[SPACES][PURGE_TRAILING_WHITESPACE]:
+            if (
+                config[SPACES][PURGE_DOUBLE_SPACES]
+                or config[SPACES][PURGE_LEADING_WHITESPACE]
+                or config[SPACES][PURGE_TRAILING_WHITESPACE]
+            ):
                 document.fix_spaces()
                 self.spaces.SetLabel(_("Fixed"))
             else:
@@ -163,7 +177,9 @@ class ReviewPanel(wx.Panel):
             if config[DIVIDER][REPLACE_WITH_NEW]:
                 self.symbolic, self.blanks = document.find_divider_candidates()
                 symbolic_blank = {"symbolic": self.symbolic, "blank": self.blanks}
-                self.scene_breaks.SetLabel(_("Found %(symbolic)d symbolic and %(blank)d blank candidates") % symbolic_blank)
+                self.scene_breaks.SetLabel(
+                    _("Found %(symbolic)d symbolic and %(blank)d blank candidates") % symbolic_blank
+                )
             else:
                 self.scene_breaks.SetLabel(_("Disabled"))
             self.state = STATE_DONE
@@ -176,7 +192,9 @@ class ReviewPanel(wx.Panel):
                     document.replace_symbolic()
                     document.remove_blanks()
                     symbolic_blank = {"symbolic": self.symbolic, "blank": self.blanks}
-                    self.scene_breaks.SetLabel(_("Fixed %(symbolic)d symbolic dividers, removed %(blank)d blanks") % symbolic_blank)
+                    self.scene_breaks.SetLabel(
+                        _("Fixed %(symbolic)d symbolic dividers, removed %(blank)d blanks") % symbolic_blank
+                    )
                 elif config[DIVIDER][BLANK_PARAGRAPH_IF_NO_OTHER] and self.blanks:
                     if self.blanks < CONSTANTS.DIVIDER.MAX_BLANK_PARAGRAPH_DIVIDERS:
                         document.replace_blanks()
@@ -185,4 +203,3 @@ class ReviewPanel(wx.Panel):
                         document.remove_blanks()
                         self.scene_breaks.SetLabel(_("Removed %d blanks") % self.blanks)
             self.state = STATE_DONE
-
