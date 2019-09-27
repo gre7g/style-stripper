@@ -80,3 +80,12 @@ class FrameControl(object):
     def on_apply(self, event: wx.CommandEvent):
         self.app.frame.apply()
         self.on_next(event)
+
+    def on_export(self, event: wx.CommandEvent):
+        dialog = wx.FileDialog(self.app.frame, _("Export as?"), wildcard=_("DocX files (*.docx)|*.docx"),
+                               style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+        try:
+            if dialog.ShowModal() == wx.ID_OK:
+                self.app.book.export(dialog.GetPath())
+        finally:
+            dialog.Destroy()

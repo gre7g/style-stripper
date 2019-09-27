@@ -53,3 +53,24 @@ class Book(object):
     def reload(self):
         LOG.debug("Reloading .docx from backup")
         self.original_docx = deepcopy(self.backup_docx)
+
+    def export(self, path: str):
+        # Open a template file to format the output
+        template = Template(CONSTANTS.PAGE.TEMPLATE)
+
+        # Dump paragraphs into the template
+        for paragraph in document.paragraphs:
+            # May need to insert breaks before the headings
+            if paragraph.style in [CONSTANTS.STYLING.NAMES.HEADING1, CONSTANTS.STYLING.NAMES.HEADING2]:
+                if CONSTANTS.HEADINGS.BREAK_BEFORE_HEADING is not None:
+                    if CONSTANTS.HEADINGS.HEADER_FOOTER_AFTER_BREAK:
+                        template.add_page_break()
+                    else:
+                        # template.add_content()
+                        template.add_content()
+                        template.add_section(CONSTANTS.HEADINGS.BREAK_BEFORE_HEADING)
+
+            template.add_content(paragraph.text, paragraph.style)
+
+        # Save the resulting file
+        template.save_as(r"..\temp.docx")

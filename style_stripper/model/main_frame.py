@@ -7,6 +7,7 @@ from style_stripper.model.author_panel import AuthorPanel
 from style_stripper.model.template_panel import TemplatePanel
 from style_stripper.model.options_panel import OptionsPanel
 from style_stripper.model.review_panel import ReviewPanel
+from style_stripper.model.done_panel import DonePanel
 
 # Constants:
 _ = wx.GetTranslation
@@ -43,6 +44,10 @@ class MainFrame(wx.Frame):
         self.review_panel = ReviewPanel(self.main_panel)
         sizer2.Add(self.review_panel, 1, wx.EXPAND, 0)
         self.panels.append(self.review_panel)
+
+        self.done_panel = DonePanel(self.main_panel)
+        sizer2.Add(self.done_panel, 1, wx.EXPAND, 0)
+        self.panels.append(self.done_panel)
 
         sizer1.Add(sizer2, 1, wx.EXPAND | wx.ALL, 10)
 

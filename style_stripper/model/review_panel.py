@@ -80,12 +80,13 @@ class ReviewPanel(wx.Panel):
         button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_reload)
         sizer23.Add(button, 0, 0, 0)
         add_stretcher(sizer23)
-        button = wx.Button(self, label=_("Apply Options"))
-        button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_apply)
-        sizer23.Add(button, 0, 0, 0)
+        self.apply_button = wx.Button(self, label=_("Apply Options"))
+        self.apply_button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_apply)
+        sizer23.Add(self.apply_button, 0, 0, 0)
 
     def apply(self):
         self.state = STATE_READY
+        self.apply_button.Enable(False)
         wx.CallLater(CONSTANTS.UI.APPLY_DELAY, self.refresh_contents)
 
     def refresh_contents(self):
@@ -211,3 +212,4 @@ class ReviewPanel(wx.Panel):
 
         elif self.state == STATE_DONE:
             self.processing.SetLabel(_("Processing complete."))
+            self.apply_button.Enable(True)
