@@ -173,12 +173,14 @@ class PreviewPanel(wx.Panel):
         elif self.open_to == OPEN_TO_CHAPTER:
             lines = self.gather_back_lines_to(gcdc, CONSTANTS.UI.PREVIEW.TEXT_TO_OPPOSITE_CHAPTER)
             self.draw_in_style(gcdc, 0, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.NORMAL, lines)
-            y_offset = self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP, 0, CONSTANTS.STYLING.NAMES.HEADING1, (0, _("Chapter 7: Loren Ipsum"), 0))
-            lines, para_index, word_index = self.gather_forward_lines_from(gcdc, 0, 0, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH)
-            self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH, lines)
+            y_offset = self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP + self.parameters.left_margin, 0, CONSTANTS.STYLING.NAMES.HEADING2, _("Chapter 7: Lorem"))
+            lines, para_index, word_index = self.gather_forward_lines_from(gcdc, 0, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH)
+            self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP + self.parameters.left_margin, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH, lines)
         elif self.open_to == OPEN_TO_MID_CHAPTER:
-            lines, para_index, word_index = self.gather_forward_lines_from(gcdc, 0, 0, 0, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH)
-            self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP, y_offset, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH, lines)
+            lines, para_index, word_index = self.gather_forward_lines_from(gcdc, 0, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH)
+            self.draw_in_style(gcdc, 0, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH, lines)
+            lines, para_index, word_index = self.gather_forward_lines_from(gcdc, para_index, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH)
+            self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP + self.parameters.left_margin, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH, lines)
 
         width_in_twips = (self.parameters.page_width - self.parameters.left_margin - self.parameters.right_margin -
                           self.parameters.gutter)
@@ -284,6 +286,67 @@ class PreviewPanel(wx.Panel):
 
         return y_offset
 
+    def gather_paragraph(self, gcdc: wx.GCDC, text: str, style: str, width_of_space: int, width_in_twips: int) -> list:
+        line = text.split(" ")
+        word_and_widths = []
+        for word in line:
+            size = gcdc.GetTextExtent(word)
+            word_and_widths.append((word, size.width))
+        paragraph = []
+        indent = self.parameters.styles[style].first_line_indent
+        line_start = 0
+        line_end = 1
+        current_line = None
+        while True:
+            line_width = indent + sum(width for word, width in word_and_widths[line_start:line_end]) + \
+                         (width_of_space * (line_end - line_start - 1))
+            if line_width > width_in_twips:
+                words, total_width = current_line
+                paragraph.append(
+                    (MIDDLE_LINE, indent, words, width_of_space + (width_in_twips - total_width) / (len(words) - 1))
+                )
+                line_start = line_end - 1
+                word, width = word_and_widths[line_start]
+                current_line = ([(word, width)], width)
+                indent = 0
+            else:
+                current_line = (word_and_widths[line_start:line_end], line_width)
+
+            if line_end >= len(word_and_widths):
+                break
+            else:
+                line_end += 1
+
+        if paragraph:
+            paragraph[0] = (FIRST_LINE,) + paragraph[0][1:]
+            paragraph.append((LAST_LINE, indent, current_line[0], width_of_space))
+        else:
+            paragraph.append((ONLY_LINE, indent, current_line[0], width_of_space))
+
+        return paragraph
+
+    def gather_forward_lines_from(self, gcdc: wx.GCDC, line_index: int, y: int, style_name: str):
+        width_in_twips = (self.parameters.page_width - self.parameters.left_margin - self.parameters.right_margin -
+                          self.parameters.gutter)
+        style = self.parameters.styles[style_name]
+        italic = wx.FONTSTYLE_ITALIC if style.italic else wx.FONTSTYLE_NORMAL
+        bold = wx.FONTWEIGHT_BOLD if style.bold else wx.FONTWEIGHT_NORMAL
+        gcdc.SetFont(wx.Font(style.font_size, wx.FONTFAMILY_DEFAULT, italic, bold, faceName=style.font))
+        size = gcdc.GetTextExtent(" ")
+        width_of_space = size.width
+        lines = []
+        while True:
+            paragraph = self.gather_paragraph(gcdc, self.lorem_ipsum[line_index], style_name, width_of_space, width_in_twips)
+
+            while paragraph:
+                lines.append(paragraph.pop(0))
+                y += style.line_spacing
+                if y > (self.parameters.page_height - self.parameters.bottom_margin):
+                    return lines, line_index, 0
+
+            line_index += 1
+            style_name = CONSTANTS.STYLING.NAMES.NORMAL
+
     def gather_back_lines_to(
             self, gcdc: wx.GCDC,  # Graphic context
             length_of_text: float  # How much text to generate (0.0=None, 1.0=Full page)
@@ -301,47 +364,15 @@ class PreviewPanel(wx.Panel):
         lines = []
         y = self.parameters.top_margin
         while True:
-            line = self.lorem_ipsum[line_index].split(" ")
-            word_and_widths = []
-            for word in line:
-                size = gcdc.GetTextExtent(word)
-                word_and_widths.append((word, size.width))
-            line_index -= 1
-            paragraph = []
-            indent = self.parameters.styles[CONSTANTS.STYLING.NAMES.NORMAL].first_line_indent
-            line_start = 0
-            line_end = 1
-            current_line = None
-            while True:
-                line_width = indent + sum(width for word, width in word_and_widths[line_start:line_end]) + \
-                    (width_of_space * (line_end - line_start - 1))
-                if line_width > width_in_twips:
-                    words, total_width = current_line
-                    paragraph.append(
-                        (MIDDLE_LINE, indent, words, width_of_space + (width_in_twips - total_width) / (len(words) - 1))
-                    )
-                    line_start = line_end - 1
-                    word, width = word_and_widths[line_start]
-                    current_line = ([(word, width)], width)
-                    indent = 0
-                else:
-                    current_line = (word_and_widths[line_start:line_end], line_width)
+            paragraph = self.gather_paragraph(gcdc, self.lorem_ipsum[line_index], CONSTANTS.STYLING.NAMES.NORMAL, width_of_space, width_in_twips)
 
-                if line_end >= len(word_and_widths):
-                    break
-                else:
-                    line_end += 1
-
-            if paragraph:
-                paragraph[0] = (FIRST_LINE,) + paragraph[0][1:]
-                paragraph.append((LAST_LINE, indent, current_line[0], width_of_space))
-            else:
-                paragraph.append((ONLY_LINE, indent, current_line[0], width_of_space))
             while paragraph:
                 lines.insert(0, paragraph.pop())
                 y += normal.line_spacing
                 if (y / self.parameters.page_height) >= length_of_text:
                     return lines
+
+            line_index -= 1
 
     def draw_page(self, gcdc: wx.GCDC, x_offset: int):
         # White bar for horizontal ruler

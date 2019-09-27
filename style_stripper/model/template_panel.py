@@ -31,6 +31,7 @@ DIMENSIONS = [
     '8.5" x 11"',
     '8.27" x 11.69"',
 ]
+PAGES = [OPEN_TO_PART, OPEN_TO_CHAPTER, OPEN_TO_MID_CHAPTER]
 
 
 class TemplatePanel(wx.Panel):
@@ -76,9 +77,10 @@ class TemplatePanel(wx.Panel):
         panel = wx.Panel(self, style=wx.BORDER_THEME)
         sizer2a = wx.BoxSizer(wx.VERTICAL)
         panel.SetSizer(sizer2a)
-        page = wx.ScrollBar(panel, style=wx.SB_HORIZONTAL)
-        page.SetScrollbar(0, 1, 5, 1)
-        sizer2a.Add(page, 1, wx.EXPAND)
+        self.page = wx.ScrollBar(panel, style=wx.SB_HORIZONTAL)
+        self.page.Bind(wx.EVT_SCROLL, self.on_page)
+        self.page.SetScrollbar(0, 1, 3, 1)
+        sizer2a.Add(self.page, 1, wx.EXPAND)
         sizer1.Add(panel, 0, wx.EXPAND, 0)
 
         sizer3 = wx.BoxSizer(wx.HORIZONTAL)
@@ -133,6 +135,10 @@ class TemplatePanel(wx.Panel):
         self.item.SetLabel(_("1 of %d") % self.variants)
         self.Layout()
         self.variant.SetScrollbar(0, 1, self.variants, 1)
+
+    def on_page(self, event: wx.ScrollEvent):
+        self.preview.set_contents(PAGES[self.page.GetThumbPosition()], [])
+        event.Skip()
 
 
 if __name__ == "__main__":
