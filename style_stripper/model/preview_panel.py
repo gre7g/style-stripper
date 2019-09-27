@@ -1,5 +1,6 @@
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 import logging
+from math import sin, cos
 import os
 from typing import List, Tuple, Union, Optional
 import wx
@@ -31,6 +32,8 @@ class PreviewPanel(wx.Panel):
         self.parameters = self.open_to = self.scopes = self.scale = self.x_orig = self.y_orig = self.scope_radius = None
         self.measure_to_twips = None
         self.color_db = wx.ColourDatabase()
+        # points = [(5000+cos(a*6.283/15)*2000, 5000+sin(a*6.283/15)*2000) for a in range(15)]
+        # self.region = wx.Region(points)
 
         self.Bind(wx.EVT_PAINT, self.on_paint)
         self.Bind(wx.EVT_SIZE, self.on_size)
@@ -128,6 +131,7 @@ class PreviewPanel(wx.Panel):
         gcdc.Clear()
         gcdc.SetLogicalOrigin(self.x_orig, self.y_orig)
         gcdc.SetLogicalScale(self.scale, self.scale)
+        # gcdc.SetDeviceClippingRegion(self.region)
 
         # Draw white bar for vertical ruler
         white = self.color_db.Find("WHITE")
@@ -159,9 +163,17 @@ class PreviewPanel(wx.Panel):
                 self.x_orig + (thickness * CONSTANTS.UI.PREVIEW.TICK_TO), y
             )
 
-        # Draw blank pages and horizontal rulers
+        # Draw horizontal rulers
+        self.draw_horizontal_ruler(gcdc, 0)
+        self.draw_horizontal_ruler(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP)
+
+        self.draw_content(gcdc)
+        self.draw_scopes(gcdc)
+
+    def draw_content(self, gcdc: wx.GCDC):
+        # Draw blank pages
         self.draw_page(gcdc, 0)
-        gcdc.SetBrush(wx.Brush(white))
+        gcdc.SetBrush(wx.Brush(self.color_db.Find("WHITE")))
         self.draw_page(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP)
 
         # Draw text on pages
@@ -182,6 +194,22 @@ class PreviewPanel(wx.Panel):
             lines, para_index, word_index = self.gather_forward_lines_from(gcdc, para_index, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH)
             self.draw_in_style(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP + self.parameters.left_margin, self.parameters.top_margin, CONSTANTS.STYLING.NAMES.FIRST_PARAGRAPH, lines)
 
+        if True:  # self.parameters.head_foot_variant == 1:
+            header = self.parameters.header_distance
+            self.draw_in_style(gcdc, 0, header, CONSTANTS.STYLING.NAMES.HEADER, _("Author’s Name"),
+                               align=WD_PARAGRAPH_ALIGNMENT.CENTER)
+            if self.open_to == OPEN_TO_MID_CHAPTER:
+                self.draw_in_style(gcdc, even_page, header, CONSTANTS.STYLING.NAMES.HEADER, _("Book Title"),
+                                   align=WD_PARAGRAPH_ALIGNMENT.CENTER)
+            footer = self.parameters.page_height - self.parameters.footer_distance
+            font_size = self.parameters.styles[CONSTANTS.STYLING.NAMES.FOOTER].font_size
+            self.draw_in_style(gcdc, 0, footer - font_size, CONSTANTS.STYLING.NAMES.FOOTER, _("126"),
+                               align=WD_PARAGRAPH_ALIGNMENT.LEFT)
+            if self.open_to == OPEN_TO_MID_CHAPTER:
+                self.draw_in_style(gcdc, even_page, footer - font_size, CONSTANTS.STYLING.NAMES.FOOTER, _("127"),
+                                   align=WD_PARAGRAPH_ALIGNMENT.RIGHT)
+
+    def draw_scopes(self, gcdc: wx.GCDC):
         width_in_twips = (self.parameters.page_width - self.parameters.left_margin - self.parameters.right_margin -
                           self.parameters.gutter)
         left_centered = self.parameters.left_margin + (width_in_twips // 2)
@@ -191,27 +219,16 @@ class PreviewPanel(wx.Panel):
         part = self.parameters.top_margin + style.space_before + (style.font_size // 2)
         style = self.parameters.styles[CONSTANTS.STYLING.NAMES.HEADING2]
         chapter = self.parameters.top_margin + style.space_before + (style.font_size // 2)
-        if True:  # self.parameters.head_foot_variant == 1:
-            header = self.parameters.header_distance
-            font_size = self.parameters.styles[CONSTANTS.STYLING.NAMES.HEADER].font_size
-            self.draw_in_style(gcdc, 0, header, CONSTANTS.STYLING.NAMES.HEADER, _("Author’s Name"),
-                               align=WD_PARAGRAPH_ALIGNMENT.CENTER)
-            even_header = (left_centered, header + (font_size / 2))
-            if self.open_to == OPEN_TO_MID_CHAPTER:
-                self.draw_in_style(gcdc, even_page, header, CONSTANTS.STYLING.NAMES.HEADER, _("Book Title"),
-                                   align=WD_PARAGRAPH_ALIGNMENT.CENTER)
-            odd_header = (right_centered, header + (font_size / 2))
-            footer = self.parameters.page_height - self.parameters.footer_distance
-            font_size = self.parameters.styles[CONSTANTS.STYLING.NAMES.FOOTER].font_size
-            self.draw_in_style(gcdc, 0, footer - font_size, CONSTANTS.STYLING.NAMES.FOOTER, _("126"),
-                               align=WD_PARAGRAPH_ALIGNMENT.LEFT)
-            even_footer = (self.parameters.left_margin, footer - (font_size // 2))
-            if self.open_to == OPEN_TO_MID_CHAPTER:
-                self.draw_in_style(gcdc, even_page, footer - font_size, CONSTANTS.STYLING.NAMES.FOOTER, _("127"),
-                                   align=WD_PARAGRAPH_ALIGNMENT.RIGHT)
-            odd_footer = (even_page, footer - (font_size // 2))
+        font_size = self.parameters.styles[CONSTANTS.STYLING.NAMES.HEADER].font_size
+        header = self.parameters.header_distance
+        even_header = (left_centered, header + (font_size / 2))
+        odd_header = (right_centered, header + (font_size / 2))
+        footer = self.parameters.page_height - self.parameters.footer_distance
+        even_footer = (self.parameters.left_margin, footer - (font_size // 2))
+        even_page = self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP + self.parameters.gutter
+        odd_footer = (even_page, footer - (font_size // 2))
 
-        gcdc.SetBrush(wx.Brush(white))
+        gcdc.SetBrush(wx.Brush(self.color_db.Find("WHITE")))
         if SCOPE_ON_EVEN_HEADER in self.scopes:
             gcdc.DrawCircle(even_header[0], even_header[1], self.scope_radius)
         if SCOPE_ON_ODD_HEADER in self.scopes:
@@ -374,31 +391,16 @@ class PreviewPanel(wx.Panel):
 
             line_index -= 1
 
-    def draw_page(self, gcdc: wx.GCDC, x_offset: int):
+    def draw_horizontal_ruler(self, gcdc: wx.GCDC, x_offset: int):
         # White bar for horizontal ruler
         thickness = CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_twips
         gap = CONSTANTS.UI.PREVIEW.GAP * self.measure_to_twips
         gcdc.SetPen(wx.Pen(self.color_db.Find("WHITE")))
         gcdc.DrawRectangle(x_offset, self.y_orig + gap, self.parameters.page_width, thickness)
 
-        # White box for page
-        black = self.color_db.Find("BLACK")
-        gcdc.SetPen(wx.Pen(black))
-        gcdc.DrawRectangle(x_offset, 0, self.parameters.page_width, self.parameters.page_height)
-        grey = self.color_db.Find("LIGHT GREY")
-        gcdc.SetBrush(wx.Brush(grey))
-        gcdc.SetPen(wx.Pen(grey))
-        if x_offset:
-            gcdc.DrawRectangle(x_offset, 0, self.parameters.gutter, self.parameters.page_height)
-        else:
-            gcdc.DrawRectangle(self.parameters.page_width - self.parameters.gutter, 0,
-                               self.parameters.gutter, self.parameters.page_height)
-        gcdc.SetPen(wx.Pen(black))
-        gcdc.SetBrush(wx.NullBrush)
-        gcdc.DrawRectangle(x_offset, 0, self.parameters.page_width, self.parameters.page_height)
-
         font_size = thickness // 2
         gcdc.SetFont(wx.Font(font_size, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
+        gcdc.SetPen(wx.Pen(self.color_db.Find("BLACK")))
 
         # Label the horizontal ruler
         for index, x in enumerate(range(0, int(self.parameters.page_width), CONSTANTS.MEASURING.TWIPS_PER_INCH)):
@@ -418,3 +420,20 @@ class PreviewPanel(wx.Panel):
                 x_offset + x, self.y_orig + gap + (thickness * CONSTANTS.UI.PREVIEW.TICK_FROM),
                 x_offset + x, self.y_orig + gap + (thickness * CONSTANTS.UI.PREVIEW.TICK_TO)
             )
+
+    def draw_page(self, gcdc: wx.GCDC, x_offset: int):
+        # White box for page
+        black = self.color_db.Find("BLACK")
+        gcdc.SetPen(wx.Pen(black))
+        gcdc.DrawRectangle(x_offset, 0, self.parameters.page_width, self.parameters.page_height)
+        grey = self.color_db.Find("LIGHT GREY")
+        gcdc.SetBrush(wx.Brush(grey))
+        gcdc.SetPen(wx.Pen(grey))
+        if x_offset:
+            gcdc.DrawRectangle(x_offset, 0, self.parameters.gutter, self.parameters.page_height)
+        else:
+            gcdc.DrawRectangle(self.parameters.page_width - self.parameters.gutter, 0,
+                               self.parameters.gutter, self.parameters.page_height)
+        gcdc.SetPen(wx.Pen(black))
+        gcdc.SetBrush(wx.NullBrush)
+        gcdc.DrawRectangle(x_offset, 0, self.parameters.page_width, self.parameters.page_height)
