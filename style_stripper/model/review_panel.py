@@ -52,14 +52,18 @@ class ReviewPanel(wx.Panel):
         sizer2.Add(text, 0, 0, 0)
         self.headers = wx.StaticText(self)
         sizer2.Add(self.headers)
-        text = wx.StaticText(self, label=_("• Quotes and dashes"))
+        text = wx.StaticText(self, label=_("• Ellipses"))
         sizer2.Add(text, 0, 0, 0)
-        self.quotes_and_dashes = wx.StaticText(self)
-        sizer2.Add(self.quotes_and_dashes)
+        self.ellipses = wx.StaticText(self)
+        sizer2.Add(self.ellipses)
         text = wx.StaticText(self, label=_("• Scene breaks"))
         sizer2.Add(text, 0, 0, 0)
         self.scene_breaks = wx.StaticText(self)
         sizer2.Add(self.scene_breaks)
+        text = wx.StaticText(self, label=_("• Quotes and dashes"))
+        sizer2.Add(text, 0, 0, 0)
+        self.quotes_and_dashes = wx.StaticText(self)
+        sizer2.Add(self.quotes_and_dashes)
 
         text = wx.StaticText(
             self,
@@ -123,6 +127,15 @@ class ReviewPanel(wx.Panel):
                 self.italics.SetLabel(_("Fixed"))
             else:
                 self.italics.SetLabel(_("Disabled"))
+            self.state = STATE_FIX_ELLIPSES
+            wx.CallLater(CONSTANTS.UI.APPLY_DELAY, self.refresh_contents)
+
+        elif self.state == STATE_FIX_ELLIPSES:
+            if config[ELLIPSES][REPLACE_WITH_NEW]:
+                document.fix_ellipses()
+                self.ellipses.SetLabel(_("Fixed"))
+            else:
+                self.ellipses.SetLabel(_("Disabled"))
             self.state = STATE_FIX_QUOTES_AND_DASHES
             wx.CallLater(CONSTANTS.UI.APPLY_DELAY, self.refresh_contents)
 

@@ -89,8 +89,7 @@ class Paragraph(object):
                 self.text = SEARCH_EN_OR_EM.sub(self.DASH, self.text)
 
     def fix_ellipses(self, config: dict):
-        if config[ELLIPSES][REPLACE_WITH_NEW]:
-            self.text = CONSTANTS.ELLIPSES.SEARCH.sub(config[ELLIPSES][NEW], self.text)
+        self.text = CONSTANTS.ELLIPSES.SEARCH.sub(config[ELLIPSES][NEW], self.text)
 
     def fix_italic_boundaries(self, config: dict):
         self.text = SEARCH_ITALIC_WHITE1.sub(r"\1", self.text)

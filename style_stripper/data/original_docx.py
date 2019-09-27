@@ -52,6 +52,10 @@ class OriginalDocx(object):
         for paragraph in self.paragraphs:
             paragraph.fix_italic_boundaries(self.book.config)
 
+    def fix_ellipses(self):
+        for paragraph in self.paragraphs:
+            paragraph.fix_ellipses(self.book.config)
+
     def fix_quotes_and_dashes(self):
         for paragraph in self.paragraphs:
             paragraph.fix_quotes_and_dashes(self.book.config)
