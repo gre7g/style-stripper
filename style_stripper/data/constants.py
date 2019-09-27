@@ -18,6 +18,13 @@ class CONSTANTS(object):
         MAX_BLANK_PARAGRAPH_DIVIDERS = 400
 
     class ELLIPSES(object):
+        SUB_SPACE = [
+            (re.compile(r"(^| )(\.\.\.|…)( |$)"), r"\2"),
+            (re.compile(r"(\W) (\.\.\.|…)"), r"\1\2"),
+            (re.compile(r"(\W)(\.\.\.|…) "), r"\1\2"),
+            (re.compile(r"(\.\.\.|…) (\W)"), r"\1\2"),
+            (re.compile(r" (\.\.\.|…)(\W)"), r"\1\2"),
+        ]
         SEARCH = re.compile(r"\.\.\.|…")
 
     class HEADINGS(object):

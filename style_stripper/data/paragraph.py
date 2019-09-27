@@ -26,7 +26,7 @@ SEARCH_QUOTES_OR_TICKS = re.compile(r"(\w?)([“”'‘’])(\w?)")
 SEARCH_DASH_END_OF_QUOTE = re.compile(r'[—–-]+”')
 SEARCH_EN_OR_EM = re.compile(" – |—")
 SEARCH_WORD = re.compile("[a-z]+", re.I)
-SEARCH_END_TICK = re.compile("(’)[\W$]")
+SEARCH_END_TICK = re.compile(r"(’)[\W$]")
 SEARCH_ITALIC_CHARS = re.compile(r"[❰❱]")
 
 LOG = logging.getLogger(__name__)
@@ -89,6 +89,8 @@ class Paragraph(object):
                 self.text = SEARCH_EN_OR_EM.sub(self.DASH, self.text)
 
     def fix_ellipses(self, config: dict):
+        for search, replace in CONSTANTS.ELLIPSES.SUB_SPACE:
+            self.text = search.sub(replace, self.text)
         self.text = CONSTANTS.ELLIPSES.SEARCH.sub(config[ELLIPSES][NEW], self.text)
 
     def fix_italic_boundaries(self, config: dict):
