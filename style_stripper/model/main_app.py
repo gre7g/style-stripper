@@ -7,6 +7,7 @@ from style_stripper.control.menu_control import MenuControl
 from style_stripper.control.settings_control import SettingsControl, Settings
 from style_stripper.data.book import Book
 from style_stripper.data.constants import CONSTANTS
+from style_stripper.data.template import Templates
 from style_stripper.data.template_details import TemplateParameters
 from style_stripper.model.main_frame import MainFrame
 
@@ -20,6 +21,7 @@ class StyleStripperApp(wx.App):
     frame: MainFrame
     book: Book
     settings: Settings
+    templates: Templates
 
     def __init__(self, *args, **kwargs):
         self.file_path = None
@@ -30,6 +32,7 @@ class StyleStripperApp(wx.App):
         self.menu_controls = MenuControl(self)
         self.settings_controls = SettingsControl(self)
         self.parameters = TemplateParameters()
+        self.templates = None
 
         wx.App.__init__(self, *args, **kwargs)
 

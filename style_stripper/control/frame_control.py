@@ -61,7 +61,7 @@ class FrameControl(object):
         event.Skip()
 
     def on_dimensions(self, event: wx.CommandEvent):
-        LOG.debug('dimensions %r', event.GetSelection())
+        self.app.frame.new_dimensions()
         self.app.frame.refresh_contents()
         event.Skip()
 

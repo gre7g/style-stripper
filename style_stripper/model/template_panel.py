@@ -2,6 +2,7 @@ import logging
 import wx
 
 from style_stripper.data.enums import *
+from style_stripper.data.template import Templates
 from style_stripper.model.preview_panel import PreviewPanel
 from style_stripper.model.utility import add_stretcher
 
@@ -25,15 +26,16 @@ class TemplatePanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
         self.app = wx.GetApp()
+        self.initialized = False
+        self.variants = 0
 
         sizer1 = wx.BoxSizer(wx.VERTICAL)
         sizer2 = wx.BoxSizer(wx.HORIZONTAL)
         sizer1.Add(sizer2, 0, wx.EXPAND)
         text = wx.StaticText(self, label=_("Dimensions:"))
         sizer2.Add(text, 0, wx.CENTER)
-        self.dimensions = wx.Choice(self, choices=DIMENSIONS)
+        self.dimensions = wx.Choice(self)
         self.dimensions.Bind(wx.EVT_CHOICE, self.app.frame_controls.on_dimensions)
-        self.dimensions.SetSelection(0)
         sizer2.Add(self.dimensions, 0, wx.LEFT | wx.CENTER, 5)
         add_stretcher(sizer2)
         self.bleed = wx.StaticText(self, label=_("Bleed"))
@@ -45,11 +47,10 @@ class TemplatePanel(wx.Panel):
         sizer2b = wx.BoxSizer(wx.VERTICAL)
         panel.SetSizer(sizer2b)
         self.variant = wx.ScrollBar(panel, style=wx.SB_HORIZONTAL)
-        self.variant.SetScrollbar(0, 1, 10, 1)
         self.variant.Bind(wx.EVT_SCROLL, self.app.frame_controls.on_variant)
         sizer2b.Add(self.variant, 1, wx.EXPAND)
         sizer2.Add(panel, 1, wx.LEFT | wx.CENTER, 10)
-        self.item = wx.StaticText(self, label=_("1 of 10"))
+        self.item = wx.StaticText(self)
         sizer2.Add(self.item, 0, wx.LEFT | wx.CENTER, 5)
 
         self.preview = PreviewPanel(self)
@@ -73,7 +74,7 @@ class TemplatePanel(wx.Panel):
         button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_prev)
         sizer3.Add(button, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         add_stretcher(sizer3)
-        self.notes = wx.StaticText(self, label=_("Template includes both Part and Chapter headings\nEstimated pages with this template: 395"), style=wx.ALIGN_CENTER_HORIZONTAL)
+        self.notes = wx.StaticText(self, style=wx.ALIGN_CENTER_HORIZONTAL)
         sizer3.Add(self.notes, 0, wx.CENTER, 0)
         add_stretcher(sizer3)
         button = wx.Button(self, label=_("Next"))
@@ -83,9 +84,36 @@ class TemplatePanel(wx.Panel):
         self.SetSizer(sizer1)
 
     def refresh_contents(self):
+        if not self.initialized:
+            self.app.templates = Templates()
+            for dimension in DIMENSIONS:
+                if dimension in self.app.templates.templates_by_size:
+                    self.dimensions.Append(dimension)
+            self.dimensions.SetSelection(0)
+            self.new_dimensions()
+            self.initialized = True
         book = self.app.book
         self.item.SetLabel("%d of 10" % (self.variant.GetThumbPosition() + 1))
         self.preview.find_page_scaling()
+
+        template = self.get_template()
+        pages = self.app.book.word_count * template.pages_per_100k // 100000
+        self.notes.SetLabel(_("Template includes both Part and Chapter headings\nEstimated pages with this template: %s") % pages)
+        self.Layout()
+
+    def get_templates(self):
+        size = self.dimensions.GetString(self.dimensions.GetSelection())
+        return self.app.templates.templates_by_size[size]
+
+    def get_template(self):
+        templates = self.get_templates()
+        return templates[self.variant.GetThumbPosition()]
+
+    def new_dimensions(self):
+        self.variants = len(self.get_templates())
+        self.item.SetLabel(_("1 of %d") % self.variants)
+        self.Layout()
+        self.variant.SetScrollbar(0, 1, self.variants, 1)
 
 
 if __name__ == "__main__":
