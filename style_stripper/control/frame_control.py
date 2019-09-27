@@ -78,8 +78,8 @@ class FrameControl(object):
         self.on_prev(event)
 
     def on_apply(self, event: wx.CommandEvent):
-        self.app.frame.apply()
         self.on_next(event)
+        self.app.frame.apply()
 
     def on_export(self, event: wx.CommandEvent):
         dialog = wx.FileDialog(self.app.frame, _("Export as?"), wildcard=_("DocX files (*.docx)|*.docx"),
