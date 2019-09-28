@@ -32,7 +32,6 @@ class StyleStripperApp(wx.App):
         self.frame_controls = FrameControl(self)
         self.menu_controls = MenuControl(self)
         self.settings_controls = SettingsControl(self)
-        self.parameters = TemplateParameters()
         self.templates = self.template = None
 
         wx.App.__init__(self, *args, **kwargs)
