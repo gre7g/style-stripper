@@ -28,7 +28,7 @@ class DonePanel(wx.Panel):
         sizer1.Add(button, 0, wx.TOP, 10)
 
         add_stretcher(sizer1)
-        button = wx.Button(self, label=_("Back (reload document)"))
+        button = wx.Button(self, label=_("Previous"))
         button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_reload)
         sizer1.Add(button, 0, 0, 0)
 

@@ -82,11 +82,11 @@ class ReviewPanel(wx.Panel):
 
         sizer23 = wx.BoxSizer(wx.HORIZONTAL)
         sizer1.Add(sizer23, 0, wx.EXPAND | wx.TOP, 10)
-        button = wx.Button(self, label=_("Back (reload document)"))
+        button = wx.Button(self, label=_("Previous"))
         button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_reload)
         sizer23.Add(button, 0, 0, 0)
         add_stretcher(sizer23)
-        self.apply_button = wx.Button(self, label=_("Apply Options"))
+        self.apply_button = wx.Button(self, label=_("Next"))
         self.apply_button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_apply)
         sizer23.Add(self.apply_button, 0, 0, 0)
 

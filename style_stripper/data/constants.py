@@ -2,6 +2,9 @@ import os
 import re
 import wx
 
+from style_stripper.data.enums import *
+
+# Constants:
 _ = wx.GetTranslation
 
 
@@ -62,7 +65,7 @@ class CONSTANTS(object):
 
         class PREVIEW(object):
             SCOPE_RADIUS = 0.15  # 15% of preview panel
-            RULER_THICKNESS = 0.02  # 1.7% of preview panel
+            RULER_THICKNESS = 0.02  # 2% of preview panel
             GAP = 0.02  # 2% of preview panel
             PAGE_GAP = 1440 * 0.25  # 0.25"
             RULER_TEXT = 0.3  # 30% of ruler size
@@ -70,3 +73,22 @@ class CONSTANTS(object):
             TICK_TO = 0.6  # to 60% point on ruler
             TEXT_TO_OPPOSITE_PART = 0.7  # 70% text opposite the part page
             TEXT_TO_OPPOSITE_CHAPTER = 0.4  # 40% text opposite the chapter page
+            MAGNIFIER_SCALING = 3.0  # 3x magnification
+            MEDIUM_GREY = (160, 160, 255)
+            LIGHT_GREY = (240, 240, 255)
+            MID_TEXT_OFFSET = 0.7  # 70% of text height
+            LINE_SPACING = 1.6  # +60% font size
+            PART_AND_CHAPTER_PAGES = [
+                (OPEN_TO_PART, [SCOPE_ON_PART, SCOPE_ON_EVEN_HEADER]),
+                (OPEN_TO_PART, []),
+                (OPEN_TO_CHAPTER, [SCOPE_ON_CHAPTER, SCOPE_ON_EVEN_FOOTER]),
+                (OPEN_TO_CHAPTER, []),
+                (OPEN_TO_MID_CHAPTER, [SCOPE_ON_GUTTER, SCOPE_ON_ODD_HEADER, SCOPE_ON_ODD_FOOTER]),
+                (OPEN_TO_MID_CHAPTER, [])
+            ]
+            CHAPTER_ONLY_PAGES = [
+                (OPEN_TO_CHAPTER, [SCOPE_ON_CHAPTER, SCOPE_ON_EVEN_HEADER, SCOPE_ON_EVEN_FOOTER]),
+                (OPEN_TO_CHAPTER, []),
+                (OPEN_TO_MID_CHAPTER, [SCOPE_ON_GUTTER, SCOPE_ON_ODD_HEADER, SCOPE_ON_ODD_FOOTER]),
+                (OPEN_TO_MID_CHAPTER, [])
+            ]

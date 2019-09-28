@@ -195,7 +195,7 @@ class OptionsPanel(wx.Panel):
         button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_prev)
         sizer23.Add(button, 0, 0, 0)
         add_stretcher(sizer23)
-        button = wx.Button(self, label=_("Apply Options"))
+        button = wx.Button(self, label=_("Next"))
         button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_apply)
         sizer23.Add(button, 0, 0, 0)
 

@@ -1,6 +1,8 @@
 import logging
+from typing import List, Tuple
 import wx
 
+from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.enums import *
 from style_stripper.data.template import Templates
 from style_stripper.model.preview_panel import PreviewPanel
@@ -31,17 +33,18 @@ DIMENSIONS = [
     '8.5" x 11"',
     '8.27" x 11.69"',
 ]
-PAGES = [OPEN_TO_PART, OPEN_TO_CHAPTER, OPEN_TO_MID_CHAPTER]
 
 
 class TemplatePanel(wx.Panel):
     app: StyleStripperApp
+    pages: List[Tuple[Enums, Enums]]
 
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
         self.app = wx.GetApp()
         self.initialized = False
         self.variants = 0
+        self.pages = []
 
         sizer1 = wx.BoxSizer(wx.VERTICAL)
         sizer2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -68,10 +71,6 @@ class TemplatePanel(wx.Panel):
         sizer2.Add(self.item, 0, wx.LEFT | wx.CENTER, 5)
 
         self.preview = PreviewPanel(self)
-        self.app.parameters.load(r"docx_templates\5x8+bleed.docx")
-        LOG.debug("%r", self.app.parameters)
-        self.preview.set_parameters(self.app.parameters)
-        self.preview.set_contents(OPEN_TO_PART, [])#TODO:SCOPE_ON_EVEN_HEADER, SCOPE_ON_EVEN_FOOTER, SCOPE_ON_GUTTER])
         sizer1.Add(self.preview, 1, wx.EXPAND, 0)
 
         panel = wx.Panel(self, style=wx.BORDER_THEME)
@@ -79,7 +78,6 @@ class TemplatePanel(wx.Panel):
         panel.SetSizer(sizer2a)
         self.page = wx.ScrollBar(panel, style=wx.SB_HORIZONTAL)
         self.page.Bind(wx.EVT_SCROLL, self.on_page)
-        self.page.SetScrollbar(0, 1, 3, 1)
         sizer2a.Add(self.page, 1, wx.EXPAND)
         sizer1.Add(panel, 0, wx.EXPAND, 0)
 
@@ -110,17 +108,23 @@ class TemplatePanel(wx.Panel):
 
         num_templates = len(self.get_templates())
         self.item.SetLabel("%(template)d of %(num_templates)d" % {"template": self.variant.GetThumbPosition() + 1, "num_templates": num_templates})
-        self.preview.find_page_scaling()
 
-        template = self.get_template()
-        pages = self.app.book.word_count * template.pages_per_100k // 100000
-        includes = _("both Part and Chapter headings") if template.part_and_chapter else _("Chapter headings only")
+        self.app.template = self.get_template()
+        pages = self.app.book.word_count * self.app.template.pages_per_100k // 100000
+        if self.app.template.part_and_chapter:
+            includes = _("both Part and Chapter headings")
+            self.pages = CONSTANTS.UI.PREVIEW.PART_AND_CHAPTER_PAGES
+        else:
+            includes = _("Chapter headings only")
+            self.pages = CONSTANTS.UI.PREVIEW.CHAPTER_ONLY_PAGES
         self.notes.SetLabel(
             _("Template includes %(includes)s\nEstimated pages with this template: %(pages)s")
             % {"includes": includes, "pages": pages}
         )
         self.Layout()
-        self.app.template = template
+
+        self.page.SetScrollbar(0, 1, len(self.pages), 1)
+        self.on_page()
 
     def get_templates(self):
         size = self.dimensions.GetString(self.dimensions.GetSelection())
@@ -136,19 +140,7 @@ class TemplatePanel(wx.Panel):
         self.Layout()
         self.variant.SetScrollbar(0, 1, self.variants, 1)
 
-    def on_page(self, event: wx.ScrollEvent):
-        self.preview.set_contents(PAGES[self.page.GetThumbPosition()], [])
-        event.Skip()
-
-
-if __name__ == "__main__":
-    from pprint import pprint
-
-    pprint(fetch_docx_details(r"..\docx_templates\5x8+bleed.docx"))
-
-# doc.core_properties.comments
-# Comment on template:
-# 1,395,1
-# 1 first variant of headers and footers
-# 395p typ for 100k words
-# 1=both part & chapter, 0=chapter only
+    def on_page(self, event: wx.ScrollEvent = None):
+        self.preview.set_contents(*self.pages[self.page.GetThumbPosition()])
+        if event:
+            event.Skip()
