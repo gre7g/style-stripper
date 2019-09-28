@@ -147,14 +147,15 @@ class ReviewPanel(wx.Panel):
 
         elif self.state == STATE_FIX_TICKS:
             if config[QUOTES][CONVERT_TO_CURLY]:
-                self.questionable = []
-                for question in document.fix_ticks():
-                    question.checkbox = wx.CheckBox(self.scroll, label=str(question))
-                    question.checkbox.SetValue(True)
-                    self.questionable.append(question)
-                    self.sizer3.Add(question.checkbox, 0, wx.TOP, 5)
-                self.scroll.SetupScrolling()
-                self.ticks.SetLabel(_("Located %d special cases") % len(self.questionable))
+                if not self.questionable:
+                    self.questionable = []
+                    for question in document.fix_ticks():
+                        question.checkbox = wx.CheckBox(self.scroll, label=str(question))
+                        question.checkbox.SetValue(True)
+                        self.questionable.append(question)
+                        self.sizer3.Add(question.checkbox, 0, wx.TOP, 5)
+                    self.scroll.SetupScrolling()
+                    self.ticks.SetLabel(_("Located %d special cases") % len(self.questionable))
             else:
                 self.ticks.SetLabel(_("Disabled"))
             self.state = STATE_SEARCH_HEADINGS

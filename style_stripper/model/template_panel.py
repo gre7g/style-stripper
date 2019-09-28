@@ -55,7 +55,7 @@ class TemplatePanel(wx.Panel):
         self.dimensions.Bind(wx.EVT_CHOICE, self.app.frame_controls.on_dimensions)
         sizer2.Add(self.dimensions, 0, wx.LEFT | wx.CENTER, 5)
         add_stretcher(sizer2)
-        self.bleed = wx.StaticText(self, label=_("Bleed"))
+        self.bleed = wx.StaticText(self)
         sizer2.Add(self.bleed, 0, wx.CENTER, 0)
         add_stretcher(sizer2)
         text = wx.StaticText(self, label=_("Variant:"))
@@ -123,6 +123,7 @@ class TemplatePanel(wx.Panel):
         )
         self.Layout()
 
+        self.bleed.SetLabel(_("Full-Bleed") if self.app.template.bleed else _("No Bleed"))
         self.page.SetScrollbar(0, 1, len(self.pages), 1)
         self.on_page()
 
