@@ -5,6 +5,7 @@ import logging
 import os
 import re
 from typing import Dict, Optional
+import wx
 
 from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.template_details import TemplateParameters
@@ -18,7 +19,7 @@ SEARCH_DIMENSIONS = re.compile(r"(\d(?:\.\d+)?)x(\d(?:\.\d+)?)")
 class Templates(object):
     def __init__(self):
         self.templates_by_size = {}
-        template_pattern = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docx_templates", "*.docx")
+        template_pattern = os.path.join(wx.GetApp().base_dir, "docx_templates", "*.docx")
         templates = glob(template_pattern)
         for path in templates:
             match = SEARCH_DIMENSIONS.search(path)

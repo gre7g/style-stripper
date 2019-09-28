@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import wx
 
 from style_stripper.control.frame_control import FrameControl
@@ -8,7 +9,6 @@ from style_stripper.control.settings_control import SettingsControl, Settings
 from style_stripper.data.book import Book
 from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.template import Templates, Template
-from style_stripper.data.template_details import TemplateParameters
 from style_stripper.model.main_frame import MainFrame
 
 # Constants:
@@ -27,6 +27,10 @@ class StyleStripperApp(wx.App):
     def __init__(self, *args, **kwargs):
         self.file_path = None
         self.initialized = False
+        if sys.argv[0].endswith(".exe"):
+            self.base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+        else:
+            self.base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
         # Controls
         self.frame_controls = FrameControl(self)

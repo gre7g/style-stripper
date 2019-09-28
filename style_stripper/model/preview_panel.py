@@ -7,7 +7,6 @@ import wx
 
 from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.enums import *
-from style_stripper.data.template_details import TemplateParameters
 
 try:
     from style_stripper.model.main_app import StyleStripperApp
@@ -36,7 +35,7 @@ class PreviewPanel(wx.Panel):
         self.Bind(wx.EVT_PAINT, self.on_paint)
         self.Bind(wx.EVT_SIZE, self.on_size)
 
-        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "lorem_ipsum.txt")
+        path = os.path.join(self.app.base_dir, "data", "lorem_ipsum.txt")
         with open(path, "rt") as file_obj:
             self.lorem_ipsum = file_obj.readlines()
 

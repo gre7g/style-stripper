@@ -1,4 +1,5 @@
 # style-stripper
+Style Stripper is an application that can rip all the good stuff (stuff you need when publishing a book) out of a .docx file while leaving the chaff behind. It then merges the text into a template file and saves it.
 ## Credit
 Project and code—Gre7g Luterman <gre7g.luterman@gmail.com>
 ## Contributing
