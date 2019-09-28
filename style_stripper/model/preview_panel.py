@@ -226,8 +226,9 @@ class PreviewPanel(wx.Panel):
         gcdc.DrawCircle(x, y, self.scope_radius)
         font_size = 0.02 * self.measure_to_twips
         gcdc.SetFont(wx.Font(font_size, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
-        line_spacing = font_size * 1.6
-        y_pos = y - (line_spacing * len(lines) // 2)
+        line_spacing = font_size * CONSTANTS.UI.PREVIEW.LINE_SPACING
+        height = font_size + (line_spacing * (len(lines) - 1))
+        y_pos = y - (height // 2)
         for text in lines:
             size = gcdc.GetTextExtent(text)
             gcdc.DrawText(text, x - (size.width // 2), y_pos)
@@ -252,24 +253,24 @@ class PreviewPanel(wx.Panel):
         font_size = template.styles[CONSTANTS.STYLING.NAMES.FOOTER].font_size
         footer = template.page_height - template.footer_distance
         even_footer = (template.left_margin, footer - (font_size * (1 - mid_offset)))
-        even_page = template.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP + template.gutter
+        even_page = (template.page_width * 2) + CONSTANTS.UI.PREVIEW.PAGE_GAP - template.right_margin
         odd_footer = (even_page, footer - (font_size * (1 - mid_offset)))
 
         gcdc.SetBrush(wx.Brush(self.color_db.Find("WHITE")))
+        style = template.styles[CONSTANTS.STYLING.NAMES.HEADER]
+        height = _("Header height: %s") % template.header_imperial
+        margin = _("Top margin: %s") % template.top_imperial
         if SCOPE_ON_EVEN_HEADER in self.scopes:
-            style = template.styles[CONSTANTS.STYLING.NAMES.HEADER]
-            height = _("Header height: %s") % template.header_imperial
-            margin = _("Top margin: %s") % template.top_imperial
             self.draw_scope(gcdc, even_header[0], even_header[1], [style.font_text, height, "", "", margin, ""])
         if SCOPE_ON_ODD_HEADER in self.scopes:
-            self.draw_scope(gcdc, odd_header[0], odd_header[1], [])
+            self.draw_scope(gcdc, odd_header[0], odd_header[1], [style.font_text, height, "", "", margin, ""])
+        style = template.styles[CONSTANTS.STYLING.NAMES.FOOTER]
+        height = _("Footer height: %s") % template.footer_imperial
         if SCOPE_ON_EVEN_FOOTER in self.scopes:
-            style = template.styles[CONSTANTS.STYLING.NAMES.FOOTER]
-            height = _("Footer height: %s") % template.footer_imperial
             margin = _("Left margin: %s") % template.left_imperial
             self.draw_scope(gcdc, even_footer[0], even_footer[1], [style.font_text, height, "", "", margin, ""])
         if SCOPE_ON_ODD_FOOTER in self.scopes:
-            self.draw_scope(gcdc, odd_footer[0], odd_footer[1], [])
+            self.draw_scope(gcdc, odd_footer[0], odd_footer[1], [style.font_text, "", "", height])
         if SCOPE_ON_LEFT_MARGIN in self.scopes:
             self.draw_scope(gcdc, template.left_margin, mid_vertical, [])
         if SCOPE_ON_RIGHT_MARGIN in self.scopes:
@@ -280,9 +281,14 @@ class PreviewPanel(wx.Panel):
             gutter = _("Gutter: %s") % template.gutter_imperial
             self.draw_scope(gcdc, template.page_width - template.gutter, mid_vertical, [margin, gutter])
         if SCOPE_ON_PART in self.scopes:
-            self.draw_scope(gcdc, right_centered, part, [])
+            style = template.styles[CONSTANTS.STYLING.NAMES.HEADING1]
+            above = "Space above: %s" % style.before_text
+            self.draw_scope(gcdc, right_centered, part, [above, "", "", "", "", style.font_text])
         if SCOPE_ON_CHAPTER in self.scopes:
-            self.draw_scope(gcdc, right_centered, chapter, [])
+            style = template.styles[CONSTANTS.STYLING.NAMES.HEADING2 if template.part_and_chapter else CONSTANTS.STYLING.NAMES.HEADING1]
+            above = "Space above: %s" % style.before_text
+            below = "Space below: %s" % style.after_text
+            self.draw_scope(gcdc, right_centered, chapter, [style.font_text, above, "", "", "", below, ""])
 
     def draw_in_style(
         self, gcdc: wx.GCDC,  # Graphic context

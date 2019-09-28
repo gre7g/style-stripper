@@ -77,6 +77,7 @@ class CONSTANTS(object):
             MEDIUM_GREY = (160, 160, 255)
             LIGHT_GREY = (240, 240, 255)
             MID_TEXT_OFFSET = 0.7  # 70% of text height
+            LINE_SPACING = 1.6  # +60% font size
             PART_AND_CHAPTER_PAGES = [
                 (OPEN_TO_PART, [SCOPE_ON_PART, SCOPE_ON_EVEN_HEADER]),
                 (OPEN_TO_PART, []),

@@ -24,7 +24,9 @@ class StyleParameters(object):
     font_text: str = attr.ib(default="")
     alignment: Optional[int] = attr.ib(default=None)
     space_before: Optional[int] = attr.ib(default=None)
+    before_text: Optional[str] = attr.ib(default="")
     space_after: Optional[int] = attr.ib(default=None)
+    after_text: Optional[str] = attr.ib(default="")
     first_line_indent: Optional[int] = attr.ib(default=None)
     indent_imperial: str = attr.ib(default="")
     indent_metric: str = attr.ib(default="")
@@ -43,8 +45,10 @@ class StyleParameters(object):
         self.alignment = self._find(style, lambda style: style.paragraph_format.alignment)
         self.space_before = (self._find(style, lambda style: style.paragraph_format.space_before) or 0) / \
             CONSTANTS.MEASURING.EMUS_PER_TWIP
+        self.before_text = "%spt" % rounding(self.space_before)
         self.space_after = (self._find(style, lambda style: style.paragraph_format.space_after) or 0) / \
             CONSTANTS.MEASURING.EMUS_PER_TWIP
+        self.after_text = "%spt" % rounding(self.space_after)
 
         self.first_line_indent = (self._find(style, lambda style: style.paragraph_format.first_line_indent) or 0) / \
             CONSTANTS.MEASURING.EMUS_PER_TWIP
