@@ -125,7 +125,6 @@ class TemplatePanel(wx.Panel):
 
         self.page.SetScrollbar(0, 1, len(self.pages), 1)
         self.on_page()
-        self.preview.find_page_scaling()
 
     def get_templates(self):
         size = self.dimensions.GetString(self.dimensions.GetSelection())
