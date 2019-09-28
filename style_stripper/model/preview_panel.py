@@ -170,7 +170,6 @@ class PreviewPanel(wx.Panel):
     def draw_content(self, gcdc: wx.GCDC):
         # Draw blank pages
         self.draw_page(gcdc, 0)
-        gcdc.SetBrush(wx.Brush(self.color_db.Find("WHITE")))
         self.draw_page(gcdc, self.parameters.page_width + CONSTANTS.UI.PREVIEW.PAGE_GAP)
 
         # Draw text on pages
@@ -207,11 +206,12 @@ class PreviewPanel(wx.Panel):
                                    align=WD_PARAGRAPH_ALIGNMENT.RIGHT)
 
     def draw_scope(self, gcdc: wx.GCDC, x: int, y: int):
-        gcdc.SetLogicalOrigin(x - ((x - self.x_orig) / CONSTANTS.UI.PREVIEW.MAGNIFIER_SCALING), y - ((y - self.y_orig) / CONSTANTS.UI.PREVIEW.MAGNIFIER_SCALING))
-        gcdc.SetLogicalScale(self.scale * CONSTANTS.UI.PREVIEW.MAGNIFIER_SCALING, self.scale * CONSTANTS.UI.PREVIEW.MAGNIFIER_SCALING)
-        points = [(x+cos(a*6.283/15)*self.scope_radius/CONSTANTS.UI.PREVIEW.MAGNIFIER_SCALING, y+sin(a*6.283/15)*self.scope_radius/CONSTANTS.UI.PREVIEW.MAGNIFIER_SCALING) for a in range(15)]
+        magnification = CONSTANTS.UI.PREVIEW.MAGNIFIER_SCALING
+        points = [(x-self.x_orig+cos(a*6.283/15)*self.scope_radius, y-self.y_orig+sin(a*6.283/15)*self.scope_radius) for a in range(15)]
         region = wx.Region(points)
         gcdc.SetDeviceClippingRegion(region)
+        gcdc.SetLogicalOrigin(x - ((x - self.x_orig) / magnification), y - ((y - self.y_orig) / magnification))
+        gcdc.SetLogicalScale(self.scale * magnification, self.scale * magnification)
         self.draw_content(gcdc)
         gcdc.DestroyClippingRegion()
         gcdc.SetLogicalOrigin(self.x_orig, self.y_orig)
@@ -433,6 +433,7 @@ class PreviewPanel(wx.Panel):
 
     def draw_page(self, gcdc: wx.GCDC, x_offset: int):
         # White box for page
+        gcdc.SetBrush(wx.Brush(self.color_db.Find("WHITE")))
         black = self.color_db.Find("BLACK")
         gcdc.SetPen(wx.Pen(black))
         gcdc.DrawRectangle(x_offset, 0, self.parameters.page_width, self.parameters.page_height)
