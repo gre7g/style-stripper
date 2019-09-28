@@ -223,6 +223,8 @@ class ReviewPanel(wx.Panel):
                     else:
                         document.remove_blanks()
                         self.scene_breaks.SetLabel(_("Removed %d blanks") % self.blanks)
+            if config[HEADINGS][ADD_THE_END] and not self.end:
+                document.add_end()
             self.state = STATE_DONE
             wx.CallLater(CONSTANTS.UI.APPLY_DELAY, self.refresh_contents)
 

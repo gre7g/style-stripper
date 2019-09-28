@@ -1,4 +1,6 @@
 import logging
+import os
+import sys
 import wx
 
 try:
@@ -86,6 +88,9 @@ class FrameControl(object):
                                style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         try:
             if dialog.ShowModal() == wx.ID_OK:
-                self.app.book.export(dialog.GetPath())
+                path = dialog.GetPath()
+                self.app.book.export(path)
+                if sys.platform == "win32":
+                    os.startfile(path)
         finally:
             dialog.Destroy()

@@ -148,6 +148,11 @@ class OriginalDocx(object):
 
             index += 1
 
+    def add_end(self):
+        end = Paragraph(self.book.config[HEADINGS][THE_END])
+        end.style = CONSTANTS.STYLING.NAMES.THE_END
+        self.paragraphs.append(end)
+
     def find_divider_candidates(self) -> Tuple[int, int]:
         count_of_symbolic = count_of_blanks = 0
         found_blank = found_symbol = False
@@ -214,21 +219,6 @@ class OriginalDocx(object):
                     index += 1
                     in_blanks = True
 
-    def style_headings(self, part: Optional[str] = None, chapter: Optional[str] = None, end: Optional[str] = None):
-        LOG.debug("styling parts as: %r", part)
-        LOG.debug("styling chapters as: %r", chapter)
-        LOG.debug("styling the end as: %r", end)
-
-        for paragraph in self.paragraphs:
-            for pattern in CONSTANTS.HEADINGS.SEARCH_PART:
-                if pattern.search(paragraph.text):
-                    paragraph.style = part
-                    break
-            for pattern in CONSTANTS.HEADINGS.SEARCH_CHAPTER:
-                if pattern.search(paragraph.text):
-                    paragraph.style = chapter
-                    break
-            for pattern in CONSTANTS.HEADINGS.SEARCH_THE_END:
-                if pattern.search(paragraph.text):
-                    paragraph.style = end
-                    break
+        # May have stuck a divider at the end by accident
+        if self.paragraphs[-1].style == CONSTANTS.STYLING.NAMES.DIVIDER:
+            del self.paragraphs[-1]
