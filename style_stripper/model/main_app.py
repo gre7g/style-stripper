@@ -47,6 +47,4 @@ class StyleStripperApp(wx.App):
 
         self.book = Book(self.settings.latest_config)
         self.initialized = True
-        # self.menu_controls.load(r"C:\synapse\temp\100k.book")  # TODO: REMOVE
-        # self.book.current_page = 3  # TODO: REMOVE
         self.frame.refresh_contents()
