@@ -38,6 +38,5 @@ class DonePanel(wx.Panel):
         pass
 
     def apply(self):
-        questionable = self.app.frame.review_panel.get_ticks()
-        for question in questionable:
+        for question in self.app.frame.review_panel.questionable:
             question.apply()

@@ -5,6 +5,7 @@ import attr
 import logging
 import re
 from typing import List, Tuple, Optional, ClassVar
+import wx
 
 from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.enums import *
@@ -16,14 +17,14 @@ SEARCH_DOUBLE_WHITESPACE = re.compile(r"\s{2,}")
 SEARCH_ITALIC_WHITE1 = re.compile(r"❱(\s*)❰")
 SEARCH_ITALIC_WHITE2 = re.compile(r"❰(\s+)")
 SEARCH_ITALIC_WHITE3 = re.compile(r"(\s+)❱")
-SEARCH_ITALIC_WHITE4 = re.compile(r"(\S+)❰")
-SEARCH_ITALIC_WHITE5 = re.compile(r"❱(\S+)")
+SEARCH_ITALIC_WHITE4 = re.compile(r"([^ a-zA-Z]+)❰")
+SEARCH_ITALIC_WHITE5 = re.compile(r"❱([^ a-zA-Z]+)")
 SEARCH_BROKEN_QUOTE1 = re.compile(r"”\s*-+\s*")
 SEARCH_BROKEN_QUOTE2 = re.compile(r"\s*-+\s*“")
 SEARCH_DASHES = re.compile(r"\s*-{2,}\s*")
 SEARCH_ANY_QUOTE = re.compile('["“”]')
 SEARCH_QUOTES_OR_TICKS = re.compile(r"(\w?)([“”'‘’])(\w?)")
-SEARCH_DASH_END_OF_QUOTE = re.compile(r'[—–-]+”')
+SEARCH_DASH_END_OF_QUOTE = re.compile(r"[—–-]+”")
 SEARCH_EN_OR_EM = re.compile(" – |—")
 SEARCH_WORD = re.compile("[a-z]+", re.I)
 SEARCH_END_TICK = re.compile(r"(’)[\W$]")
@@ -74,8 +75,8 @@ class Paragraph(object):
             even = True
             for match in SEARCH_ANY_QUOTE.finditer(self.text):
                 even = not even
-                quote = '”' if even else '“'
-                self.text = self.text[:match.start()] + quote + self.text[match.end():]
+                quote = "”" if even else "“"
+                self.text = self.text[: match.start()] + quote + self.text[match.end() :]
 
             # Can only fix dashes if we fix quotes
             if config[DASHES][CONVERT_TO_EM_DASH] or config[DASHES][CONVERT_TO_EN_DASH]:
@@ -100,10 +101,7 @@ class Paragraph(object):
         self.text = SEARCH_ITALIC_WHITE4.sub(r"❰\1", self.text)
         self.text = SEARCH_ITALIC_WHITE5.sub(r"\1❱", self.text)
 
-    def fix_ticks(
-        self, config: dict,  # Configuration dictionary
-        questionable_ticks: List[QuestionableTick]
-    ):
+    def fix_ticks(self, config: dict, questionable_ticks: List[QuestionableTick]):  # Configuration dictionary
         inside_quote = False
         must_change: List[Tuple[int, str]] = []  # [(offset, new_tick), ...]
         change_unknown: List[int] = []  # [offset, ...]
@@ -114,10 +112,10 @@ class Paragraph(object):
                 break
 
             # Start quote?
-            if match.group(2) == '“':
+            if match.group(2) == "“":
                 inside_quote = True
             # End quote?
-            elif match.group(2) == '”':
+            elif match.group(2) == "”":
                 inside_quote = False
 
                 # There was no matching end tick so they must be close
@@ -160,7 +158,7 @@ class Paragraph(object):
 
         # Change all queued up
         for offset, tick in must_change:
-            self.text = self.text[:offset] + tick + self.text[offset + 1:]
+            self.text = self.text[:offset] + tick + self.text[offset + 1 :]
 
     def __str__(self) -> str:
         return self.text
@@ -176,8 +174,12 @@ class QuestionableTick(object):
     checkbox: wx.CheckBox = attr.ib(default=None)
 
     def __str__(self):
-        match = SEARCH_END_TICK.search(self.paragraph.text, self.start+1)
-        return SEARCH_ITALIC_CHARS.sub("", self.paragraph.text[self.start:match.end(1)])
+        match = SEARCH_END_TICK.search(self.paragraph.text, self.start + 1)
+        return SEARCH_ITALIC_CHARS.sub("", self.paragraph.text[self.start : match.end(1)])
 
     def apply(self):
-        self.paragraph.text = self.paragraph.text[:self.start] + "‘" + self.paragraph.text[self.start+1:]
+        self.paragraph.text = (
+            self.paragraph.text[: self.start]
+            + ("‘" if self.checkbox.IsChecked() else "’")
+            + self.paragraph.text[self.start + 1 :]
+        )

@@ -231,6 +231,3 @@ class ReviewPanel(wx.Panel):
         elif self.state == STATE_DONE:
             self.processing.SetLabel(_("Processing complete."))
             self.apply_button.Enable(True)
-
-    def get_ticks(self):
-        return [question for question in self.questionable if question.checkbox.GetValue()]

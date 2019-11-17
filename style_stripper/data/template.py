@@ -13,7 +13,7 @@ from style_stripper.data.template_details import TemplateParameters
 # Constants:
 LOG = logging.getLogger(__name__)
 SEARCH_ITALIC = re.compile(r"❰(.*?)❱")
-SEARCH_DIMENSIONS = re.compile(r"(\d(?:\.\d+)?)x(\d(?:\.\d+)?)")
+SEARCH_DIMENSIONS = re.compile(r"(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)")
 
 
 class Templates(object):

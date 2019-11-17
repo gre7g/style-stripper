@@ -135,3 +135,6 @@ class MainFrame(wx.Frame):
     def apply(self):
         panel = self.panels[self.app.book.current_page]
         panel.apply()
+
+    def new_dimensions(self):
+        self.template_panel.new_dimensions()

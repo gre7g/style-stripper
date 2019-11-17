@@ -22,7 +22,7 @@ class OriginalDocx(object):
         self.questionable_ticks: List[Tuple[Paragraph, int]] = []
 
         self.paragraphs: List[Paragraph] = []
-        self.symbolic_divider_indexes: List[int] = []
+        self.symbolic_divider_indexes: List[Tuple[int, ...]] = []
         doc = Document(path)
 
         word_count = 0
@@ -108,7 +108,7 @@ class OriginalDocx(object):
                 found_part = paragraph
             elif found_part:
                 found_part.style = CONSTANTS.STYLING.NAMES.HEADING1
-                self.paragraphs[group[0]:group[-1] + 1] = [found_part]
+                self.paragraphs[group[0] : group[-1] + 1] = [found_part]
                 index = group[0]
                 found_part = None
                 group = []
@@ -117,7 +117,7 @@ class OriginalDocx(object):
                 found_chapter = paragraph
             elif found_chapter:
                 found_chapter.style = chapter_style
-                self.paragraphs[group[0]:group[-1]+1] = [found_chapter]
+                self.paragraphs[group[0] : group[-1] + 1] = [found_chapter]
                 index = group[0]
                 found_chapter = None
                 group = []
@@ -139,7 +139,7 @@ class OriginalDocx(object):
                 found_end = paragraph
             elif found_end:
                 found_end.style = CONSTANTS.STYLING.NAMES.THE_END
-                self.paragraphs[group[0]:group[-1]+1] = [found_end]
+                self.paragraphs[group[0] : group[-1] + 1] = [found_end]
                 index = group[0]
                 found_end = None
                 group = []
@@ -156,7 +156,7 @@ class OriginalDocx(object):
     def find_divider_candidates(self) -> Tuple[int, int]:
         count_of_symbolic = count_of_blanks = 0
         found_blank = found_symbol = False
-        group = []
+        group: List[int] = []
         for index, paragraph in enumerate(self.paragraphs):
             if not CONSTANTS.DIVIDER.SEARCH.search(paragraph.text):  # No word content
                 group.append(index)
@@ -166,7 +166,7 @@ class OriginalDocx(object):
                     found_symbol = True
             else:
                 if found_symbol:
-                    self.symbolic_divider_indexes.append(group)
+                    self.symbolic_divider_indexes.insert(0, group)
                     count_of_symbolic += 1
                 elif found_blank:
                     count_of_blanks += 1
@@ -179,10 +179,12 @@ class OriginalDocx(object):
         return count_of_symbolic, count_of_blanks
 
     def replace_symbolic(self) -> None:
-        for index in self.symbolic_divider_indexes:
+        for indexes in self.symbolic_divider_indexes:
             if self.book.config[DIVIDER][REPLACE_WITH_NEW]:
-                self.paragraphs[index] = Paragraph(self.book.config[DIVIDER][NEW])
-            self.paragraphs[index].style = CONSTANTS.STYLING.NAMES.DIVIDER
+                start = indexes[0]
+                stop = indexes[-1] + 1
+                self.paragraphs[start:stop] = [Paragraph(self.book.config[DIVIDER][NEW])]
+            self.paragraphs[start].style = CONSTANTS.STYLING.NAMES.DIVIDER
 
     def remove_blanks(self) -> None:
         # Indexes are meaninless once we delete paragraphs
