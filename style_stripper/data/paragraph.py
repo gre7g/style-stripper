@@ -27,7 +27,7 @@ SEARCH_QUOTES_OR_TICKS = re.compile(r"(\w?)([“”'‘’])(\w?)")
 SEARCH_DASH_END_OF_QUOTE = re.compile(r"[—–-]+”")
 SEARCH_EN_OR_EM = re.compile(" – |—")
 SEARCH_WORD = re.compile("[a-z]+", re.I)
-SEARCH_END_TICK = re.compile(r"(’)[\W$]")
+SEARCH_END_TICK = re.compile(r"(’)(\W|$)")
 SEARCH_ITALIC_CHARS = re.compile(r"[❰❱]")
 
 LOG = logging.getLogger(__name__)
