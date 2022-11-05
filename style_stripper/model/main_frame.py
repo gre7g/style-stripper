@@ -9,12 +9,18 @@ from style_stripper.model.options_panel import OptionsPanel
 from style_stripper.model.review_panel import ReviewPanel
 from style_stripper.model.done_panel import DonePanel
 
+try:
+    from style_stripper.model.main_app import StyleStripperApp
+except ImportError:
+    StyleStripperApp = None
+
 # Constants:
 _ = wx.GetTranslation
 LOG = logging.getLogger(__name__)
 
 
 class MainFrame(wx.Frame):
+    app: StyleStripperApp
     author_panel: AuthorPanel
     template_panel: TemplatePanel
     options_panel: OptionsPanel

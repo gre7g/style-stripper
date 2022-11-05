@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from typing import Optional
 import wx
 
 from style_stripper.control.frame_control import FrameControl
@@ -18,11 +19,17 @@ TEMPLATES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", 
 
 
 class StyleStripperApp(wx.App):
+    file_path: Optional[str]
+    initialized: bool
+    base_dir: str  # abspath to style_stripper
+    frame_controls: FrameControl
+    menu_controls: MenuControl
+    settings_controls: SettingsControl
     frame: MainFrame
     book: Book
     settings: Settings
-    templates: Templates
-    template: Template
+    templates: Optional[Templates]
+    template: Optional[Template]
 
     def __init__(self, *args, **kwargs):
         self.file_path = None
