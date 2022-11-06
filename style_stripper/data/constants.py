@@ -1,11 +1,12 @@
 from dataclasses import dataclass
+from docx.enum.section import WD_SECTION_START
 import os
 import re
 import sys
 from typing import List
 import wx
 
-from style_stripper.data.enums import PageToShow, ScopeOn
+from style_stripper.data.enums import PageToShow, ScopeOn, PaginationType
 
 # Constants:
 _ = wx.GetTranslation
@@ -23,11 +24,33 @@ ListPageScopes: List[PageScopes]
 
 class CONSTANTS:
     class PATHS:
-        TEMPLATES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docx_templates")
+        TEMPLATES_PATH = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "..", "docx_templates"
+        )
         if sys.argv[0].endswith(".exe"):
             BASE_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
         else:
             BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+
+    class DOCUMENTS:
+        SEARCH_DIMENSIONS = re.compile(r"(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)")
+        DIMENSIONS = [
+            '5" x 8"',
+            '5.06" x 7.81"',
+            '5.25" x 8"',
+            '5.5" x 8.5"',
+            '6" x 9"',
+            '6.14" x 9.21"',
+            '6.69" x 9.61"',
+            '7" x 10"',
+            '7.44" x 9.69"',
+            '7.5" x 9.25"',
+            '8" x 10"',
+            '8.25" x 6"',
+            '8.25" x 8.25"',
+            '8.5" x 11"',
+            '8.27" x 11.69"',
+        ]
 
     class MEASURING:
         EMUS_PER_INCH = 914400
@@ -35,6 +58,50 @@ class CONSTANTS:
         EMUS_PER_CM = 360000
         TWIPS_PER_INCH = 1440
         TWIPS_PER_CM = 566.9291
+
+    class STYLING:
+        class NAMES:
+            FIRST_PARAGRAPH = "First Paragraph"
+            NORMAL = "Normal"
+            DIVIDER = "Separator"
+            HEADING1 = "Heading 1"
+            HEADING2 = "Heading 2"
+            HEADER = "Header"
+            FOOTER = "Footer"
+            THE_END = "Separator"
+
+    class HEADINGS:
+        SEARCH_PART = [re.compile(r"^\s*Part [\dIV]\w*\s*$")]
+        SEARCH_CHAPTER = [re.compile(r"^\s*Chapter \d+(:\s+.+)?")]
+        SEARCH_THE_END = [
+            re.compile(r"^\s*The End\s*$", re.I),
+            re.compile(r"^\s*fin\s*$", re.I),
+        ]
+        BREAK_MAP = {
+            PaginationType.NEW_PAGE: WD_SECTION_START.NEW_PAGE,
+            PaginationType.ODD_PAGE: WD_SECTION_START.ODD_PAGE,
+            PaginationType.EVEN_PAGE: WD_SECTION_START.EVEN_PAGE,
+        }
+
+    class PARAGRAPHS:
+        SEARCH_LEADING_WHITESPACE = re.compile(r"^\s+")
+        SEARCH_TRAILING_WHITESPACE = re.compile(r"\s+$")
+        SEARCH_DOUBLE_WHITESPACE = re.compile(r"\s{2,}")
+        SEARCH_ITALIC_WHITE1 = re.compile(r"❱(\s*)❰")
+        SEARCH_ITALIC_WHITE2 = re.compile(r"❰(\s+)")
+        SEARCH_ITALIC_WHITE3 = re.compile(r"(\s+)❱")
+        SEARCH_ITALIC_WHITE4 = re.compile(r"([^ a-zA-Z]+)❰")
+        SEARCH_ITALIC_WHITE5 = re.compile(r"❱([^ a-zA-Z]+)")
+        SEARCH_BROKEN_QUOTE1 = re.compile(r"”\s*-+\s*")
+        SEARCH_BROKEN_QUOTE2 = re.compile(r"\s*-+\s*“")
+        SEARCH_DASHES = re.compile(r"\s*-{2,}\s*")
+        SEARCH_ANY_QUOTE = re.compile('["“”]')
+        SEARCH_QUOTES_OR_TICKS = re.compile(r"(\w?)([“”'‘’])(\w?)")
+        SEARCH_DASH_END_OF_QUOTE = re.compile(r"[—–-]+”")
+        SEARCH_EN_OR_EM = re.compile(" – |—")
+        SEARCH_WORD = re.compile("[a-z]+", re.I)
+        SEARCH_END_TICK = re.compile(r"(’)(\W|$)")
+        SEARCH_ITALIC_CHARS = re.compile(r"[❰❱]")
 
     class DIVIDER:
         SEARCH = re.compile(r"\w")
@@ -50,28 +117,8 @@ class CONSTANTS:
         ]
         SEARCH = re.compile(r"\.\.\.|…")
 
-    class HEADINGS:
-        SEARCH_PART = [
-            re.compile(r"^\s*Part [\dIV]\w*\s*$")
-        ]
-        SEARCH_CHAPTER = [
-            re.compile(r"^\s*Chapter \d+(:\s+.+)?")
-        ]
-        SEARCH_THE_END = [
-            re.compile(r"^\s*The End\s*$", re.I),
-            re.compile(r"^\s*fin\s*$", re.I),
-        ]
-
-    class STYLING:
-        class NAMES:
-            FIRST_PARAGRAPH = "First Paragraph"
-            NORMAL = "Normal"
-            DIVIDER = "Separator"
-            HEADING1 = "Heading 1"
-            HEADING2 = "Heading 2"
-            HEADER = "Header"
-            FOOTER = "Footer"
-            THE_END = "Separator"
+    class ITALIC:
+        SEARCH = re.compile(r"❰(.*?)❱")
 
     class UI:
         MAX_FILE_HISTORY = 8
@@ -100,12 +147,21 @@ class CONSTANTS:
                 PageScopes(PageToShow.PART, []),
                 PageScopes(PageToShow.CHAPTER, [ScopeOn.CHAPTER, ScopeOn.EVEN_FOOTER]),
                 PageScopes(PageToShow.CHAPTER, []),
-                PageScopes(PageToShow.MID_CHAPTER, [ScopeOn.GUTTER, ScopeOn.ODD_HEADER, ScopeOn.ODD_FOOTER]),
-                PageScopes(PageToShow.MID_CHAPTER, [])
+                PageScopes(
+                    PageToShow.MID_CHAPTER,
+                    [ScopeOn.GUTTER, ScopeOn.ODD_HEADER, ScopeOn.ODD_FOOTER],
+                ),
+                PageScopes(PageToShow.MID_CHAPTER, []),
             ]
             CHAPTER_ONLY_PAGES = [
-                PageScopes(PageToShow.CHAPTER, [ScopeOn.CHAPTER, ScopeOn.EVEN_HEADER, ScopeOn.EVEN_FOOTER]),
+                PageScopes(
+                    PageToShow.CHAPTER,
+                    [ScopeOn.CHAPTER, ScopeOn.EVEN_HEADER, ScopeOn.EVEN_FOOTER],
+                ),
                 PageScopes(PageToShow.CHAPTER, []),
-                PageScopes(PageToShow.MID_CHAPTER, [ScopeOn.GUTTER, ScopeOn.ODD_HEADER, ScopeOn.ODD_FOOTER]),
-                PageScopes(PageToShow.MID_CHAPTER, [])
+                PageScopes(
+                    PageToShow.MID_CHAPTER,
+                    [ScopeOn.GUTTER, ScopeOn.ODD_HEADER, ScopeOn.ODD_FOOTER],
+                ),
+                PageScopes(PageToShow.MID_CHAPTER, []),
             ]

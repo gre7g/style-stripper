@@ -2,11 +2,11 @@ from enum import Enum, auto
 
 
 class PanelType(Enum):
-    AUTHOR = auto()
-    TEMPLATE = auto()
-    OPTIONS = auto()
-    REVIEW = auto()
-    DONE = auto()
+    AUTHOR = 1
+    TEMPLATE = 2
+    OPTIONS = 3
+    REVIEW = 4
+    DONE = 5
 
 
 class PageToShow(Enum):
@@ -49,36 +49,9 @@ class TextLineType(Enum):
     ONLY_LINE = auto()
 
 
-class Enums(Enum):
-    SOURCE = auto()
-    PATH = auto()
-    TITLE = auto()
-    WORD_COUNT = auto()
-    LAST_MODIFIED = auto()
-    HEADER = auto()
-    FOOTER = auto()
-    TOP_EDGE = auto()
-    BOTTOM_EDGE = auto()
-    LEFT_EDGE = auto()
-    RIGHT_EDGE = auto()
-    LEFT_MARGIN = auto()
-    RIGHT_MARGIN = auto()
-    ADD_THE_END = auto()
-    THE_END = auto()
-
-
-SOURCE = Enums.SOURCE
-PATH = Enums.PATH
-TITLE = Enums.TITLE
-WORD_COUNT = Enums.WORD_COUNT
-LAST_MODIFIED = Enums.LAST_MODIFIED
-HEADER = Enums.HEADER
-FOOTER = Enums.FOOTER
-TOP_EDGE = Enums.TOP_EDGE
-BOTTOM_EDGE = Enums.BOTTOM_EDGE
-LEFT_EDGE = Enums.LEFT_EDGE
-RIGHT_EDGE = Enums.RIGHT_EDGE
-LEFT_MARGIN = Enums.LEFT_MARGIN
-RIGHT_MARGIN = Enums.RIGHT_MARGIN
-ADD_THE_END = Enums.ADD_THE_END
-THE_END = Enums.THE_END
+# class Enums(Enum):
+#     HEADER = auto()
+#     FOOTER = auto()
+#     LEFT_MARGIN = auto()
+#     RIGHT_MARGIN = auto()
+#     THE_END = auto()

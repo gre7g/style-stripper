@@ -94,7 +94,7 @@ class ReviewPanel(ContentPanel):
     def apply1(self):
         config = self.app.settings.latest_config
 
-        # The Paragraph class has a class member that tracks what sort of dash we're using so we don't have to do
+        # The Paragraph class has a class member that tracks what sort of dash we're using, so we don't have to do
         # this comparison constantly. Set the class member now based on book configuration.
         Paragraph.set_dash_class_member(config)
 

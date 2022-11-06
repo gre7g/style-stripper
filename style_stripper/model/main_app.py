@@ -47,7 +47,7 @@ class StyleStripperApp(wx.App):
         self.book = Book(self.settings.latest_config)
         self.initialized = True
         locale.setlocale(locale.LC_ALL, "")
-        self.frame.refresh_contents()
+        self.refresh_contents()
 
     def __getattribute__(self, item: str):
         """Get a wrapper for all panels within the application"""

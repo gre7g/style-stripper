@@ -596,7 +596,7 @@ class PreviewPanel(wx.Panel):
             line_list = lines
 
         for line in line_list:
-            # Technically this resets us back to Normal after each line instead of each paragraph. This isn't ideal but
+            # Technically this resets us back to Normal after each line instead of each paragraph. This isn't ideal, but
             # I'm not certain I care enough to track the end of paragraphs.
             # style_name = CONSTANTS.STYLING.NAMES.NORMAL
 
@@ -736,7 +736,7 @@ class PreviewPanel(wx.Panel):
         gcdc: wx.GCDC,  # Graphic context
         length_of_text: float,  # How much text to generate (0.0=None, 1.0=Full page)
     ) -> List[TextLine]:  # List of line descriptors
-        """Starting at the end of the lorem ipsum, gather lines to fill a percentage of a page."""
+        """Starting at the end of the lorem ipsum, gather lines to fill out a percentage of a page."""
         template = self.app.template
         width_in_twips = (
             template.page_width

@@ -18,8 +18,8 @@ except ImportError:
     StyleStripperApp = None
 
 # Constants:
-_ = wx.GetTranslation
 LOG = logging.getLogger(__name__)
+_ = wx.GetTranslation
 
 
 class MainFrame(wx.Frame):
@@ -98,7 +98,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.app.menu_controls.on_save_as, save_as)
         self.Bind(wx.EVT_MENU, self.app.menu_controls.on_quit, exit_cmd)
 
-        self.status_bar = self.Createstatus_bar(name="status_bar")
+        self.status_bar = self.CreateStatusBar(name="status_bar")
 
         self.Show()
         self.SetSizerAndFit(sizer1)

@@ -1,5 +1,4 @@
 import logging
-from typing import List, Tuple
 import wx
 
 from style_stripper.data.constants import CONSTANTS, ListPageScopes
@@ -11,23 +10,6 @@ from style_stripper.model.utility import add_stretcher
 # Constants:
 LOG = logging.getLogger(__name__)
 _ = wx.GetTranslation
-DIMENSIONS = [
-    '5" x 8"',
-    '5.06" x 7.81"',
-    '5.25" x 8"',
-    '5.5" x 8.5"',
-    '6" x 9"',
-    '6.14" x 9.21"',
-    '6.69" x 9.61"',
-    '7" x 10"',
-    '7.44" x 9.69"',
-    '7.5" x 9.25"',
-    '8" x 10"',
-    '8.25" x 6"',
-    '8.25" x 8.25"',
-    '8.5" x 11"',
-    '8.27" x 11.69"',
-]
 
 
 class TemplatePanel(ContentPanel):
@@ -101,7 +83,7 @@ class TemplatePanel(ContentPanel):
     def refresh_contents(self):
         if not self.initialized:
             self.app.templates = Templates()
-            for dimension in DIMENSIONS:
+            for dimension in CONSTANTS.DOCUMENTS.DIMENSIONS:
                 if dimension in self.app.templates.templates_by_size:
                     self.dimensions.Append(dimension)
             self.dimensions.SetSelection(0)
