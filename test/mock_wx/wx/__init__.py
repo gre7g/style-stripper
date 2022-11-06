@@ -338,7 +338,7 @@ class StaticText(Control):
     pass
 
 
-class StatusBar(Control):
+class status_bar(Control):
     pass
 
 

@@ -4,7 +4,7 @@ import logging
 import wx
 
 from style_stripper.data.constants import CONSTANTS
-from style_stripper.data.enums import *
+from style_stripper.data.enums import PanelType
 from style_stripper.data.original_docx import OriginalDocx
 
 # Constants:
@@ -21,7 +21,7 @@ class Book(object):
         self.original_docx = self.backup_docx = None
         self.config = config
 
-        self.current_page = 0
+        self.current_panel = PanelType.AUTHOR
         self.source_path = ""
         self.author = ""
         self.title = ""

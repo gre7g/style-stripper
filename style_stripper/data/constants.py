@@ -1,25 +1,46 @@
+from dataclasses import dataclass
+import os
 import re
+import sys
+from typing import List
 import wx
 
-from style_stripper.data.enums import *
+from style_stripper.data.enums import PageToShow, ScopeOn
 
 # Constants:
 _ = wx.GetTranslation
 
 
-class CONSTANTS(object):
-    class MEASURING(object):
+@dataclass
+class PageScopes:
+    page: PageToShow
+    scopes: List[ScopeOn]
+
+
+# Types:
+ListPageScopes: List[PageScopes]
+
+
+class CONSTANTS:
+    class PATHS:
+        TEMPLATES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docx_templates")
+        if sys.argv[0].endswith(".exe"):
+            BASE_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
+        else:
+            BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+
+    class MEASURING:
         EMUS_PER_INCH = 914400
         EMUS_PER_TWIP = 635
         EMUS_PER_CM = 360000
         TWIPS_PER_INCH = 1440
         TWIPS_PER_CM = 566.9291
 
-    class DIVIDER(object):
+    class DIVIDER:
         SEARCH = re.compile(r"\w")
         MAX_BLANK_PARAGRAPH_DIVIDERS = 400
 
-    class ELLIPSES(object):
+    class ELLIPSES:
         SUB_SPACE = [
             (re.compile(r"(^| )(\.\.\.|…)( |$)"), r"\2"),
             (re.compile(r"(\W) (\.\.\.|…)"), r"\1\2"),
@@ -29,7 +50,7 @@ class CONSTANTS(object):
         ]
         SEARCH = re.compile(r"\.\.\.|…")
 
-    class HEADINGS(object):
+    class HEADINGS:
         SEARCH_PART = [
             re.compile(r"^\s*Part [\dIV]\w*\s*$")
         ]
@@ -41,8 +62,8 @@ class CONSTANTS(object):
             re.compile(r"^\s*fin\s*$", re.I),
         ]
 
-    class STYLING(object):
-        class NAMES(object):
+    class STYLING:
+        class NAMES:
             FIRST_PARAGRAPH = "First Paragraph"
             NORMAL = "Normal"
             DIVIDER = "Separator"
@@ -52,14 +73,14 @@ class CONSTANTS(object):
             FOOTER = "Footer"
             THE_END = "Separator"
 
-    class UI(object):
+    class UI:
         MAX_FILE_HISTORY = 8
         CATEGORY_NAME = "StyleStripper"
         CONFIG_PARAM = "configuration"
         APP_NAME = _("Style Stripper")
         APPLY_DELAY = 5  # 0.005s
 
-        class PREVIEW(object):
+        class PREVIEW:
             SCOPE_RADIUS = 0.15  # 15% of preview panel
             RULER_THICKNESS = 0.02  # 2% of preview panel
             GAP = 0.02  # 2% of preview panel
@@ -75,16 +96,16 @@ class CONSTANTS(object):
             MID_TEXT_OFFSET = 0.7  # 70% of text height
             LINE_SPACING = 1.6  # +60% font size
             PART_AND_CHAPTER_PAGES = [
-                (OPEN_TO_PART, [SCOPE_ON_PART, SCOPE_ON_EVEN_HEADER]),
-                (OPEN_TO_PART, []),
-                (OPEN_TO_CHAPTER, [SCOPE_ON_CHAPTER, SCOPE_ON_EVEN_FOOTER]),
-                (OPEN_TO_CHAPTER, []),
-                (OPEN_TO_MID_CHAPTER, [SCOPE_ON_GUTTER, SCOPE_ON_ODD_HEADER, SCOPE_ON_ODD_FOOTER]),
-                (OPEN_TO_MID_CHAPTER, [])
+                PageScopes(PageToShow.PART, [ScopeOn.PART, ScopeOn.EVEN_HEADER]),
+                PageScopes(PageToShow.PART, []),
+                PageScopes(PageToShow.CHAPTER, [ScopeOn.CHAPTER, ScopeOn.EVEN_FOOTER]),
+                PageScopes(PageToShow.CHAPTER, []),
+                PageScopes(PageToShow.MID_CHAPTER, [ScopeOn.GUTTER, ScopeOn.ODD_HEADER, ScopeOn.ODD_FOOTER]),
+                PageScopes(PageToShow.MID_CHAPTER, [])
             ]
             CHAPTER_ONLY_PAGES = [
-                (OPEN_TO_CHAPTER, [SCOPE_ON_CHAPTER, SCOPE_ON_EVEN_HEADER, SCOPE_ON_EVEN_FOOTER]),
-                (OPEN_TO_CHAPTER, []),
-                (OPEN_TO_MID_CHAPTER, [SCOPE_ON_GUTTER, SCOPE_ON_ODD_HEADER, SCOPE_ON_ODD_FOOTER]),
-                (OPEN_TO_MID_CHAPTER, [])
+                PageScopes(PageToShow.CHAPTER, [ScopeOn.CHAPTER, ScopeOn.EVEN_HEADER, ScopeOn.EVEN_FOOTER]),
+                PageScopes(PageToShow.CHAPTER, []),
+                PageScopes(PageToShow.MID_CHAPTER, [ScopeOn.GUTTER, ScopeOn.ODD_HEADER, ScopeOn.ODD_FOOTER]),
+                PageScopes(PageToShow.MID_CHAPTER, [])
             ]

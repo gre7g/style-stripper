@@ -41,11 +41,11 @@ class FrameControl(object):
             dialog.Destroy()
 
     def on_next(self, event: wx.CommandEvent):
-        self.app.book.current_page += 1
+        self.app.book.current_panel += 1
         self.app.frame.refresh_contents()
 
     def on_prev(self, event: wx.CommandEvent):
-        self.app.book.current_page -= 1
+        self.app.book.current_panel -= 1
         self.app.frame.refresh_contents()
 
     def on_author(self, event: wx.CommandEvent):

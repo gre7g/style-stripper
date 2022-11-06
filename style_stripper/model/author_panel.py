@@ -1,16 +1,12 @@
 import wx
 
-try:
-    from style_stripper.model.main_app import StyleStripperApp
-except ImportError:
-    StyleStripperApp = None
+from style_stripper.model.content_pane import ContentPanel
 
 # Constants:
 _ = wx.GetTranslation
 
 
-class AuthorPanel(wx.Panel):
-    app: StyleStripperApp
+class AuthorPanel(ContentPanel):
     file_path_ctrl: wx.StaticText
     author_ctrl: wx.TextCtrl
     title_ctrl: wx.TextCtrl
@@ -18,9 +14,8 @@ class AuthorPanel(wx.Panel):
     modified_ctrl: wx.StaticText
     next: wx.Button
 
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent)
-        self.app = wx.GetApp()
+    def __init__(self, *args, **kwargs):
+        super(AuthorPanel, self).__init__(*args, **kwargs)
 
         sizer1 = wx.BoxSizer(wx.VERTICAL)
         sizer2 = wx.FlexGridSizer(2, 10, 5)
@@ -60,19 +55,30 @@ class AuthorPanel(wx.Panel):
         self.SetSizer(sizer1)
 
     def refresh_contents(self):
+        ContentPanel.refresh_contents(self)
         book = self.app.book
         self.file_path_ctrl.SetLabel(book.source_path)
         self.author_ctrl.SetValue(book.author)
         self.title_ctrl.SetValue(book.title)
-        self.word_count_ctrl.SetLabel("" if book.word_count is None else f"{book.word_count:n}")
+        self.word_count_ctrl.SetLabel(
+            "" if book.word_count is None else f"{book.word_count:n}"
+        )
 
         modified = book.last_modified
         if modified is None:
             self.modified_ctrl.SetLabel("")
         else:
-            dt_obj = wx.DateTime(modified.day, modified.month - 1, modified.year, modified.hour, modified.minute,
-                                 modified.second)
-            self.modified_ctrl.SetLabel("%s %s" % (dt_obj.FormatDate(), dt_obj.FormatTime()))
+            dt_obj = wx.DateTime(
+                modified.day,
+                modified.month - 1,
+                modified.year,
+                modified.hour,
+                modified.minute,
+                modified.second,
+            )
+            self.modified_ctrl.SetLabel(
+                "%s %s" % (dt_obj.FormatDate(), dt_obj.FormatTime())
+            )
 
     def book_loaded(self, is_loaded: bool = True):
         self.next.Enable(is_loaded)

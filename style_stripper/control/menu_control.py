@@ -89,7 +89,7 @@ class MenuControl(object):
         self.app.book.not_modified()
         self.app.frame.refresh_file_history()
 
-        if self.app.book.current_page == 3:
+        if self.app.book.current_panel == 3:
             self.app.book.reload()
             self.app.frame.apply()
 

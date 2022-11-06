@@ -1,6 +1,5 @@
+import locale
 import logging
-import os
-import sys
 from typing import Optional
 import wx
 
@@ -15,13 +14,10 @@ from style_stripper.model.main_frame import MainFrame
 # Constants:
 LOG = logging.getLogger(__name__)
 
-TEMPLATES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docx_templates")
-
 
 class StyleStripperApp(wx.App):
     file_path: Optional[str]
     initialized: bool
-    base_dir: str  # abspath to style_stripper
     frame_controls: FrameControl
     menu_controls: MenuControl
     settings_controls: SettingsControl
@@ -34,10 +30,6 @@ class StyleStripperApp(wx.App):
     def __init__(self, *args, **kwargs):
         self.file_path = None
         self.initialized = False
-        if sys.argv[0].endswith(".exe"):
-            self.base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
-        else:
-            self.base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
         # Controls
         self.frame_controls = FrameControl(self)
@@ -45,7 +37,7 @@ class StyleStripperApp(wx.App):
         self.settings_controls = SettingsControl(self)
         self.templates = self.template = None
 
-        wx.App.__init__(self, *args, **kwargs)
+        super(StyleStripperApp, self).__init__(*args, **kwargs)
 
     def init(self):
         self.frame = MainFrame(None, title=CONSTANTS.UI.APP_NAME)
@@ -54,4 +46,21 @@ class StyleStripperApp(wx.App):
 
         self.book = Book(self.settings.latest_config)
         self.initialized = True
+        locale.setlocale(locale.LC_ALL, "")
         self.frame.refresh_contents()
+
+    def __getattribute__(self, item: str):
+        """Get a wrapper for all panels within the application"""
+        # Note: Some functions are applied to all panels. For example app.grab_contents() will call a grab_contents()
+        # member function on each of the frame's panels. If the function returns a value, the active panel is the one
+        # returned.
+        def wrap(*args, **kwargs):
+            return_value = None
+            for panel_type, panel in self.frame.panels.items():
+                func = getattr(panel, item)
+                value = func(*args, **kwargs)
+                if panel.is_current_panel():
+                    return_value = value
+            return return_value
+
+        return wrap
