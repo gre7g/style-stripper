@@ -89,8 +89,9 @@ class StyleParameters:
             or self.font_size
         )
         if isinstance(line_spacing, float):
-            line_spacing *= self.font_size
-        self.line_spacing = int(line_spacing / CONSTANTS.MEASURING.EMUS_PER_TWIP)
+            self.line_spacing = int(line_spacing * self.font_size)
+        else:
+            self.line_spacing = int(line_spacing / CONSTANTS.MEASURING.EMUS_PER_TWIP)  # noqa
 
         return self
 

@@ -34,7 +34,7 @@ class TemplatePanel(ContentPanel):
 
         sizer1 = wx.BoxSizer(wx.VERTICAL)
         sizer2 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer1.Add(sizer2, 0, wx.EXPAND)
+        sizer1.Add(sizer2, 0, wx.EXPAND | wx.BOTTOM, 2)
         text = wx.StaticText(self, label=_("Dimensions:"))
         sizer2.Add(text, 0, wx.CENTER)
         self.dimensions = wx.Choice(self, name="dimensions")

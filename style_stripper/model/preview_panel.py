@@ -66,7 +66,7 @@ class PreviewPanel(wx.Panel):
     def find_page_scaling(self):
         scope_radius = CONSTANTS.UI.PREVIEW.SCOPE_RADIUS
 
-        # Loop over the scopes and find what will be the edges of the content
+        # Check all the scopes and find what will be the edges of the content
         template = self.app.template
         measure_from_top = (
             CONSTANTS.UI.PREVIEW.GAP
@@ -86,7 +86,6 @@ class PreviewPanel(wx.Panel):
             measure_from_top = (
                 CONSTANTS.UI.PREVIEW.GAP
                 + CONSTANTS.UI.PREVIEW.RULER_THICKNESS
-                + CONSTANTS.UI.PREVIEW.GAP
                 + scope_radius
             )
             top_point = int(
@@ -231,7 +230,7 @@ class PreviewPanel(wx.Panel):
                 90,
             )
 
-        # Draw ticks at the half-inch spots along the horizontal ruler
+        # Draw ticks at the half-inch spots along the vertical ruler
         half_inch = int(CONSTANTS.MEASURING.TWIPS_PER_INCH / 2)
         for index, y in enumerate(
             range(
@@ -792,9 +791,8 @@ class PreviewPanel(wx.Panel):
 
         # White bar for horizontal ruler
         thickness = int(CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_twips)
-        gap = int(CONSTANTS.UI.PREVIEW.GAP * self.measure_to_twips)
         gcdc.SetPen(wx.Pen(self.color_db.Find("WHITE")))
-        gcdc.DrawRectangle(x_offset, self.y_orig + gap, template.page_width, thickness)
+        gcdc.DrawRectangle(x_offset, self.y_orig, template.page_width, thickness)
 
         font_size = int(thickness / 2)
         gcdc.SetFont(
@@ -817,7 +815,6 @@ class PreviewPanel(wx.Panel):
                 label,
                 x_offset + x - int(size.width / 2),
                 self.y_orig
-                + gap
                 + int((thickness - font_size) * CONSTANTS.UI.PREVIEW.RULER_TEXT),
             )
 
@@ -830,9 +827,9 @@ class PreviewPanel(wx.Panel):
         ):
             gcdc.DrawLine(
                 x_offset + x,
-                self.y_orig + gap + int(thickness * CONSTANTS.UI.PREVIEW.TICK_FROM),
+                self.y_orig + int(thickness * CONSTANTS.UI.PREVIEW.TICK_FROM),
                 x_offset + x,
-                self.y_orig + gap + int(thickness * CONSTANTS.UI.PREVIEW.TICK_TO),
+                self.y_orig + int(thickness * CONSTANTS.UI.PREVIEW.TICK_TO),
             )
 
     def draw_page(
