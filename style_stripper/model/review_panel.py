@@ -4,6 +4,7 @@ import wx
 from wx.lib.scrolledpanel import ScrolledPanel
 
 from style_stripper.data.constants import CONSTANTS
+from style_stripper.data.enums import PanelType
 from style_stripper.data.paragraph import Paragraph, QuestionableTick
 from style_stripper.model.content_pane import ContentPanel
 from style_stripper.model.utility import add_stretcher
@@ -14,6 +15,7 @@ _ = wx.GetTranslation
 
 
 class ReviewPanel(ContentPanel):
+    PANEL_TYPE = PanelType.REVIEW
     questionable: List[QuestionableTick]
     part: int  # number of parts
     chapter: int  # number of chapters

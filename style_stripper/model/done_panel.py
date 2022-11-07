@@ -1,6 +1,7 @@
 import logging
 import wx
 
+from style_stripper.data.enums import PanelType
 from style_stripper.model.content_pane import ContentPanel
 from style_stripper.model.utility import add_stretcher
 
@@ -10,6 +11,8 @@ _ = wx.GetTranslation
 
 
 class DonePanel(ContentPanel):
+    PANEL_TYPE = PanelType.DONE
+
     def __init__(self, *args, **kwargs):
         super(DonePanel, self).__init__(*args, **kwargs)
 

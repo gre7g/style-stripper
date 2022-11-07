@@ -13,7 +13,7 @@ class ContentPanel(wx.Panel):
     PANEL_TYPE: PanelType
 
     def __init__(self, *args, **kwargs):
-        wx.Panel.__init__(self, *args, **kwargs)
+        super(ContentPanel, self).__init__(*args, **kwargs)
         self.app = wx.GetApp()
 
     def is_current_panel(self) -> bool:

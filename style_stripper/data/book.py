@@ -10,6 +10,11 @@ from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.enums import PanelType, PaginationType
 from style_stripper.data.original_docx import OriginalDocx
 
+try:
+    from style_stripper.model.main_app import StyleStripperApp
+except ImportError:
+    StyleStripperApp = None
+
 # Constants:
 LOG = logging.getLogger(__name__)
 
@@ -41,18 +46,21 @@ class Book:
 
     def not_modified(self):
         self._modified = False
-        wx.GetApp().frame.show_title()
+        app: StyleStripperApp = wx.GetApp()
+        app.frame.show_title()
 
     def modified(self):
         self._modified = True
-        wx.GetApp().frame.show_title()
+        app: StyleStripperApp = wx.GetApp()
+        app.frame.show_title()
 
     def load(self, path: str):
         self.original_docx = OriginalDocx(path, self)
         self.backup_docx = deepcopy(self.original_docx)
         self.source_path = path
         self.modified()
-        wx.GetApp().frame.refresh_contents()
+        app: StyleStripperApp = wx.GetApp()
+        app.refresh_contents()
 
     def reload(self):
         LOG.debug("Reloading .docx from backup")
@@ -60,7 +68,8 @@ class Book:
 
     def export(self, path: str):
         # Open a template file to format the output
-        template = wx.GetApp().template
+        app: StyleStripperApp = wx.GetApp()
+        template = app.template
         template.set_properties(self.author, self.title)
 
         # Dump paragraphs into the template

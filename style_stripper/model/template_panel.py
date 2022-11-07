@@ -1,7 +1,8 @@
 import logging
 import wx
 
-from style_stripper.data.constants import CONSTANTS, ListPageScopes
+from style_stripper.data.constants import CONSTANTS, ListPageScopes, PageScopes
+from style_stripper.data.enums import PanelType
 from style_stripper.data.template import Templates
 from style_stripper.model.content_pane import ContentPanel
 from style_stripper.model.preview_panel import PreviewPanel
@@ -13,6 +14,7 @@ _ = wx.GetTranslation
 
 
 class TemplatePanel(ContentPanel):
+    PANEL_TYPE = PanelType.TEMPLATE
     initialized: bool
     variants: int
     pages: ListPageScopes
@@ -81,6 +83,7 @@ class TemplatePanel(ContentPanel):
         self.SetSizer(sizer1)
 
     def refresh_contents(self):
+        super(TemplatePanel, self).refresh_contents()
         if not self.initialized:
             self.app.templates = Templates()
             for dimension in CONSTANTS.DOCUMENTS.DIMENSIONS:
@@ -100,13 +103,18 @@ class TemplatePanel(ContentPanel):
         )
 
         self.app.template = self.get_template()
-        pages = self.app.book.word_count * self.app.template.pages_per_100k // 100000
         if self.app.template.part_and_chapter:
             includes = _("both Part and Chapter headings")
             self.pages = CONSTANTS.UI.PREVIEW.PART_AND_CHAPTER_PAGES
         else:
             includes = _("Chapter headings only")
             self.pages = CONSTANTS.UI.PREVIEW.CHAPTER_ONLY_PAGES
+        if self.app.book.word_count is None:
+            pages = ""
+        else:
+            pages = int(
+                self.app.book.word_count * self.app.template.pages_per_100k / 100000
+            )
         self.notes.SetLabel(
             _(
                 "Template includes %(includes)s\nEstimated pages with this template: %(pages)s"
@@ -136,6 +144,8 @@ class TemplatePanel(ContentPanel):
         self.variant.SetScrollbar(0, 1, self.variants, 1)
 
     def on_page(self, event: wx.ScrollEvent = None):
-        self.preview.set_contents(*self.pages[self.page.GetThumbPosition()])
-        if event:
-            event.Skip()
+        if self.app.book.original_docx:
+            current_page: PageScopes = self.pages[self.page.GetThumbPosition()]
+            self.preview.set_contents(current_page.page, current_page.scopes)
+            if event:
+                event.Skip()

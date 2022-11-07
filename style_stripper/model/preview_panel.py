@@ -89,15 +89,16 @@ class PreviewPanel(wx.Panel):
                 + CONSTANTS.UI.PREVIEW.GAP
                 + scope_radius
             )
-            top_point = template.header_distance + (
-                template.styles[CONSTANTS.STYLING.NAMES.HEADER].font_size // 2
+            top_point = int(
+                template.header_distance
+                + (template.styles[CONSTANTS.STYLING.NAMES.HEADER].font_size / 2)
             )
         if (ScopeOn.EVEN_FOOTER in self.scopes) or (ScopeOn.ODD_FOOTER in self.scopes):
             measure_from_bottom = 1.0 - CONSTANTS.UI.PREVIEW.GAP - scope_radius
-            bottom_point = (
+            bottom_point = int(
                 template.page_height
                 - template.footer_distance
-                - (template.styles[CONSTANTS.STYLING.NAMES.FOOTER].font_size // 2)
+                - (template.styles[CONSTANTS.STYLING.NAMES.FOOTER].font_size / 2)
             )
         if ScopeOn.LEFT_MARGIN in self.scopes:
             measure_from_left = (
@@ -147,9 +148,9 @@ class PreviewPanel(wx.Panel):
             if ScopeOn.RIGHT_MARGIN in self.scopes:
                 right_point += scope_radius * self.measure_to_twips
             blank_space = (size.width / self.scale) - (right_point - left_point)
-            self.x_orig = left_point - (blank_space // 2)
-            self.y_orig = top_point - (measure_from_top * self.measure_to_twips)
-            self.scope_radius = (
+            self.x_orig = left_point - int(blank_space / 2)
+            self.y_orig = top_point - int(measure_from_top * self.measure_to_twips)
+            self.scope_radius = int(
                 CONSTANTS.UI.PREVIEW.SCOPE_RADIUS * self.measure_to_twips
             )
             LOG.debug("taller scale=%r radius=%r", self.scale, self.scope_radius)
@@ -166,8 +167,8 @@ class PreviewPanel(wx.Panel):
             ):
                 bottom_point += scope_radius * self.measure_to_twips
             blank_space = (size.height / self.scale) - (bottom_point - top_point)
-            self.x_orig = left_point - (measure_from_left * self.measure_to_twips)
-            self.y_orig = top_point - (blank_space // 2)
+            self.x_orig = left_point - int(measure_from_left * self.measure_to_twips)
+            self.y_orig = top_point - int(blank_space / 2)
             self.scope_radius = (
                 CONSTANTS.UI.PREVIEW.SCOPE_RADIUS * self.measure_to_twips
             )
@@ -191,6 +192,10 @@ class PreviewPanel(wx.Panel):
         gcdc = wx.GCDC(dc)
         gcdc.SetBackground(wx.Brush(self.app.frame.background_color))
         gcdc.Clear()
+
+        if not self.initialized:
+            return
+
         gcdc.SetLogicalOrigin(self.x_orig, self.y_orig)
         gcdc.SetLogicalScale(self.scale, self.scale)
 
@@ -198,10 +203,10 @@ class PreviewPanel(wx.Panel):
         white = self.color_db.Find("WHITE")
         gcdc.SetBrush(wx.Brush(white))
         gcdc.SetPen(wx.Pen(white))
-        thickness = CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_twips
+        thickness = int(CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_twips)
         gcdc.DrawRectangle(self.x_orig, 0, thickness, template.page_height)
 
-        font_size = thickness // 2
+        font_size = int(thickness / 2)
         gcdc.SetFont(
             wx.Font(
                 font_size,
@@ -221,22 +226,22 @@ class PreviewPanel(wx.Panel):
             gcdc.DrawRotatedText(
                 label,
                 self.x_orig
-                + ((thickness - font_size) * CONSTANTS.UI.PREVIEW.RULER_TEXT),
-                y + (size.width // 2),
+                + int((thickness - font_size) * CONSTANTS.UI.PREVIEW.RULER_TEXT),
+                y + int(size.width / 2),
                 90,
             )
 
         # Draw ticks at the half-inch spots along the horizontal ruler
-        half_inch = CONSTANTS.MEASURING.TWIPS_PER_INCH // 2
+        half_inch = int(CONSTANTS.MEASURING.TWIPS_PER_INCH / 2)
         for index, y in enumerate(
             range(
                 half_inch, int(template.page_height), CONSTANTS.MEASURING.TWIPS_PER_INCH
             )
         ):
             gcdc.DrawLine(
-                self.x_orig + (thickness * CONSTANTS.UI.PREVIEW.TICK_FROM),
+                self.x_orig + int(thickness * CONSTANTS.UI.PREVIEW.TICK_FROM),
                 y,
-                self.x_orig + (thickness * CONSTANTS.UI.PREVIEW.TICK_TO),
+                self.x_orig + int(thickness * CONSTANTS.UI.PREVIEW.TICK_TO),
                 y,
             )
 
@@ -399,16 +404,16 @@ class PreviewPanel(wx.Panel):
         magnification = CONSTANTS.UI.PREVIEW.MAGNIFIER_SCALING
         points = [
             (
-                x - self.x_orig + cos(a * 6.283 / 15) * self.scope_radius,
-                y - self.y_orig + sin(a * 6.283 / 15) * self.scope_radius,
+                int(x - self.x_orig + cos(a * 6.283 / 15) * self.scope_radius),
+                int(y - self.y_orig + sin(a * 6.283 / 15) * self.scope_radius),
             )
             for a in range(15)
         ]
         region = wx.Region(points)
         gcdc.SetDeviceClippingRegion(region)
         gcdc.SetLogicalOrigin(
-            x - ((x - self.x_orig) / magnification),
-            y - ((y - self.y_orig) / magnification),
+            int(x - ((x - self.x_orig) / magnification)),
+            int(y - ((y - self.y_orig) / magnification)),
         )
         gcdc.SetLogicalScale(self.scale * magnification, self.scale * magnification)
         self.draw_content(
@@ -424,7 +429,7 @@ class PreviewPanel(wx.Panel):
         gcdc.SetPen(wx.Pen(black))
         gcdc.SetTextForeground(black)
         gcdc.DrawCircle(x, y, self.scope_radius)
-        font_size = 0.02 * self.measure_to_twips
+        font_size = int(0.02 * self.measure_to_twips)
         gcdc.SetFont(
             wx.Font(
                 font_size,
@@ -433,12 +438,12 @@ class PreviewPanel(wx.Panel):
                 wx.FONTWEIGHT_NORMAL,
             )
         )
-        line_spacing = font_size * CONSTANTS.UI.PREVIEW.LINE_SPACING
+        line_spacing = int(font_size * CONSTANTS.UI.PREVIEW.LINE_SPACING)
         height = font_size + (line_spacing * (len(lines) - 1))
-        y_pos = y - (height // 2)
+        y_pos = y - int(height / 2)
         for text in lines:
             size = gcdc.GetTextExtent(text)
-            gcdc.DrawText(text, x - (size.width // 2), y_pos)
+            gcdc.DrawText(text, x - int(size.width / 2), y_pos)
             y_pos += line_spacing
 
     def draw_scopes(self, gcdc: wx.GCDC):
@@ -450,33 +455,35 @@ class PreviewPanel(wx.Panel):
             - template.right_margin
             - template.gutter
         )
-        left_centered = template.left_margin + (width_in_twips // 2)
-        right_centered = (
+        left_centered = template.left_margin + int(width_in_twips / 2)
+        right_centered = int(
             left_centered
             + template.page_width
             + CONSTANTS.UI.PREVIEW.PAGE_GAP
             + template.gutter
         )
-        mid_vertical = template.page_height // 2
+        mid_vertical = int(template.page_height / 2)
         style = template.styles[CONSTANTS.STYLING.NAMES.HEADING1]
-        part = template.top_margin + style.space_before + (style.font_size * mid_offset)
+        part = (
+            template.top_margin + style.space_before + int(style.font_size * mid_offset)
+        )
         style = template.styles[CONSTANTS.STYLING.NAMES.HEADING2]
         chapter = (
-            template.top_margin + style.space_before + (style.font_size * mid_offset)
+            template.top_margin + style.space_before + int(style.font_size * mid_offset)
         )
         header = template.header_distance
         font_size = template.styles[CONSTANTS.STYLING.NAMES.HEADER].font_size
-        even_header = (left_centered, header + (font_size * mid_offset))
-        odd_header = (right_centered, header + (font_size * mid_offset))
+        even_header = (left_centered, header + int(font_size * mid_offset))
+        odd_header = (right_centered, header + int(font_size * mid_offset))
         font_size = template.styles[CONSTANTS.STYLING.NAMES.FOOTER].font_size
         footer = template.page_height - template.footer_distance
-        even_footer = (template.left_margin, footer - (font_size * (1 - mid_offset)))
+        even_footer = (template.left_margin, footer - int(font_size * (1 - mid_offset)))
         even_page = (
             (template.page_width * 2)
             + CONSTANTS.UI.PREVIEW.PAGE_GAP
             - template.right_margin
         )
-        odd_footer = (even_page, footer - (font_size * (1 - mid_offset)))
+        odd_footer = (even_page, footer - int(font_size * (1 - mid_offset)))
 
         gcdc.SetBrush(wx.Brush(self.color_db.Find("WHITE")))
         style = template.styles[CONSTANTS.STYLING.NAMES.HEADER]
@@ -600,7 +607,7 @@ class PreviewPanel(wx.Panel):
             # I'm not certain I care enough to track the end of paragraphs.
             # style_name = CONSTANTS.STYLING.NAMES.NORMAL
 
-            total_width = sum(width for word, width in line.words)
+            total_width = sum(word.width for word in line.words)
 
             if line.line_type in [TextLineType.FIRST_LINE, TextLineType.ONLY_LINE]:
                 y_offset += style.space_before
@@ -609,15 +616,15 @@ class PreviewPanel(wx.Panel):
             if align is None:
                 align = style.alignment
             if align == WD_PARAGRAPH_ALIGNMENT.CENTER:
-                x += (width_in_twips - total_width) // 2
+                x += int((width_in_twips - total_width) / 2)
             elif align == WD_PARAGRAPH_ALIGNMENT.RIGHT:
                 x += width_in_twips - total_width
-            for word, width in line.words:
-                gcdc.DrawText(word, x_offset + x, y_offset)
+            for word in line.words:
+                gcdc.DrawText(word.word, x_offset + x, y_offset)
                 if align == WD_PARAGRAPH_ALIGNMENT.JUSTIFY:
-                    x += width + line.justify_add
+                    x += word.width + line.justify_add
                 else:
-                    x += width + width_of_space
+                    x += word.width + width_of_space
             y_offset += style.line_spacing
 
             if line.line_type in [TextLineType.LAST_LINE, TextLineType.ONLY_LINE]:
@@ -634,40 +641,43 @@ class PreviewPanel(wx.Panel):
         width_in_twips: int,
     ) -> List[TextLine]:
         line = text.split(" ")
-        word_and_widths = []
+        words: List[WordType] = []
         for word in line:
             size = gcdc.GetTextExtent(word)
-            word_and_widths.append((word, size.width))
+            words.append(WordType(word, size.width))
         paragraph: List[TextLine] = []
         indent = self.app.template.styles[style].first_line_indent
         line_start = 0
         line_end = 1
-        current_line = None
+        current_line: Optional[List[WordType]] = None
+        previous_line_width = 0
         while True:
             line_width = (
                 indent
-                + sum(width for word, width in word_and_widths[line_start:line_end])
+                + sum(word.width for word in words[line_start:line_end])
                 + (width_of_space * (line_end - line_start - 1))
             )
             if line_width > width_in_twips:
-                words, total_width = current_line
                 paragraph.append(
                     TextLine(
                         TextLineType.MIDDLE_LINE,
                         indent,
-                        words,
+                        current_line,
                         width_of_space
-                        + (width_in_twips - total_width) // (len(words) - 1),
+                        + int(
+                            (width_in_twips - previous_line_width)
+                            / (len(current_line) - 1)
+                        ),
                     )
                 )
                 line_start = line_end - 1
-                word, width = word_and_widths[line_start]
-                current_line = ([(word, width)], width)
-                indent = 0
+                current_line = words[line_start : line_start + 1]
+                previous_line_width = indent = 0
             else:
-                current_line = (word_and_widths[line_start:line_end], line_width)
+                current_line = words[line_start:line_end]
+                previous_line_width = line_width
 
-            if line_end >= len(word_and_widths):
+            if line_end >= len(words):
                 break
             else:
                 line_end += 1
@@ -675,15 +685,11 @@ class PreviewPanel(wx.Panel):
         if paragraph:
             paragraph[0].line_type = TextLineType.FIRST_LINE
             paragraph.append(
-                TextLine(
-                    TextLineType.LAST_LINE, indent, current_line[0], width_of_space
-                )
+                TextLine(TextLineType.LAST_LINE, indent, current_line, width_of_space)
             )
         else:
             paragraph.append(
-                TextLine(
-                    TextLineType.ONLY_LINE, indent, current_line[0], width_of_space
-                )
+                TextLine(TextLineType.ONLY_LINE, indent, current_line, width_of_space)
             )
 
         return paragraph
@@ -782,12 +788,12 @@ class PreviewPanel(wx.Panel):
         template = self.app.template
 
         # White bar for horizontal ruler
-        thickness = CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_twips
-        gap = CONSTANTS.UI.PREVIEW.GAP * self.measure_to_twips
+        thickness = int(CONSTANTS.UI.PREVIEW.RULER_THICKNESS * self.measure_to_twips)
+        gap = int(CONSTANTS.UI.PREVIEW.GAP * self.measure_to_twips)
         gcdc.SetPen(wx.Pen(self.color_db.Find("WHITE")))
         gcdc.DrawRectangle(x_offset, self.y_orig + gap, template.page_width, thickness)
 
-        font_size = thickness // 2
+        font_size = int(thickness / 2)
         gcdc.SetFont(
             wx.Font(
                 font_size,
@@ -806,14 +812,14 @@ class PreviewPanel(wx.Panel):
             size = gcdc.GetTextExtent(label)
             gcdc.DrawText(
                 label,
-                x_offset + x - (size.width // 2),
+                x_offset + x - int(size.width / 2),
                 self.y_orig
                 + gap
-                + ((thickness - font_size) * CONSTANTS.UI.PREVIEW.RULER_TEXT),
+                + int((thickness - font_size) * CONSTANTS.UI.PREVIEW.RULER_TEXT),
             )
 
         # Draw ticks at the half-inch spots along the horizontal ruler
-        half_inch = CONSTANTS.MEASURING.TWIPS_PER_INCH // 2
+        half_inch = int(CONSTANTS.MEASURING.TWIPS_PER_INCH / 2)
         for index, x in enumerate(
             range(
                 half_inch, int(template.page_width), CONSTANTS.MEASURING.TWIPS_PER_INCH
@@ -821,9 +827,9 @@ class PreviewPanel(wx.Panel):
         ):
             gcdc.DrawLine(
                 x_offset + x,
-                self.y_orig + gap + (thickness * CONSTANTS.UI.PREVIEW.TICK_FROM),
+                self.y_orig + gap + int(thickness * CONSTANTS.UI.PREVIEW.TICK_FROM),
                 x_offset + x,
-                self.y_orig + gap + (thickness * CONSTANTS.UI.PREVIEW.TICK_TO),
+                self.y_orig + gap + int(thickness * CONSTANTS.UI.PREVIEW.TICK_TO),
             )
 
     def draw_page(

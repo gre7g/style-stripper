@@ -112,8 +112,17 @@ class SettingsControl:
                 )
             )
             self.app.settings = pickle.loads(pickle_data)
-        except (TypeError, binascii.Error, ModuleNotFoundError, EOFError) as msg:
-            logging.exception(msg)
+        except (
+            TypeError,
+            binascii.Error,
+            ModuleNotFoundError,
+            EOFError,
+            AttributeError,
+        ) as msg:
+            logging.exception(
+                _("Unable to load old settings due to a %r. No biggie. Starting fresh.")
+                % msg
+            )
             self.app.settings = Settings()
         self.app.settings = self.app.settings.init()
 

@@ -2,7 +2,7 @@ from copy import deepcopy
 import logging
 import wx
 
-from style_stripper.data.enums import PaginationType
+from style_stripper.data.enums import PaginationType, PanelType
 from style_stripper.model.content_pane import ContentPanel
 from style_stripper.model.utility import add_stretcher
 
@@ -12,6 +12,7 @@ _ = wx.GetTranslation
 
 
 class OptionsPanel(ContentPanel):
+    PANEL_TYPE = PanelType.OPTIONS
     double: wx.CheckBox
     leading: wx.CheckBox
     trailing: wx.CheckBox
@@ -272,6 +273,7 @@ class OptionsPanel(ContentPanel):
         self.refresh_contents()
 
     def refresh_contents(self):
+        super(OptionsPanel, self).refresh_contents()
         config = self.app.settings.latest_config
         self.double.SetValue(config.spaces.purge_double)
         self.leading.SetValue(config.spaces.purge_leading)

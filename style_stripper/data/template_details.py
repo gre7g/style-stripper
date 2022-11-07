@@ -32,7 +32,7 @@ class StyleParameters:
 
     def init(self, style: BaseStyle):
         self.font = self._find(style, lambda a_style: a_style.font.name)
-        self.font_size = (
+        self.font_size = int(
             self._find(style, lambda a_style: a_style.font.size)
             / CONSTANTS.MEASURING.EMUS_PER_TWIP
         )
@@ -51,22 +51,32 @@ class StyleParameters:
         self.alignment = self._find(
             style, lambda a_style: a_style.paragraph_format.alignment
         )
-        self.space_before = (
-            self._find(style, lambda a_style: a_style.paragraph_format.space_before)
-            or 0
-        ) / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        self.space_before = int(
+            (
+                self._find(style, lambda a_style: a_style.paragraph_format.space_before)
+                or 0
+            )
+            / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        )
         self.before_text = "%spt" % rounding(self.space_before)
-        self.space_after = (
-            self._find(style, lambda a_style: a_style.paragraph_format.space_after) or 0
-        ) / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        self.space_after = int(
+            (
+                self._find(style, lambda a_style: a_style.paragraph_format.space_after)
+                or 0
+            )
+            / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        )
         self.after_text = "%spt" % rounding(self.space_after)
 
-        self.first_line_indent = (
-            self._find(
-                style, lambda a_style: a_style.paragraph_format.first_line_indent
+        self.first_line_indent = int(
+            (
+                self._find(
+                    style, lambda a_style: a_style.paragraph_format.first_line_indent
+                )
+                or 0
             )
-            or 0
-        ) / CONSTANTS.MEASURING.EMUS_PER_TWIP
+            / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        )
         self.indent_imperial = '%s"' % rounding(
             self.first_line_indent / CONSTANTS.MEASURING.EMUS_PER_INCH
         )
@@ -80,7 +90,7 @@ class StyleParameters:
         )
         if isinstance(line_spacing, float):
             line_spacing *= self.font_size
-        self.line_spacing = line_spacing / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        self.line_spacing = int(line_spacing / CONSTANTS.MEASURING.EMUS_PER_TWIP)
 
         return self
 
@@ -156,23 +166,31 @@ class TemplateParameters:
         self.different_first_page_header_footer = bool(
             first_section.different_first_page_header_footer
         )
-        self.page_height = first_section.page_height / CONSTANTS.MEASURING.EMUS_PER_TWIP
-        self.page_width = first_section.page_width / CONSTANTS.MEASURING.EMUS_PER_TWIP
-        self.top_margin = first_section.top_margin / CONSTANTS.MEASURING.EMUS_PER_TWIP
-        self.bottom_margin = (
+        self.page_height = int(
+            first_section.page_height / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        )
+        self.page_width = int(
+            first_section.page_width / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        )
+        self.top_margin = int(
+            first_section.top_margin / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        )
+        self.bottom_margin = int(
             first_section.bottom_margin / CONSTANTS.MEASURING.EMUS_PER_TWIP
         )
-        self.left_margin = first_section.left_margin / CONSTANTS.MEASURING.EMUS_PER_TWIP
-        self.right_margin = (
+        self.left_margin = int(
+            first_section.left_margin / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        )
+        self.right_margin = int(
             first_section.right_margin / CONSTANTS.MEASURING.EMUS_PER_TWIP
         )
-        self.header_distance = (
+        self.header_distance = int(
             first_section.header_distance / CONSTANTS.MEASURING.EMUS_PER_TWIP
         )
-        self.footer_distance = (
+        self.footer_distance = int(
             first_section.footer_distance / CONSTANTS.MEASURING.EMUS_PER_TWIP
         )
-        self.gutter = first_section.gutter / CONSTANTS.MEASURING.EMUS_PER_TWIP
+        self.gutter = int(first_section.gutter / CONSTANTS.MEASURING.EMUS_PER_TWIP)
 
         self.height_imperial = '%s"' % rounding(
             first_section.page_height / CONSTANTS.MEASURING.EMUS_PER_INCH

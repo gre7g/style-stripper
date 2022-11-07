@@ -42,9 +42,9 @@ class StyleStripperApp(wx.App):
     def init(self):
         self.frame = MainFrame(None, title=CONSTANTS.UI.APP_NAME)
         self.settings_controls.load_settings()
+        self.book = Book(self.settings.latest_config)
         self.frame.init()
 
-        self.book = Book(self.settings.latest_config)
         self.initialized = True
         locale.setlocale(locale.LC_ALL, "")
         self.refresh_contents()
@@ -54,13 +54,18 @@ class StyleStripperApp(wx.App):
         # Note: Some functions are applied to all panels. For example app.grab_contents() will call a grab_contents()
         # member function on each of the frame's panels. If the function returns a value, the active panel is the one
         # returned.
-        def wrap(*args, **kwargs):
-            return_value = None
-            for panel_type, panel in self.frame.panels.items():
-                func = getattr(panel, item)
-                value = func(*args, **kwargs)
-                if panel.is_current_panel():
-                    return_value = value
-            return return_value
+        try:
+            return super(StyleStripperApp, self).__getattribute__(item)
+        except AttributeError:
 
-        return wrap
+            def wrap(*args, **kwargs):
+                if self.initialized:
+                    return_value = None
+                    for panel_type, panel in self.frame.panels.items():
+                        func = getattr(panel, item)
+                        value = func(*args, **kwargs)
+                        if panel.is_current_panel():
+                            return_value = value
+                    return return_value
+
+            return wrap

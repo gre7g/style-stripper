@@ -1,5 +1,6 @@
 import wx
 
+from style_stripper.data.enums import PanelType
 from style_stripper.model.content_pane import ContentPanel
 
 # Constants:
@@ -7,6 +8,7 @@ _ = wx.GetTranslation
 
 
 class AuthorPanel(ContentPanel):
+    PANEL_TYPE = PanelType.AUTHOR
     file_path_ctrl: wx.StaticText
     author_ctrl: wx.TextCtrl
     title_ctrl: wx.TextCtrl

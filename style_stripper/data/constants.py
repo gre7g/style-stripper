@@ -19,7 +19,7 @@ class PageScopes:
 
 
 # Types:
-ListPageScopes: List[PageScopes]
+ListPageScopes = List[PageScopes]
 
 
 class CONSTANTS:
@@ -131,7 +131,7 @@ class CONSTANTS:
             SCOPE_RADIUS = 0.15  # 15% of preview panel
             RULER_THICKNESS = 0.02  # 2% of preview panel
             GAP = 0.02  # 2% of preview panel
-            PAGE_GAP = 1440 * 0.25  # 0.25"
+            PAGE_GAP = int(1440 * 0.25)  # 0.25"
             RULER_TEXT = 0.3  # 30% of ruler size
             TICK_FROM = 0.4  # Draw tick from 40%
             TICK_TO = 0.6  # to 60% point on ruler
