@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 import logging
-from math import sin, cos
+from math import sin, cos, pi
 import os
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Tuple
 import wx
 
 from style_stripper.data.constants import CONSTANTS
@@ -402,20 +402,23 @@ class PreviewPanel(wx.Panel):
 
     def draw_scope(self, gcdc: wx.GCDC, x: int, y: int, lines: List[str]):
         magnification = CONSTANTS.UI.PREVIEW.MAGNIFIER_SCALING
-        points = [
-            (
-                int(x - self.x_orig + cos(a * 6.283 / 15) * self.scope_radius),
-                int(y - self.y_orig + sin(a * 6.283 / 15) * self.scope_radius),
-            )
-            for a in range(15)
-        ]
-        region = wx.Region(points)
-        gcdc.SetDeviceClippingRegion(region)
         gcdc.SetLogicalOrigin(
             int(x - ((x - self.x_orig) / magnification)),
             int(y - ((y - self.y_orig) / magnification)),
         )
-        gcdc.SetLogicalScale(self.scale * magnification, self.scale * magnification)
+        logic_scale = self.scale * magnification
+        gcdc.SetLogicalScale(logic_scale, logic_scale)
+        mag_scale = logic_scale / magnification
+        step = 2 * pi / CONSTANTS.UI.PREVIEW.SCOPE_SEGMENTS
+        xc = x - self.x_orig
+        yc = y - self.y_orig
+        points: List[Tuple[int, int]] = []
+        for angle in range(CONSTANTS.UI.PREVIEW.SCOPE_SEGMENTS):
+            px = int((xc + (cos(angle * step) * self.scope_radius)) * mag_scale)
+            py = int((yc + (sin(angle * step) * self.scope_radius)) * mag_scale)
+            points.append((px, py))
+        region = wx.Region(points)
+        gcdc.SetDeviceClippingRegion(region)
         self.draw_content(
             gcdc,
             wx.Colour(*CONSTANTS.UI.PREVIEW.MEDIUM_GREY),

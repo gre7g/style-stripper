@@ -129,6 +129,7 @@ class CONSTANTS:
 
         class PREVIEW:
             SCOPE_RADIUS = 0.15  # 15% of preview panel
+            SCOPE_SEGMENTS = 15  # a 15-gram is nearly a circle
             RULER_THICKNESS = 0.02  # 2% of preview panel
             GAP = 0.02  # 2% of preview panel
             PAGE_GAP = int(1440 * 0.25)  # 0.25"
