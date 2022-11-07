@@ -161,7 +161,7 @@ class PreviewPanel(wx.Panel):
             if (ScopeOn.EVEN_HEADER in self.scopes) or (
                 ScopeOn.ODD_HEADER in self.scopes
             ):
-                top_point -= scope_radius * self.measure_to_twips
+                top_point -= int(scope_radius * self.measure_to_twips)
             if (ScopeOn.EVEN_FOOTER in self.scopes) or (
                 ScopeOn.ODD_FOOTER in self.scopes
             ):
@@ -169,7 +169,7 @@ class PreviewPanel(wx.Panel):
             blank_space = (size.height / self.scale) - (bottom_point - top_point)
             self.x_orig = left_point - int(measure_from_left * self.measure_to_twips)
             self.y_orig = top_point - int(blank_space / 2)
-            self.scope_radius = (
+            self.scope_radius = int(
                 CONSTANTS.UI.PREVIEW.SCOPE_RADIUS * self.measure_to_twips
             )
             LOG.debug("wider scale=%r radius=%r", self.scale, self.scope_radius)

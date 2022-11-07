@@ -24,6 +24,7 @@ _ = wx.GetTranslation
 
 class MainFrame(wx.Frame):
     app: StyleStripperApp
+    main_panel: wx.Panel
     author_panel: AuthorPanel
     template_panel: TemplatePanel
     options_panel: OptionsPanel
@@ -42,23 +43,23 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.app.frame_controls.on_close, self)
         # The frame contains a panel which contains the sizers and sub-panels. We use this top-level panel because
         # Windows uses different colors for panel contents and "nothing". We want the panel content look.
-        main_panel = wx.Panel(self)
+        self.main_panel = wx.Panel(self)
         sizer1 = wx.BoxSizer(wx.VERTICAL)
         sizer2 = wx.BoxSizer(wx.VERTICAL)
 
-        self.author_panel = AuthorPanel(main_panel, name="author_panel")
+        self.author_panel = AuthorPanel(self.main_panel, name="author_panel")
         sizer2.Add(self.author_panel, 1, wx.EXPAND, 0)
 
-        self.template_panel = TemplatePanel(main_panel, name="template_panel")
+        self.template_panel = TemplatePanel(self.main_panel, name="template_panel")
         sizer2.Add(self.template_panel, 1, wx.EXPAND, 0)
 
-        self.options_panel = OptionsPanel(main_panel, name="options_panel")
+        self.options_panel = OptionsPanel(self.main_panel, name="options_panel")
         sizer2.Add(self.options_panel, 1, wx.EXPAND, 0)
 
-        self.review_panel = ReviewPanel(main_panel, name="review_panel")
+        self.review_panel = ReviewPanel(self.main_panel, name="review_panel")
         sizer2.Add(self.review_panel, 1, wx.EXPAND, 0)
 
-        self.done_panel = DonePanel(main_panel, name="done_panel")
+        self.done_panel = DonePanel(self.main_panel, name="done_panel")
         sizer2.Add(self.done_panel, 1, wx.EXPAND, 0)
         sizer1.Add(sizer2, 1, wx.EXPAND | wx.ALL, 10)
 
@@ -104,7 +105,7 @@ class MainFrame(wx.Frame):
         self.status_bar = self.CreateStatusBar(name="status_bar")
 
         self.Show()
-        main_panel.SetSizerAndFit(sizer1)
+        self.main_panel.SetSizerAndFit(sizer1)
         self.SetMinSize(wx.Size(400, 300))
         if self.app.settings.window_rect:
             self.SetRect(self.app.settings.window_rect)

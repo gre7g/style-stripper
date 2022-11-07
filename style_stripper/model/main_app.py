@@ -66,6 +66,7 @@ class StyleStripperApp(wx.App):
                         value = func(*args, **kwargs)
                         if panel.is_current_panel():
                             return_value = value
+                    self.frame.main_panel.Layout()
                     return return_value
 
             return wrap

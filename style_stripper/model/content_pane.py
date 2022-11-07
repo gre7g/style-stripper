@@ -22,7 +22,6 @@ class ContentPanel(wx.Panel):
     def refresh_contents(self):
         """Move contents from Book to UI"""
         self.Show(self.is_current_panel())
-        self.app.frame.Layout()
 
     def apply(self):
         pass
