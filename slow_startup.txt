@@ -1,0 +1,14 @@
+SLOW START-UP WARNING!!!
+
+For reasons beyond my control, the compiled version (.exe) of StyleStripper may start slowly--as in, you launch it, wait 30-45 seconds, and then the application appears. This is caused by a virus scanner picking slowly through the code to make sure it's not doing something nefarious.
+
+Yes, that's a good thing, but it sure can be annoying!
+
+If you really hate waiting, here are two options to consider:
+
+* Configure your virus scanner and mark the StyleStripper.exe as known good
+
+* Run the Python source code up on GitHub directly instead of launching the .exe file
+
+My apologies and best wishes,
+Gre7g Luterman
