@@ -1,50 +1,56 @@
-from docx import Document
-from docx.styles.style import _ParagraphStyle
+from docx import Document  # noqa
+from docx.styles.style import _ParagraphStyle  # noqa
 from glob import glob
 import logging
 import os
-import re
-from typing import Dict, Optional
-import wx
+from typing import Dict, Optional, List
 
 from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.template_details import TemplateParameters
 
 # Constants:
 LOG = logging.getLogger(__name__)
-SEARCH_ITALIC = re.compile(r"❰(.*?)❱")
-SEARCH_DIMENSIONS = re.compile(r"(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)")
+
+# Types:
+DimensionStringType = str
 
 
-class Templates(object):
+class Templates:
+    templates_by_size: Dict[DimensionStringType, List["Template"]]
+
     def __init__(self):
         self.templates_by_size = {}
-        template_pattern = os.path.join(wx.GetApp().base_dir, "docx_templates", "*.docx")
-        templates = glob(template_pattern)
-        for path in templates:
-            match = SEARCH_DIMENSIONS.search(path)
-            size = '%s" x %s"' % match.groups()
+        template_pattern = os.path.join(CONSTANTS.PATHS.TEMPLATES_PATH, "*.docx")
+        for path in glob(template_pattern):
+            match = CONSTANTS.DOCUMENTS.SEARCH_DIMENSIONS.search(path)
+            size: DimensionStringType = '%s" x %s"' % match.groups()
             if size not in self.templates_by_size:
                 self.templates_by_size[size] = []
             self.templates_by_size[size].append(Template(path))
 
 
 class Template(TemplateParameters):
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str):
         super(Template, self).__init__()
         self.doc = Document(path)
         self.load = self.load(self.doc)
         self.bleed = "bleed" in path
         self.add_page_break = self.doc.add_page_break
         self.add_section = self.doc.add_section
-        self.style_dict: Dict[str, _ParagraphStyle] = {style.name: style for style in self.doc.styles}
+        self.style_dict: Dict[str, _ParagraphStyle] = {
+            style.name: style for style in self.doc.styles
+        }
         self.first_paragraph_of_section = True
         self.first_paragraph_of_file = True
         LOG.debug("styles: %r", list(self.style_dict.keys()))
 
-    def add_content(self, text: str = "", style: Optional[str] = None) -> None:
+    def add_content(self, text: str = "", style: Optional[str] = None):
         # First paragraph of the file?
-        paragraph = self.doc.paragraphs[0] if self.first_paragraph_of_file else self.doc.add_paragraph()
+        paragraph = (
+            self.doc.paragraphs[0]
+            if self.first_paragraph_of_file
+            else self.doc.add_paragraph()
+        )
         self.first_paragraph_of_file = False
         paragraph.text = ""
         if style:
@@ -59,12 +65,12 @@ class Template(TemplateParameters):
             paragraph.style = self.style_dict[name]
             self.first_paragraph_of_section = False
 
-        def add_to_paragraph(string: str, italic: bool = False) -> None:
+        def add_to_paragraph(string: str, italic: bool = False):
             run = paragraph.add_run(string)
             run.italic = italic
 
         while text:
-            match = SEARCH_ITALIC.search(text)
+            match = CONSTANTS.ITALIC.SEARCH.search(text)
             if match:
                 before = text[: match.start()]
                 if before:
@@ -75,7 +81,7 @@ class Template(TemplateParameters):
                 add_to_paragraph(text)
                 text = ""
 
-    def save_as(self, filename: str) -> None:
+    def save_as(self, filename: str):
         self.doc.save(filename)
 
     def set_properties(self, author, title):
