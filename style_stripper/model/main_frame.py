@@ -6,7 +6,7 @@ import wx
 from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.enums import PanelType
 from style_stripper.model.author_panel import AuthorPanel
-from style_stripper.model.content_pane import ContentPanel
+from style_stripper.model.content_panel import ContentPanel
 from style_stripper.model.template_panel import TemplatePanel
 from style_stripper.model.options_panel import OptionsPanel
 from style_stripper.model.review_panel import ReviewPanel

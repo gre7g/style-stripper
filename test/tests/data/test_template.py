@@ -36,24 +36,51 @@ class TestTemplate(TestCase):
         Document.assert_called_once_with("path/to/input")
         assert document.paragraphs[0].text == ""
         assert document.paragraphs[0].style == style1
-        document.paragraphs[0].assert_has_calls([call.add_run('line with no italic in it')])
-        additional_paragraphs[0].assert_has_calls([
-            call.add_run('line with '), call.add_run('italic'), call.add_run(' in it')
-        ])
+        document.paragraphs[0].assert_has_calls(
+            [call.add_run("line with no italic in it")]
+        )
+        additional_paragraphs[0].assert_has_calls(
+            [call.add_run("line with "), call.add_run("italic"), call.add_run(" in it")]
+        )
         assert additional_paragraphs[0].style == style2
-        additional_paragraphs[1].assert_has_calls([call.add_run('italic'), call.add_run(' in the beginning')])
+        additional_paragraphs[1].assert_has_calls(
+            [call.add_run("italic"), call.add_run(" in the beginning")]
+        )
         assert additional_paragraphs[1].style == style2
-        additional_paragraphs[2].assert_has_calls([call.add_run("at the end there's "), call.add_run('italic')])
+        additional_paragraphs[2].assert_has_calls(
+            [call.add_run("at the end there's "), call.add_run("italic")]
+        )
         assert additional_paragraphs[2].style == style2
-        additional_paragraphs[3].assert_has_calls([
-            call.add_run('multiple '), call.add_run('italic'), call.add_run('italic'), call.add_run(' and more '),
-            call.add_run('italic'), call.add_run(' on this line')
-        ])
+        additional_paragraphs[3].assert_has_calls(
+            [
+                call.add_run("multiple "),
+                call.add_run("italic"),
+                call.add_run("italic"),
+                call.add_run(" and more "),
+                call.add_run("italic"),
+                call.add_run(" on this line"),
+            ]
+        )
         assert additional_paragraphs[3].style == style2
 
-        for index, italic in enumerate([
-            False, False, True, False, True, False, False, True, False, True, True, False, True, False
-        ]):
+        for index, italic in enumerate(
+            [
+                False,
+                False,
+                True,
+                False,
+                True,
+                False,
+                False,
+                True,
+                False,
+                True,
+                True,
+                False,
+                True,
+                False,
+            ]
+        ):
             assert runs[index].italic == italic
 
         document.save.assert_called_once_with("path/to/output")

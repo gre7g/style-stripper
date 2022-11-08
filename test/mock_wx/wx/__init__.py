@@ -200,6 +200,10 @@ class DataObjectSimple(DataObject):
     pass
 
 
+class DateTime(BaseMockObj):
+    pass
+
+
 class TextDataObject(DataObjectSimple):
     pass
 
@@ -313,6 +317,10 @@ class Panel(Window):
 
 
 class Rect(BaseMockObj):
+    pass
+
+
+class ScrollEvent(Event):
     pass
 
 

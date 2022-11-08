@@ -6,7 +6,7 @@ from wx.lib.scrolledpanel import ScrolledPanel
 from style_stripper.data.constants import CONSTANTS
 from style_stripper.data.enums import PanelType
 from style_stripper.data.paragraph import Paragraph, QuestionableTick
-from style_stripper.model.content_pane import ContentPanel
+from style_stripper.model.content_panel import ContentPanel
 from style_stripper.model.utility import add_stretcher
 
 # Constants:

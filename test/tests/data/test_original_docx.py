@@ -37,16 +37,27 @@ class TestOriginalDocx(TestCase):
         questionable_ticks = orig.questionable_ticks
 
         Document.assert_called_once_with("path/to/docx")
-        para_objs[0].assert_has_calls([
-            call.add('one', False), call.add('two', True), call.get_word_count(),
-            call.fix_spaces(config), call.fix_italic_boundaries(config), call.fix_quotes_and_dashes(config),
-            call.fix_ticks(config, questionable_ticks)
-        ])
-        para_objs[1].assert_has_calls([
-            call.add('three', False), call.get_word_count(),
-            call.fix_spaces(config), call.fix_italic_boundaries(config), call.fix_quotes_and_dashes(config),
-            call.fix_ticks(config, questionable_ticks)
-        ])
+        para_objs[0].assert_has_calls(
+            [
+                call.add("one", False),
+                call.add("two", True),
+                call.get_word_count(),
+                call.fix_spaces(config),
+                call.fix_italic_boundaries(config),
+                call.fix_quotes_and_dashes(config),
+                call.fix_ticks(config, questionable_ticks),
+            ]
+        )
+        para_objs[1].assert_has_calls(
+            [
+                call.add("three", False),
+                call.get_word_count(),
+                call.fix_spaces(config),
+                call.fix_italic_boundaries(config),
+                call.fix_quotes_and_dashes(config),
+                call.fix_ticks(config, questionable_ticks),
+            ]
+        )
         assert orig.paragraphs == para_objs
 
     @patch("style_stripper.data.original_docx.Document")
@@ -71,20 +82,30 @@ class TestOriginalDocx(TestCase):
         assert orig.find_divider_candidates() == (4, 2)
 
         orig.replace_symbolic()
-        for index, text in enumerate(["# # #", "# # #", "", "", "", "# # #", "", "# # #"]):
+        for index, text in enumerate(
+            ["# # #", "# # #", "", "", "", "# # #", "", "# # #"]
+        ):
             assert text == orig.paragraphs[index].text
-            assert orig.paragraphs[index].style == ("Separator" if text == "# # #" else None)
+            assert orig.paragraphs[index].style == (
+                "Separator" if text == "# # #" else None
+            )
 
         orig.remove_blanks()
         for index, text in enumerate(["# # #", "# # #", "# # #", "# # #"]):
             assert text == orig.paragraphs[index].text
-            assert orig.paragraphs[index].style == ("Separator" if text == "# # #" else None)
+            assert orig.paragraphs[index].style == (
+                "Separator" if text == "# # #" else None
+            )
 
         orig.paragraphs = list(paragraphs)
         orig.replace_blanks()
-        for index, text in enumerate(["  ❰# # #❱  ", "#", "# # #", "***", "# # #", "*"]):
+        for index, text in enumerate(
+            ["  ❰# # #❱  ", "#", "# # #", "***", "# # #", "*"]
+        ):
             assert text == orig.paragraphs[index].text
-            assert orig.paragraphs[index].style == ("Separator" if text == "# # #" else None)
+            assert orig.paragraphs[index].style == (
+                "Separator" if text == "# # #" else None
+            )
 
     @patch("style_stripper.data.original_docx.Document")
     def test_find_headers_and_replace(self, Document):
@@ -98,7 +119,14 @@ class TestOriginalDocx(TestCase):
         orig = OriginalDocx("path/to/docx", book)
 
         paragraphs = []
-        for text in ["Part I", "Part VI", "Chapter 1", "Chapter 2: It Continues", "The end", "Fin"]:
+        for text in [
+            "Part I",
+            "Part VI",
+            "Chapter 1",
+            "Chapter 2: It Continues",
+            "The end",
+            "Fin",
+        ]:
             paragraph = Mock()
             paragraph.text = text
             paragraph.style = None
@@ -108,7 +136,9 @@ class TestOriginalDocx(TestCase):
         assert orig.find_heading_candidates() == (2, 2, 2)
 
         orig.style_headings("PART", "CHAPTER", "END")
-        for index, style in enumerate(["PART", "PART", "CHAPTER", "CHAPTER", "END", "END"]):
+        for index, style in enumerate(
+            ["PART", "PART", "CHAPTER", "CHAPTER", "END", "END"]
+        ):
             assert orig.paragraphs[index].style == style
 
     @patch("style_stripper.data.original_docx.Document")
@@ -128,7 +158,18 @@ class TestOriginalDocx(TestCase):
         CONSTANTS.STYLING.NAMES.HEADING2 = "Heading 2"
 
         paragraphs = []
-        for style in [None, None, "Separator", None, "Separator", "Heading 1", None, "Separator", "Heading 2", None]:
+        for style in [
+            None,
+            None,
+            "Separator",
+            None,
+            "Separator",
+            "Heading 1",
+            None,
+            "Separator",
+            "Heading 2",
+            None,
+        ]:
             paragraph = Mock()
             paragraph.style = style
             paragraphs.append(paragraph)
@@ -137,5 +178,7 @@ class TestOriginalDocx(TestCase):
         orig.remove_dividers_before_headings()
 
         orig.style_headings("PART", "CHAPTER", "END")
-        for index, style in enumerate([None, None, "Separator", None, "Heading 1", None, "Heading 2", None]):
+        for index, style in enumerate(
+            [None, None, "Separator", None, "Heading 1", None, "Heading 2", None]
+        ):
             assert orig.paragraphs[index].style == style

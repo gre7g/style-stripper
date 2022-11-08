@@ -91,21 +91,33 @@ def note_func(name):
     def wrapped1(func):
         def wrapped2(self, *args2, **kwargs2):
             func_to_wrap = getattr(self.window, name)
-            wrapper = async_note_function_wrapper if iscoroutinefunction(func_to_wrap) else note_function_wrapper
+            wrapper = (
+                async_note_function_wrapper
+                if iscoroutinefunction(func_to_wrap)
+                else note_function_wrapper
+            )
             setattr(
                 self.window,
                 name,
-                lambda *args, **kwargs: wrapper(self, name, func_to_wrap, *args, **kwargs),
+                lambda *args, **kwargs: wrapper(
+                    self, name, func_to_wrap, *args, **kwargs
+                ),
             )
             return func(self, *args2, **kwargs2)
 
         async def wrapped2a(self, *args2, **kwargs2):
             func_to_wrap = getattr(self.window, name)
-            wrapper = async_note_function_wrapper if iscoroutinefunction(func_to_wrap) else note_function_wrapper
+            wrapper = (
+                async_note_function_wrapper
+                if iscoroutinefunction(func_to_wrap)
+                else note_function_wrapper
+            )
             setattr(
                 self.window,
                 name,
-                lambda *args, **kwargs: wrapper(self, name, func_to_wrap, *args, **kwargs),
+                lambda *args, **kwargs: wrapper(
+                    self, name, func_to_wrap, *args, **kwargs
+                ),
             )
             return await func(self, *args2, **kwargs2)
 

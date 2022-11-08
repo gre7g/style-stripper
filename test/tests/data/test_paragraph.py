@@ -57,10 +57,16 @@ class TestParagraph(TestCase):
         paragraph.text = 'This is "some poorly“ quoted text ”that needs" to be fixed.'
         config[QUOTES][CONVERT_TO_CURLY] = False
         paragraph.fix_quotes_and_dashes(config)
-        assert paragraph.text == 'This is "some poorly“ quoted text ”that needs" to be fixed.'
+        assert (
+            paragraph.text
+            == 'This is "some poorly“ quoted text ”that needs" to be fixed.'
+        )
         config[QUOTES][CONVERT_TO_CURLY] = True
         paragraph.fix_quotes_and_dashes(config)
-        assert paragraph.text == 'This is “some poorly” quoted text “that needs” to be fixed.'
+        assert (
+            paragraph.text
+            == "This is “some poorly” quoted text “that needs” to be fixed."
+        )
         config[QUOTES][CONVERT_TO_CURLY] = False
         config[DASHES][CONVERT_TO_EM_DASH] = True
         config[DASHES][CONVERT_TO_EN_DASH] = False
@@ -68,46 +74,68 @@ class TestParagraph(TestCase):
         config[DASHES][FIX_DASH_AT_END_OF_QUOTE] = False
         config[DASHES][FORCE_ALL_EN_OR_EM] = False
         paragraph.set_dash_class_member(config)
-        paragraph.text = '"This quote" - has been broken - "in the middle." And then -- trouble.'
+        paragraph.text = (
+            '"This quote" - has been broken - "in the middle." And then -- trouble.'
+        )
         paragraph.fix_quotes_and_dashes(config)
         config[QUOTES][CONVERT_TO_CURLY] = True
         config[DASHES][CONVERT_TO_EM_DASH] = False
         paragraph.set_dash_class_member(config)
-        paragraph.text = '"This quote" - has been broken - "in the middle." And then -- trouble.'
+        paragraph.text = (
+            '"This quote" - has been broken - "in the middle." And then -- trouble.'
+        )
         paragraph.fix_quotes_and_dashes(config)
-        assert paragraph.text == '“This quote” - has been broken - “in the middle.” And then -- trouble.'
+        assert (
+            paragraph.text
+            == "“This quote” - has been broken - “in the middle.” And then -- trouble."
+        )
         config[DASHES][CONVERT_TO_EM_DASH] = True
         paragraph.set_dash_class_member(config)
-        paragraph.text = '"This quote" - has been broken - "in the middle." And then -- trouble.'
+        paragraph.text = (
+            '"This quote" - has been broken - "in the middle." And then -- trouble.'
+        )
         paragraph.fix_quotes_and_dashes(config)
-        assert paragraph.text == '“This quote”—has been broken—“in the middle.” And then -- trouble.'
+        assert (
+            paragraph.text
+            == "“This quote”—has been broken—“in the middle.” And then -- trouble."
+        )
         config[DASHES][CONVERT_TO_EM_DASH] = False
         config[DASHES][CONVERT_TO_EN_DASH] = True
         paragraph.set_dash_class_member(config)
-        paragraph.text = '"This quote" - has been broken - "in the middle." And then -- trouble.'
+        paragraph.text = (
+            '"This quote" - has been broken - "in the middle." And then -- trouble.'
+        )
         paragraph.fix_quotes_and_dashes(config)
-        assert paragraph.text == '“This quote” – has been broken – “in the middle.” And then -- trouble.'
+        assert (
+            paragraph.text
+            == "“This quote” – has been broken – “in the middle.” And then -- trouble."
+        )
         config[DASHES][CONVERT_TO_EM_DASH] = True
         config[DASHES][CONVERT_TO_EN_DASH] = False
         config[DASHES][CONVERT_DOUBLE_DASHES] = True
         paragraph.set_dash_class_member(config)
-        paragraph.text = '"This quote" - has been broken - "in the middle." And then -- trouble.'
+        paragraph.text = (
+            '"This quote" - has been broken - "in the middle." And then -- trouble.'
+        )
         paragraph.fix_quotes_and_dashes(config)
-        assert paragraph.text == '“This quote”—has been broken—“in the middle.” And then—trouble.'
+        assert (
+            paragraph.text
+            == "“This quote”—has been broken—“in the middle.” And then—trouble."
+        )
         paragraph.text = '"This quote ends in a dash-"'
         paragraph.fix_quotes_and_dashes(config)
-        assert paragraph.text == '“This quote ends in a dash-”'
+        assert paragraph.text == "“This quote ends in a dash-”"
         config[DASHES][FIX_DASH_AT_END_OF_QUOTE] = True
         paragraph.text = '"This quote ends in a dash-"'
         paragraph.fix_quotes_and_dashes(config)
-        assert paragraph.text == '“This quote ends in a dash—”'
-        paragraph.text = 'wrong em – dash'
+        assert paragraph.text == "“This quote ends in a dash—”"
+        paragraph.text = "wrong em – dash"
         paragraph.fix_quotes_and_dashes(config)
-        assert paragraph.text == 'wrong em – dash'
+        assert paragraph.text == "wrong em – dash"
         config[DASHES][FORCE_ALL_EN_OR_EM] = True
-        paragraph.text = 'wrong em – dash'
+        paragraph.text = "wrong em – dash"
         paragraph.fix_quotes_and_dashes(config)
-        assert paragraph.text == 'wrong em—dash'
+        assert paragraph.text == "wrong em—dash"
 
     def test_fix_italic_boundaries(self):
         """Should be able to fix italic boundaries"""
@@ -143,7 +171,10 @@ class TestParagraph(TestCase):
         assert paragraph.text == "one... two… three"
         config[ELLIPSES][REPLACE_WITH_NEW] = True
         paragraph.fix_ellipses(config)
-        assert paragraph.text == "one\u200a.\u200a.\u200a.\u200a two\u200a.\u200a.\u200a.\u200a three"
+        assert (
+            paragraph.text
+            == "one\u200a.\u200a.\u200a.\u200a two\u200a.\u200a.\u200a.\u200a three"
+        )
 
     def test_fix_ticks(self):
         """Should be able to fix ticks"""
@@ -159,6 +190,13 @@ class TestParagraph(TestCase):
         paragraph.text = "don't ’nuff bein‘ “goin' 'nuff” “ one 'two' 'three.' 'four 'five six' seven” eight “nine 'ten"
         config[QUOTES][CONVERT_TO_CURLY] = True
         paragraph.fix_ticks(config, questionable_ticks)
-        assert paragraph.text == \
-            "don’t ’nuff bein’ “goin’ ’nuff” “ one 'two’ 'three.’ 'four 'five six’ seven” eight “nine ’ten"
-        assert questionable_ticks == [(paragraph, 38), (paragraph, 44), (paragraph, 59), (paragraph, 53)]
+        assert (
+            paragraph.text
+            == "don’t ’nuff bein’ “goin’ ’nuff” “ one 'two’ 'three.’ 'four 'five six’ seven” eight “nine ’ten"
+        )
+        assert questionable_ticks == [
+            (paragraph, 38),
+            (paragraph, 44),
+            (paragraph, 59),
+            (paragraph, 53),
+        ]
