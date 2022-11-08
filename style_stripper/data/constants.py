@@ -24,13 +24,12 @@ ListPageScopes = List[PageScopes]
 
 class CONSTANTS:
     class PATHS:
-        TEMPLATES_PATH = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "..", "docx_templates"
-        )
         if sys.argv[0].endswith(".exe"):
-            BASE_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
+            BASE_PATH = os.path.dirname(os.path.abspath(sys.argv[0]))
         else:
-            BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+            BASE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+        DATA_PATH = os.path.join(BASE_PATH, "data")
+        TEMPLATES_PATH = os.path.join(BASE_PATH, "docx_templates")
 
     class DOCUMENTS:
         SEARCH_DIMENSIONS = re.compile(r"(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)")

@@ -119,7 +119,7 @@ class SettingsControl:
             EOFError,
             AttributeError,
         ) as msg:
-            logging.exception(
+            LOG.exception(
                 _("Unable to load old settings due to a %r. No biggie. Starting fresh.")
                 % msg
             )

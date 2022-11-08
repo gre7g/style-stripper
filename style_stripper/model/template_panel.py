@@ -15,7 +15,6 @@ _ = wx.GetTranslation
 
 class TemplatePanel(ContentPanel):
     PANEL_TYPE = PanelType.TEMPLATE
-    initialized: bool
     variants: int
     pages: ListPageScopes
     dimensions: wx.Choice
@@ -28,7 +27,7 @@ class TemplatePanel(ContentPanel):
 
     def __init__(self, *args, **kwargs):
         super(TemplatePanel, self).__init__(*args, **kwargs)
-        self.initialized = False
+        self.app.templates = Templates()
         self.variants = 0
         self.pages = []
 
@@ -38,7 +37,11 @@ class TemplatePanel(ContentPanel):
         text = wx.StaticText(self, label=_("Dimensions:"))
         sizer2.Add(text, 0, wx.CENTER)
         self.dimensions = wx.Choice(self, name="dimensions")
+        for dimension in CONSTANTS.DOCUMENTS.DIMENSIONS:
+            if dimension in self.app.templates.templates_by_size:
+                self.dimensions.Append(dimension)
         self.dimensions.Bind(wx.EVT_CHOICE, self.app.frame_controls.on_dimensions)
+        self.dimensions.SetSelection(0)
         sizer2.Add(self.dimensions, 0, wx.LEFT | wx.CENTER, 5)
         add_stretcher(sizer2)
         self.bleed = wx.StaticText(self, name="bleed")
@@ -84,14 +87,7 @@ class TemplatePanel(ContentPanel):
 
     def refresh_contents(self):
         super(TemplatePanel, self).refresh_contents()
-        if not self.initialized:
-            self.app.templates = Templates()
-            for dimension in CONSTANTS.DOCUMENTS.DIMENSIONS:
-                if dimension in self.app.templates.templates_by_size:
-                    self.dimensions.Append(dimension)
-            self.dimensions.SetSelection(0)
-            self.new_dimensions()
-            self.initialized = True
+        self.new_dimensions()
 
         num_templates = len(self.get_templates())
         self.item.SetLabel(
@@ -130,7 +126,9 @@ class TemplatePanel(ContentPanel):
         self.on_page()
 
     def get_templates(self):
-        size = self.dimensions.GetString(self.dimensions.GetSelection())
+        dimension_index = self.dimensions.GetSelection()
+        assert dimension_index >= 0
+        size = self.dimensions.GetString(dimension_index)
         return self.app.templates.templates_by_size[size]
 
     def get_template(self):

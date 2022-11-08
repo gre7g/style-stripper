@@ -13,6 +13,7 @@ from style_stripper.model.main_frame import MainFrame
 
 # Constants:
 LOG = logging.getLogger(__name__)
+_ = wx.GetTranslation
 
 
 class StyleStripperApp(wx.App):
@@ -65,10 +66,15 @@ class StyleStripperApp(wx.App):
                 if self.initialized:
                     return_value = None
                     for panel_type, panel in self.frame.panels.items():
-                        func = getattr(panel, item)
-                        value = func(*args, **kwargs)
-                        if panel.is_current_panel():
-                            return_value = value
+                        try:
+                            func = getattr(panel, item)
+                            value = func(*args, **kwargs)
+                            if panel.is_current_panel():
+                                return_value = value
+                        except AssertionError as error:
+                            LOG.exception(
+                                _("%r is probably not a big deal. Ignoring it.") % error
+                            )
                     self.frame.main_panel.Layout()
                     return return_value
 

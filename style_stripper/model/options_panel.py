@@ -335,8 +335,7 @@ class OptionsPanel(ContentPanel):
             self.em_dash.SetValue(True)
 
     def grab_contents(self):
-        if not self.app.initialized:
-            return
+        assert self.app.initialized
 
         config = self.app.settings.latest_config
         config_copy = deepcopy(config)

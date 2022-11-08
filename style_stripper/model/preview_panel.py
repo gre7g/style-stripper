@@ -59,7 +59,7 @@ class PreviewPanel(wx.Panel):
         self.Bind(wx.EVT_SIZE, self.on_size)
 
         with open(
-            os.path.join(CONSTANTS.PATHS.BASE_DIR, "data", "lorem_ipsum.txt"), "rt"
+            os.path.join(CONSTANTS.PATHS.DATA_PATH, "lorem_ipsum.txt"), "rt"
         ) as file_obj:
             self.lorem_ipsum = file_obj.readlines()
 
@@ -183,10 +183,10 @@ class PreviewPanel(wx.Panel):
         self.Refresh()
 
     def on_size(self, event: wx.PaintEvent):
+        event.Skip()
         if self.initialized:
             self.find_page_scaling()
             self.Refresh()
-        event.Skip()
 
     def on_paint(self, _event: wx.PaintEvent):
         template = self.app.template
