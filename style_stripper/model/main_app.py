@@ -57,6 +57,9 @@ class StyleStripperApp(wx.App):
         try:
             return super(StyleStripperApp, self).__getattribute__(item)
         except AttributeError:
+            # Don't wrap private members
+            if item.startswith("_"):
+                raise
 
             def wrap(*args, **kwargs):
                 if self.initialized:

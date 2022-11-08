@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from docx.enum.section import WD_SECTION_START
+from docx.enum.section import WD_SECTION_START  # noqa
 import os
 import re
 import sys

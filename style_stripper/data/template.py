@@ -1,4 +1,4 @@
-from docx import Document
+from docx import Document  # noqa
 from docx.styles.style import _ParagraphStyle  # noqa
 from glob import glob
 import logging

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT  # noqa
 import logging
 from math import sin, cos, pi
 import os
@@ -130,8 +130,11 @@ class PreviewPanel(wx.Panel):
         LOG.debug("height=%r width=%r", height, width)
 
         # We need to scale according to image height or image width, depending on which will use the space more
-        # efficiently. Determine that now.
+        # efficiently. Determine that now. Note that in the code, we adjust for scopes again. This is because they are
+        # scaled by screen size instead of page size, so they had to be done after the screen size was calculated.
         size = self.GetSize()
+        if (size.height == 0) or (size.width == 0):
+            return
         LOG.debug("panel height=%r width=%r", size.height, size.width)
         panel_hw_ratio = size.height / size.width
         content_hw_ratio = height / width
@@ -418,6 +421,9 @@ class PreviewPanel(wx.Panel):
             points.append((px, py))
         region = wx.Region(points)
         gcdc.SetDeviceClippingRegion(region)
+        gcdc.SetPen(wx.NullPen)
+        gcdc.SetBrush(gcdc.GetBackground())
+        gcdc.DrawCircle(x, y, self.scope_radius)
         self.draw_content(
             gcdc,
             wx.Colour(*CONSTANTS.UI.PREVIEW.MEDIUM_GREY),
@@ -721,6 +727,7 @@ class PreviewPanel(wx.Panel):
         size = gcdc.GetTextExtent(" ")
         width_of_space = size.width
         lines = []
+        y += style.space_before
         while True:
             paragraph = self.gather_paragraph(
                 gcdc,
@@ -737,6 +744,7 @@ class PreviewPanel(wx.Panel):
                     return lines, line_index, 0
 
             line_index += 1
+            y += style.space_after + style.space_before
             style_name = CONSTANTS.STYLING.NAMES.NORMAL
 
     def gather_back_lines_to(

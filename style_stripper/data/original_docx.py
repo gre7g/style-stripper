@@ -1,4 +1,4 @@
-from docx import Document
+from docx import Document  # noqa
 import logging
 import re
 from typing import List, Tuple, Optional

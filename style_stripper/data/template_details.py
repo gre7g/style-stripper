@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-from docx import Document
-from docx.styles.style import BaseStyle
+from docx import Document  # noqa
+from docx.styles.style import BaseStyle  # noqa
 from typing import Callable, Union, Optional, Dict
 
 from style_stripper.data.constants import CONSTANTS
@@ -84,14 +84,16 @@ class StyleParameters:
             self.first_line_indent / CONSTANTS.MEASURING.EMUS_PER_CM
         )
 
-        line_spacing = (
+        line_spacing: int = (
             self._find(style, lambda a_style: a_style.paragraph_format.line_spacing)
             or self.font_size
         )
         if isinstance(line_spacing, float):
             self.line_spacing = int(line_spacing * self.font_size)
         else:
-            self.line_spacing = int(line_spacing / CONSTANTS.MEASURING.EMUS_PER_TWIP)  # noqa
+            self.line_spacing = int(
+                line_spacing / CONSTANTS.MEASURING.EMUS_PER_TWIP
+            )  # noqa
 
         return self
 

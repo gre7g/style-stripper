@@ -22,21 +22,21 @@ class FrameControl:
         self.app = app
 
     def on_close(self, event: wx.Event):
-        # if self.app.book.is_modified():
-        #     dialog = wx.MessageDialog(
-        #         self.app.frame,
-        #         _("Changes not saved! Do you want to exit without saving?"),
-        #         _("Permanent Action"),
-        #         wx.OK | wx.CANCEL | wx.CANCEL_DEFAULT | wx.ICON_WARNING,
-        #     )
-        #     try:
-        #         if dialog.ShowModal() == wx.ID_OK:
-        #             event.Skip()
-        #             self.app.settings_controls.save_settings_on_exit(event)
-        #     finally:
-        #         dialog.Destroy()
-        # else:
-        self.app.settings_controls.save_settings_on_exit(event)
+        if self.app.book.is_modified():
+            dialog = wx.MessageDialog(
+                self.app.frame,
+                _("Changes not saved! Do you want to exit without saving?"),
+                _("Permanent Action"),
+                wx.OK | wx.CANCEL | wx.CANCEL_DEFAULT | wx.ICON_WARNING,
+            )
+            try:
+                if dialog.ShowModal() == wx.ID_OK:
+                    event.Skip()
+                    self.app.settings_controls.save_settings_on_exit(event)
+            finally:
+                dialog.Destroy()
+        else:
+            self.app.settings_controls.save_settings_on_exit(event)
 
     def on_browse(self, _event: wx.CommandEvent):
         dialog = wx.FileDialog(
@@ -53,9 +53,7 @@ class FrameControl:
             dialog.Destroy()
 
     def get_current_panel_num(self) -> int:
-        return (
-            self.app.book.current_panel.value
-        )  # noqa (value ensured to be an int by design)
+        return self.app.book.current_panel.value  # noqa (value is int by design)
 
     def on_next(self, _event: wx.CommandEvent):
         self.app.book.current_panel = PanelType(self.get_current_panel_num() + 1)
