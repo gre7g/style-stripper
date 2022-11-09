@@ -41,7 +41,7 @@ class StyleStripperApp(wx.App):
         super(StyleStripperApp, self).__init__(*args, **kwargs)
 
     def init(self):
-        self.frame = MainFrame(None, title=CONSTANTS.UI.APP_NAME)
+        self.frame = MainFrame(None, title=CONSTANTS.UI.APP_NAME, name="frame")
         self.settings_controls.load_settings()
         self.book = Book(self.settings.latest_config)
         self.frame.init()

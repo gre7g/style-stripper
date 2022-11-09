@@ -76,11 +76,8 @@ class App(BaseMockObj):
         G_THE_APP = self
         self._the_mock = Mock()
         self._patches_wx = {}
-        Locale, CallAfter, CallLater = (
-            self._the_mock.Locale,
-            self._the_mock.CallAfter,
-            self._the_mock.CallLater,
-        )
+        Locale = self._the_mock.Locale
+        CallAfter, CallLater = self._the_mock.CallAfter, self._the_mock.CallLater
         BLACK, BLUE, CYAN, GREEN = Colour(), Colour(), Colour(), Colour()
         YELLOW, LIGHT_GREY, RED, WHITE = Colour(), Colour(), Colour(), Colour()
         TheClipboard = self._the_mock.the_clipboard
@@ -113,15 +110,15 @@ class ScrolledWindow(Window):
     pass
 
 
-class Sizer(Object):
+class Sizer(BaseMockObj):
     pass
 
 
-class Bitmap(Object):
+class Bitmap(BaseMockObj):
     pass
 
 
-class DC(Object):
+class DC(BaseMockObj):
     pass
 
 
@@ -134,6 +131,10 @@ class ClientDC(WindowDC):
 
 
 class PaintDC(ClientDC):
+    pass
+
+
+class GCDC(DC):
     pass
 
 
@@ -163,6 +164,10 @@ class Clipboard(Object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         return False
+
+
+class ColourDatabase(BaseMockObj):
+    pass
 
 
 class ItemContainerImmutable(BaseMockObj):
@@ -244,6 +249,14 @@ class GridSizer(Sizer):
     pass
 
 
+class FileConfig(BaseMockObj):
+    pass
+
+
+class FileHistory(BaseMockObj):
+    pass
+
+
 class FlexGridSizer(GridSizer):
     pass
 
@@ -316,7 +329,15 @@ class Panel(Window):
     pass
 
 
+class RadioButton(Control):
+    pass
+
+
 class Rect(BaseMockObj):
+    pass
+
+
+class ScrollBar(Control):
     pass
 
 
@@ -346,7 +367,7 @@ class StaticText(Control):
     pass
 
 
-class status_bar(Control):
+class StatusBar(Control):
     pass
 
 

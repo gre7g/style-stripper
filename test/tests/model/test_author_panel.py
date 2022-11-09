@@ -5,8 +5,8 @@ import logging
 from unittest.mock import call, patch
 import wx
 
-from style_stripper.model import content_panel
 from style_stripper.model import author_panel
+from style_stripper.model import content_panel
 
 # Constants:
 LOG = logging.getLogger(__name__)

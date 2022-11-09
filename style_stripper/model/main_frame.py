@@ -36,8 +36,8 @@ class MainFrame(wx.Frame):
     panels: Dict[PanelType, ContentPanel]
 
     def __init__(self, *args, **kwargs):
+        super(MainFrame, self).__init__(*args, **kwargs)
         self.app = wx.GetApp()
-        wx.Frame.__init__(self, *args, **kwargs)
 
     def init(self):
         self.Bind(wx.EVT_CLOSE, self.app.frame_controls.on_close, self)
