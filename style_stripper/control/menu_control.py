@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import pickle
 import logging
 import wx
@@ -14,9 +15,9 @@ LOG = logging.getLogger(__name__)
 _ = wx.GetTranslation
 
 
+@dataclass
 class MenuControl:
-    def __init__(self, app: StyleStripperApp):
-        self.app = app
+    app: StyleStripperApp
 
     def on_new(self, _event: wx.MenuEvent):
         if self.app.book.is_modified():

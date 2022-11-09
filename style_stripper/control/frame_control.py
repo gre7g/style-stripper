@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import logging
 import os
 import sys
@@ -15,11 +16,9 @@ LOG = logging.getLogger(__name__)
 _ = wx.GetTranslation
 
 
+@dataclass
 class FrameControl:
     app: StyleStripperApp
-
-    def __init__(self, app: StyleStripperApp):
-        self.app = app
 
     def on_close(self, event: wx.Event):
         if self.app.book.is_modified():

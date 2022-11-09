@@ -96,13 +96,10 @@ class Settings:
         return self
 
 
+@dataclass
 class SettingsControl:
     app: StyleStripperApp
-    _save_maximized: bool
-
-    def __init__(self, app):
-        self.app = app
-        self._save_maximized = True
+    _save_maximized: bool = True
 
     def load_settings(self):
         try:

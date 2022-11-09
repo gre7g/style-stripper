@@ -359,7 +359,7 @@ class OptionsPanel(ContentPanel):
             config.ellipses.new = "…"
         elif self.ellipses3.GetValue():
             config.ellipses.new = "\u200a.\u200a.\u200a.\u200a"
-        elif self.ellipses3.GetValue():
+        elif self.ellipses4.GetValue():
             config.ellipses.new = "\u2009.\u2009.\u2009.\u2009"
         config.headings.style_parts_and_chapter = self.part_chapter.GetValue()
         config.headings.style_the_end = self.style_end.GetValue()

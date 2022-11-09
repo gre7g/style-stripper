@@ -29,6 +29,8 @@ class StyleStripperApp(wx.App):
     template: Optional[Template]
 
     def __init__(self, *args, **kwargs):
+        super(StyleStripperApp, self).__init__(*args, **kwargs)
+
         self.file_path = None
         self.initialized = False
 
@@ -37,8 +39,6 @@ class StyleStripperApp(wx.App):
         self.menu_controls = MenuControl(self)
         self.settings_controls = SettingsControl(self)
         self.templates = self.template = None
-
-        super(StyleStripperApp, self).__init__(*args, **kwargs)
 
     def init(self):
         self.frame = MainFrame(None, title=CONSTANTS.UI.APP_NAME, name="frame")
