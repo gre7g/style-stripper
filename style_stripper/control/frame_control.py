@@ -20,7 +20,7 @@ _ = wx.GetTranslation
 class FrameControl:
     app: StyleStripperApp
 
-    def on_close(self, event: wx.Event):
+    def on_close(self, event: wx.CloseEvent):
         if self.app.book.is_modified():
             dialog = wx.MessageDialog(
                 self.app.frame,
@@ -89,11 +89,11 @@ class FrameControl:
         self.app.grab_contents()
         event.Skip()
 
-    def on_reload(self, event: wx.CommandEvent):
+    def on_reload_and_prev(self, event: wx.CommandEvent):
         self.app.book.reload()
         self.on_prev(event)
 
-    def on_apply(self, event: wx.CommandEvent):
+    def on_apply_and_next(self, event: wx.CommandEvent):
         self.on_next(event)
         self.app.apply()
 

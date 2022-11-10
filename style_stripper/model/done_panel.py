@@ -30,7 +30,7 @@ class DonePanel(ContentPanel):
 
         add_stretcher(sizer1)
         button = wx.Button(self, label=_("Previous"))
-        button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_reload)
+        button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_reload_and_prev)
         sizer1.Add(button, 0, 0, 0)
 
         self.SetSizer(sizer1)

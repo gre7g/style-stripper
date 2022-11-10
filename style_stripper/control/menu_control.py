@@ -4,6 +4,7 @@ import logging
 import wx
 
 from style_stripper.data.book import Book
+from style_stripper.data.enums import PanelType
 
 try:
     from style_stripper.model.main_app import StyleStripperApp
@@ -109,7 +110,7 @@ class MenuControl:
         self.app.book.not_modified()
         self.app.frame.refresh_file_history()
 
-        if self.app.book.current_panel == 3:
+        if self.app.book.current_panel == PanelType.OPTIONS:
             self.app.book.reload()
             self.app.apply()
 
