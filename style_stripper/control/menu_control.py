@@ -106,6 +106,9 @@ class MenuControl:
             self.app.book = pickle.load(file_obj).init()
         if self.app.book.is_loaded():
             self.app.book_loaded()
+        if self.app.book.current_panel in [PanelType.REVIEW, PanelType.DONE]:
+            LOG.info("Rewind the process to the options panel")
+            self.app.book.current_panel = PanelType.OPTIONS
         self.app.refresh_contents()
         self.app.book.not_modified()
         self.app.frame.refresh_file_history()

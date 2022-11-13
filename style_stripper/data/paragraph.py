@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 import logging
+import pickle
 from typing import List, Dict, Optional, ClassVar
 import wx
 
@@ -175,13 +176,9 @@ class Paragraph:
 
 
 @dataclass
-class Questionable:
+class QuestionableTick:
     paragraph: Paragraph
     start: int
-
-
-@dataclass
-class QuestionableTick(Questionable):
     checkbox: wx.CheckBox = None
 
     def __str__(self):
@@ -198,3 +195,10 @@ class QuestionableTick(Questionable):
             + ("‘" if self.checkbox.IsChecked() else "’")
             + self.paragraph.text[self.start + 1 :]
         )
+
+
+# Patch pickle so that QuestionableTick objects won't include a wx.CheckBox member. These can't be pickled.
+pickle.dispatch_table[QuestionableTick] = lambda obj: (
+    QuestionableTick,
+    (obj.paragraph, obj.start, None),
+)
