@@ -86,7 +86,6 @@ class Book:
                     if self.config.headings.header_footer_after_break:
                         template.add_page_break()
                     else:
-                        # template.add_content()
                         template.add_content()
                         template.add_section(
                             CONSTANTS.HEADINGS.BREAK_MAP[

@@ -1,14 +1,14 @@
 from mock_wx import wxTestCase, note_func
 
 import logging
-import os
 import pickle
-import sys
-from unittest.mock import call, patch
+from unittest.mock import call, patch, Mock
 import wx
 
 from style_stripper.control.settings_control import ConfigSettings
 from style_stripper.data import book
+from style_stripper.data.enums import PaginationType
+from style_stripper.data.paragraph import Paragraph
 
 # Constants:
 LOG = logging.getLogger(__name__)
@@ -120,3 +120,59 @@ class TestBook(wxTestCase):
         book.backup_docx = "backup"
         book.reload()
         assert book.original_docx == "backup"
+
+    @note_func("export")
+    def test_export(self):
+        """Should export a docx"""
+        book = self.window
+        mock = self.app._the_mock
+        book.original_docx = Mock()
+        book.original_docx.paragraphs = [
+            Paragraph("line 1", "Normal"),
+            Paragraph("header text", "Heading 2"),
+            Paragraph("line 2", "Normal"),
+        ]
+        book.author = "Author Name"
+        book.title = "Book Title"
+
+        LOG.info("Continuous")
+        book.config.headings.break_before_heading = PaginationType.CONTINUOUS
+        book.export("/path/to/docx")
+        expect = [
+            call.export("/path/to/docx"),
+            call.App.template.set_properties("Author Name", "Book Title"),
+            call.App.template.add_content("line 1", "Normal"),
+            call.App.template.add_content("header text", "Heading 2"),
+            call.App.template.add_content("line 2", "Normal"),
+            call.App.template.save_as("/path/to/docx"),
+        ]
+
+        LOG.info("Header/footer after break")
+        book.config.headings.break_before_heading = PaginationType.ODD_PAGE
+        book.config.headings.header_footer_after_break = True
+        book.export("/path/to/docx")
+        expect += [
+            call.export("/path/to/docx"),
+            call.App.template.set_properties("Author Name", "Book Title"),
+            call.App.template.add_content("line 1", "Normal"),
+            call.App.template.add_page_break(),
+            call.App.template.add_content("header text", "Heading 2"),
+            call.App.template.add_content("line 2", "Normal"),
+            call.App.template.save_as("/path/to/docx"),
+        ]
+
+        LOG.info("No header/footer after break")
+        book.config.headings.header_footer_after_break = False
+        book.export("/path/to/docx")
+        expect += [
+            call.export("/path/to/docx"),
+            call.App.template.set_properties("Author Name", "Book Title"),
+            call.App.template.add_content("line 1", "Normal"),
+            call.App.template.add_content(),
+            call.App.template.add_section(4),
+            call.App.template.add_content("header text", "Heading 2"),
+            call.App.template.add_content("line 2", "Normal"),
+            call.App.template.save_as("/path/to/docx"),
+        ]
+
+        mock.assert_has_calls(expect)
