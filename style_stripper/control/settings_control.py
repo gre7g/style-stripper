@@ -123,7 +123,7 @@ class SettingsControl:
             self.app.settings = Settings()
         self.app.settings = self.app.settings.init()
 
-    def save_settings_on_exit(self, event):
+    def save_settings_on_exit(self, event: wx.CloseEvent):
         self.app.book.not_modified()
 
         maximized = self.app.frame.IsMaximized()
@@ -138,7 +138,7 @@ class SettingsControl:
             event.Skip()
             self.save_settings_on_exit2(False)
 
-    def save_settings_on_exit2(self, close_frame):
+    def save_settings_on_exit2(self, close_frame: bool):
         self.app.settings.window_rect = self.app.frame.GetRect()
         param_data = b64encode(pickle.dumps(self.app.settings))
         wx.FileConfig(CONSTANTS.UI.CATEGORY_NAME).Write(
