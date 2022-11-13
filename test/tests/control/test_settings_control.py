@@ -2,7 +2,7 @@ from mock_wx import wxTestCase, note_func
 
 import logging
 import pickle
-from unittest.mock import call, patch, mock_open
+from unittest.mock import call
 import wx
 
 from style_stripper.control import settings_control
@@ -35,7 +35,6 @@ class TestSettingsControl(wxTestCase):
         """Should load settings"""
         control = self.window
         mock = self.app._the_mock
-        old_init = settings_control.Settings.init
 
         LOG.info("Load success")
         wx.FileConfig._patch(".Read.return_value = %r" % B64)
