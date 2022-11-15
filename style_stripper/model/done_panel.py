@@ -1,27 +1,28 @@
 import logging
 import wx
 
+from style_stripper.data.enums import PanelType
+from style_stripper.model.content_panel import ContentPanel
 from style_stripper.model.utility import add_stretcher
-
-try:
-    from style_stripper.model.main_app import StyleStripperApp
-except ImportError:
-    StyleStripperApp = None
 
 # Constants:
 LOG = logging.getLogger(__name__)
 _ = wx.GetTranslation
 
 
-class DonePanel(wx.Panel):
-    app: StyleStripperApp
+class DonePanel(ContentPanel):
+    PANEL_TYPE = PanelType.DONE
 
-    def __init__(self, parent):
-        super(DonePanel, self).__init__(parent)
-        self.app = wx.GetApp()
+    def __init__(self, *args, **kwargs):
+        super(DonePanel, self).__init__(*args, **kwargs)
 
         sizer1 = wx.BoxSizer(wx.VERTICAL)
-        text = wx.StaticText(self, label=_('Processing complete! Click the "Export..." button below to save the .docx'))
+        text = wx.StaticText(
+            self,
+            label=_(
+                'Processing complete! Click the "Export..." button below to save the .docx'
+            ),
+        )
         sizer1.Add(text, 0, 0, 0)
         button = wx.Button(self, label=_("Export..."))
         button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_export)
@@ -29,14 +30,13 @@ class DonePanel(wx.Panel):
 
         add_stretcher(sizer1)
         button = wx.Button(self, label=_("Previous"))
-        button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_reload)
+        button.Bind(wx.EVT_BUTTON, self.app.frame_controls.on_reload_and_prev)
         sizer1.Add(button, 0, 0, 0)
 
         self.SetSizer(sizer1)
 
-    def refresh_contents(self):
-        pass
-
     def apply(self):
+        # Questionable cases are cases where we cannot blindly guess how the quotes should look. We have to present
+        # options to the user and apply them as instructed.
         for question in self.app.frame.review_panel.questionable:
             question.apply()
